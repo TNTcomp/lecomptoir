@@ -1,558 +1,462 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Le Comptoir - Filtres Auto & Poids Lourds</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
-    body{font-family:'Roboto',sans-serif;color:#1a1a2e;overflow-x:hidden;}
-    :root{--primary:#0a2463;--secondary:#e84c0e;--accent:#f5a623;--light:#f4f6fb;--dark:#1a1a2e;--gray:#6c757d;}
-    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,36,99,0.97);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
-    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
-    .logo-icon{width:42px;height:42px;background:var(--secondary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;}
-    .logo-text span:first-child{display:block;font-family:'Montserrat',sans-serif;font-weight:900;font-size:17px;color:white;text-transform:uppercase;letter-spacing:1px;}
-    .logo-text span:last-child{display:block;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
-    .nav-links{display:none;flex-direction:column;position:fixed;top:70px;left:0;right:0;background:var(--primary);padding:20px 5%;list-style:none;box-shadow:0 10px 30px rgba(0,0,0,0.3);z-index:999;}
-    .nav-links.open{display:flex;}
-    .nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:1px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);display:block;}
-    .nav-cta{background:var(--secondary)!important;color:white!important;padding:12px 20px!important;border-radius:8px;text-align:center;margin-top:10px;border-bottom:none!important;}
-    .hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:5px;}
-    .hamburger span{width:25px;height:2px;background:white;border-radius:2px;display:block;}
-    .hero{min-height:100vh;background:linear-gradient(135deg,#0a2463 0%,#1a3a8a 50%,#0d1b4b 100%);display:flex;align-items:center;padding:100px 5% 60px;position:relative;overflow:hidden;}
-    .hero::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(232,76,14,0.15) 0%,transparent 70%);border-radius:50%;}
-    .hero-content{position:relative;z-index:2;max-width:650px;margin:0 auto;}
-    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(232,76,14,0.2);border:1px solid rgba(232,76,14,0.4);color:var(--accent);padding:8px 16px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;}
-    .hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(2rem,7vw,3.5rem);color:white;line-height:1.15;margin-bottom:20px;}
-    .hero h1 span{color:var(--secondary);}
-    .hero p{font-size:1rem;color:rgba(255,255,255,0.75);line-height:1.8;margin-bottom:35px;}
-    .hero-buttons{display:flex;flex-wrap:wrap;gap:15px;}
-    .btn-primary{background:var(--secondary);color:white;padding:15px 28px;border-radius:8px;text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 25px rgba(232,76,14,0.4);}
-    .btn-outline{border:2px solid rgba(255,255,255,0.4);color:white;padding:13px 28px;border-radius:8px;text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:1px;display:inline-flex;align-items:center;gap:8px;}
-    .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:40px;}
-    .stat-box{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px 10px;text-align:center;}
-    .stat-box .number{font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.6rem;color:var(--accent);display:block;}
-    .stat-box .label{font-size:0.72rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;}
-    section{padding:70px 5%;}
-    .section-header{text-align:center;margin-bottom:50px;}
-    .section-tag{display:inline-block;background:rgba(232,76,14,0.1);color:var(--secondary);padding:6px 16px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border:1px solid rgba(232,76,14,0.2);}
-    .section-header h2{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(1.6rem,5vw,2.5rem);color:var(--dark);line-height:1.2;margin-bottom:12px;}
-    .section-header h2 span{color:var(--secondary);}
-    .section-header p{color:var(--gray);font-size:0.95rem;max-width:560px;margin:0 auto;line-height:1.7;}
-    .underline{width:50px;height:4px;background:var(--secondary);border-radius:2px;margin:18px auto 0;}
-    .avantages{background:var(--light);}
-    .avantages-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:1100px;margin:0 auto;}
-    .avantage-card{background:white;border-radius:16px;padding:30px 20px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.06);border-bottom:3px solid transparent;transition:all 0.3s;}
-    .avantage-card:hover{transform:translateY(-6px);border-bottom-color:var(--secondary);}
-    .av-icon{width:65px;height:65px;background:linear-gradient(135deg,var(--primary),#1a3a8a);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;color:white;margin:0 auto 18px;}
-    .avantage-card h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.95rem;color:var(--dark);margin-bottom:8px;}
-    .avantage-card p{font-size:0.85rem;color:var(--gray);line-height:1.6;}
-    .produits{background:white;}
-    .produits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:25px;max-width:1200px;margin:0 auto;}
-    .produit-card{border-radius:18px;overflow:hidden;box-shadow:0 5px 25px rgba(0,0,0,0.08);border:1px solid #eee;background:white;transition:all 0.3s;}
-    .produit-card:hover{transform:translateY(-8px);box-shadow:0 18px 45px rgba(0,0,0,0.13);}
-    .produit-img{height:180px;display:flex;align-items:center;justify-content:center;font-size:65px;}
-    .bg1{background:linear-gradient(135deg,#0a2463,#1a4080);}
-    .bg2{background:linear-gradient(135deg,#006064,#00897b);}
-    .bg3{background:linear-gradient(135deg,#e84c0e,#ff7043);}
-    .bg4{background:linear-gradient(135deg,#4a148c,#7b1fa2);}
-    .bg5{background:linear-gradient(135deg,#1b5e20,#388e3c);}
-    .bg6{background:linear-gradient(135deg,#1a237e,#283593);}
-    .produit-body{padding:22px;}
-    .produit-badge{display:inline-block;padding:4px 12px;border-radius:50px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
-    .b-auto{background:rgba(10,36,99,0.1);color:var(--primary);}
-    .b-pl{background:rgba(232,76,14,0.1);color:var(--secondary);}
-    .b-both{background:rgba(245,166,35,0.15);color:#b07800;}
-    .produit-body h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:1.05rem;color:var(--dark);margin-bottom:8px;}
-    .produit-body p{font-size:0.85rem;color:var(--gray);line-height:1.6;margin-bottom:14px;}
-    .produit-features{list-style:none;margin-bottom:16px;}
-    .produit-features li{font-size:0.82rem;color:var(--gray);padding:3px 0;display:flex;align-items:center;gap:7px;}
-    .produit-features li i{color:var(--secondary);font-size:9px;}
-    .produit-link{display:inline-flex;align-items:center;gap:7px;color:var(--primary);text-decoration:none;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;}
-    .vehicules{background:linear-gradient(135deg,#0a2463 0%,#1a3a8a 100%);}
-    .vehicules .section-header h2{color:white;}
-    .vehicules .section-header p{color:rgba(255,255,255,0.7);}
-    .vehicules .section-tag{background:rgba(232,76,14,0.2);border-color:rgba(232,76,14,0.3);color:var(--accent);}
-    .vehicules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;max-width:900px;margin:0 auto;}
-    .vehicule-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:25px 15px;text-align:center;transition:all 0.3s;}
-    .vehicule-card:hover{background:rgba(232,76,14,0.2);transform:translateY(-5px);}
-    .vehicule-card .v-icon{font-size:40px;display:block;margin-bottom:12px;}
-    .vehicule-card h3{font-family:'Montserrat',sans-serif;font-weight:700;color:white;font-size:0.88rem;margin-bottom:5px;}
-    .vehicule-card p{font-size:0.75rem;color:rgba(255,255,255,0.55);}
-    .pourquoi{background:var(--light);}
-    .raisons-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1100px;margin:0 auto;}
-    .raison-item{display:flex;gap:18px;align-items:flex-start;background:white;border-radius:14px;padding:22px;box-shadow:0 3px 15px rgba(0,0,0,0.05);transition:all 0.3s;}
-    .raison-item:hover{box-shadow:0 8px 25px rgba(0,0,0,0.1);transform:translateY(-4px);}
-    .raison-icon{width:48px;height:48px;min-width:48px;background:linear-gradient(135deg,var(--secondary),#ff6b35);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;}
-    .raison-item h4{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--dark);margin-bottom:5px;font-size:0.92rem;}
-    .raison-item p{font-size:0.83rem;color:var(--gray);line-height:1.5;}
-    .temoignages{background:white;}
-    .temoignages-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;max-width:1100px;margin:0 auto;}
-    .temoignage-card{background:var(--light);border-radius:16px;padding:28px;border-left:4px solid transparent;transition:all 0.3s;position:relative;}
-    .temoignage-card:hover{transform:translateY(-5px);border-left-color:var(--secondary);}
-    .quote{font-size:36px;color:var(--secondary);opacity:0.25;position:absolute;top:15px;right:20px;}
-    .stars{color:var(--accent);margin-bottom:12px;font-size:13px;}
-    .temoignage-card p{font-size:0.88rem;color:#444;line-height:1.7;margin-bottom:18px;font-style:italic;}
-    .author{display:flex;align-items:center;gap:12px;}
-    .avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:white;}
-    .author strong{display:block;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.88rem;color:var(--dark);}
-    .author span{font-size:0.75rem;color:var(--gray);}
-    .contact{background:var(--light);}
-    .contact-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:40px;}
-    .contact-info h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:1.3rem;color:var(--dark);margin-bottom:10px;}
-    .contact-info>p{color:var(--gray);font-size:0.9rem;line-height:1.7;margin-bottom:25px;}
-    .contact-items{display:flex;flex-direction:column;gap:15px;}
-    .contact-item{display:flex;align-items:flex-start;gap:14px;background:white;padding:16px 18px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
-    .ci-icon{width:42px;height:42px;min-width:42px;background:linear-gradient(135deg,var(--primary),#1a3a8a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:15px;}
-    .contact-item strong{display:block;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.78rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
-    .contact-item span{font-size:0.9rem;color:var(--dark);font-weight:500;}
-    .contact-form{background:white;border-radius:18px;padding:35px;box-shadow:0 8px 30px rgba(0,0,0,0.08);}
-    .form-group{margin-bottom:18px;}
-    .form-group label{display:block;font-family:'Montserrat',sans-serif;font-weight:600;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:13px 15px;border:2px solid #e8edf5;border-radius:10px;font-family:'Roboto',sans-serif;font-size:0.9rem;color:var(--dark);background:#fafbfc;outline:none;}
-    .form-group textarea{resize:vertical;min-height:110px;}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-    @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
-    .btn-submit{width:100%;background:linear-gradient(135deg,var(--secondary),#ff6b35);color:white;padding:15px;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
-    footer{background:var(--dark);color:rgba(255,255,255,0.7);padding:55px 5% 25px;}
-    .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:35px;max-width:1200px;margin:0 auto 40px;}
-    .footer-brand p{font-size:0.86rem;line-height:1.7;margin:15px 0 20px;}
-    .social-links{display:flex;gap:10px;}
-    .social-link{width:36px;height:36px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;transition:all 0.3s;}
-    .social-link:hover{background:var(--secondary);color:white;}
-    .footer-col h4{font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.92rem;color:white;margin-bottom:18px;padding-bottom:10px;position:relative;}
-    .footer-col h4::after{content:'';position:absolute;bottom:0;left:0;width:28px;height:2px;background:var(--secondary);}
-    .footer-links{list-style:none;display:flex;flex-direction:column;gap:9px;}
-    .footer-links a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.86rem;transition:all 0.3s;display:flex;align-items:center;gap:7px;}
-    .footer-links a:hover{color:var(--accent);}
-    .footer-links a i{font-size:9px;color:var(--secondary);}
-    .footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:1200px;margin:0 auto;font-size:0.82rem;}
-    .footer-bottom span{color:var(--secondary);}
-    .scroll-top{position:fixed;bottom:25px;right:25px;width:44px;height:44px;background:var(--secondary);color:white;border:none;border-radius:12px;font-size:17px;cursor:pointer;opacity:0;transition:all 0.3s;z-index:999;}
-    .scroll-top.visible{opacity:1;}
-    .fade-in{opacity:0;transform:translateY(25px);transition:opacity 0.7s,transform 0.7s;}
-    .fade-in.visible{opacity:1;transform:translateY(0);}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Comptoir - Spécialiste des Filtres</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            color: #333;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: #1a1a2e;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav .logo {
+            color: #e94560;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        nav ul a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        nav ul a:hover { color: #e94560; }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .hero h1 {
+            font-size: 52px;
+            margin-bottom: 15px;
+            color: #e94560;
+        }
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .hero .btn {
+            background: #e94560;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+        .hero .btn:hover { transform: scale(1.05); }
+
+        /* STATS */
+        .stats {
+            background: #e94560;
+            display: flex;
+            justify-content: space-around;
+            padding: 40px 20px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+            color: white;
+        }
+        .stat h2 { font-size: 42px; font-weight: bold; }
+        .stat p { font-size: 14px; opacity: 0.9; }
+
+        /* SECTIONS */
+        section {
+            padding: 70px 30px;
+        }
+        section h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+        .underline {
+            width: 60px;
+            height: 4px;
+            background: #e94560;
+            margin: 0 auto 50px;
+            border-radius: 2px;
+        }
+
+        /* PRODUITS */
+        .produits { background: #f9f9f9; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-8px); }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-body h3 {
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .card-body p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .badge {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* HISTORIQUE */
+        .historique { background: white; }
+        .timeline {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #e94560;
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: calc(50% + 30px);
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: calc(50% + 30px);
+        }
+        .timeline-content {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 300px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #e94560;
+        }
+        .timeline-content h3 {
+            color: #e94560;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .timeline-content p {
+            color: #555;
+            font-size: 14px;
+        }
+
+        /* FOURNISSEURS */
+        .fournisseurs { background: #f9f9f9; }
+        .fournisseurs-grid {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .fournisseur-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            width: 280px;
+            transition: transform 0.3s;
+        }
+        .fournisseur-card:hover { transform: scale(1.05); }
+        .fournisseur-card .logo-text {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+        .fournisseur-card .logo-text span { color: #e94560; }
+        .fournisseur-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* CONTACT */
+        .contact { background: #1a1a2e; color: white; text-align: center; }
+        .contact h2 { color: white; }
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .contact-item {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 12px;
+            min-width: 200px;
+        }
+        .contact-item .icon { font-size: 36px; margin-bottom: 10px; }
+        .contact-item h3 { color: #e94560; margin-bottom: 8px; }
+        .contact-item p { opacity: 0.8; font-size: 14px; }
+
+        /* FOOTER */
+        footer {
+            background: #0d0d1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 32px; }
+            nav ul { display: none; }
+            .timeline::before { left: 20px; }
+            .timeline-item, .timeline-item:nth-child(even) {
+                padding: 0 0 0 50px;
+                justify-content: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
+
 <!-- NAVBAR -->
 <nav>
-  <a href="#accueil" class="logo">
-    <div class="logo-icon"><i class="fas fa-cog"></i></div>
-    <div class="logo-text">
-      <span>Le Comptoir</span>
-      <span>Filtres & Pièces Auto</span>
-    </div>
-  </a>
-  <button class="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </button>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#accueil" onclick="closeMenu()">Accueil</a></li>
-    <li><a href="#produits" onclick="closeMenu()">Produits</a></li>
-    <li><a href="#vehicules" onclick="closeMenu()">Véhicules</a></li>
-    <li><a href="#pourquoi" onclick="closeMenu()">À propos</a></li>
-    <li><a href="#contact" class="nav-cta" onclick="closeMenu()">Nous contacter</a></li>
-  </ul>
+    <div class="logo">⚙️ LE COMPTOIR</div>
+    <ul>
+        <li><a href="#produits">Produits</a></li>
+        <li><a href="#historique">Notre Histoire</a></li>
+        <li><a href="#fournisseurs">Fournisseurs</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="accueil">
-  <div class="hero-content">
-    <div class="hero-badge"><i class="fas fa-shield-alt"></i> Qualité Certifiée OEM</div>
-    <h1>La filtration <span>haute performance</span> pour votre flotte</h1>
-    <p>Le Comptoir vous propose une gamme complète de filtres pour véhicules légers et poids lourds. Qualité premium, livraison rapide, conseils d'experts.</p>
-    <div class="hero-buttons">
-      <a href="#produits" class="btn-primary"><i class="fas fa-th-large"></i> Voir nos produits</a>
-      <a href="#contact" class="btn-outline"><i class="fas fa-phone"></i> Nous appeler</a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-box"><span class="number">+500</span><span class="label">Références</span></div>
-      <div class="stat-box"><span class="number">15+</span><span class="label">Expérience</span></div>
-      <div class="stat-box"><span class="number">98%</span><span class="label">Satisfaits</span></div>
-    </div>
-  </div>
+<section class="hero">
+    <h1>LE COMPTOIR</h1>
+    <p>Spécialiste de la vente de filtres — Voitures légères, Poids lourds & Hydraulique</p>
+    <a href="#produits" class="btn">Découvrir nos produits</a>
 </section>
 
-<!-- AVANTAGES -->
-<section class="avantages" id="avantages">
-  <div class="section-header fade-in">
-    <span class="section-tag">Nos engagements</span>
-    <h2>Pourquoi choisir <span>Le Comptoir</span> ?</h2>
-    <p>Qualité, réactivité et expertise au service de votre flotte.</p>
-    <div class="underline"></div>
-  </div>
-  <div class="avantages-grid">
-    <div class="avantage-card fade-in">
-      <div class="av-icon"><i class="fas fa-certificate"></i></div>
-      <h3>Qualité Certifiée</h3>
-      <p>Filtres conformes aux normes OEM et standards européens.</p>
+<!-- STATS -->
+<div class="stats">
+    <div class="stat">
+        <h2>+20</h2>
+        <p>Années d'expérience</p>
     </div>
-    <div class="avantage-card fade-in">
-      <div class="av-icon"><i class="fas fa-shipping-fast"></i></div>
-      <h3>Livraison Rapide</h3>
-      <p>Expédition sous 24h pour minimiser vos immobilisations.</p>
+    <div class="stat">
+        <h2>+5000</h2>
+        <p>Références disponibles</p>
     </div>
-    <div class="avantage-card fade-in">
-      <div class="av-icon"><i class="fas fa-warehouse"></i></div>
-      <h3>Stock Important</h3>
-      <p>+500 références disponibles immédiatement.</p>
+    <div class="stat">
+        <h2>2</h2>
+        <p>Partenaires premium</p>
     </div>
-    <div class="avantage-card fade-in">
-      <div class="av-icon"><i class="fas fa-headset"></i></div>
-      <h3>Conseil Expert</h3>
-      <p>Notre équipe vous guide dans le choix du bon filtre.</p>
+    <div class="stat">
+        <h2>100%</h2>
+        <p>Qualité garantie</p>
     </div>
-    <div class="avantage-card fade-in">
-      <div class="av-icon"><i class="fas fa-hand-holding-usd"></i></div>
-      <h3>Prix Compétitifs</h3>
-      <p>Tarifs préférentiels pour professionnels et flottes.</p>
-    </div>
-  </div>
-</section>
+</div>
 
 <!-- PRODUITS -->
 <section class="produits" id="produits">
-  <div class="section-header fade-in">
-    <span class="section-tag">Notre catalogue</span>
-    <h2>Nos <span>gammes de filtres</span></h2>
-    <p>Une sélection complète pour la longévité de vos moteurs.</p>
+    <h2>Nos Produits</h2>
     <div class="underline"></div>
-  </div>
-  <div class="produits-grid">
-    <div class="produit-card fade-in">
-      <div class="produit-img bg1">🛢️</div>
-      <div class="produit-body">
-        <span class="produit-badge b-both">Auto & PL</span>
-        <h3>Filtre à Huile</h3>
-        <p>Protège le moteur en retenant les impuretés dans l'huile.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Filtration haute efficacité</li>
-          <li><i class="fas fa-circle"></i> Compatible multi-marques</li>
-          <li><i class="fas fa-circle"></i> Joint d'étanchéité renforcé</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
+    <div class="grid">
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400" alt="Filtre huile">
+            <div class="card-body">
+                <h3>🔧 Filtres à Huile</h3>
+                <p>Filtres haute performance pour voitures légères et poids lourds. Protection optimale du moteur.</p>
+                <span class="badge">Voitures légères</span>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Filtre air">
+            <div class="card-body">
+                <h3>💨 Filtres à Air</h3>
+                <p>Filtration optimale de l'air pour une meilleure combustion et performance du moteur.</p>
+                <span class="badge">Tous véhicules</span>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=400" alt="Filtre carburant">
+            <div class="card-body">
+                <h3>⛽ Filtres à Carburant</h3>
+                <p>Protection du circuit d'injection contre les impuretés pour une longévité maximale.</p>
+                <span class="badge">Poids lourds</span>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1504222490345-c075b626c5e0?w=400" alt="Filtre hydraulique">
+            <div class="card-body">
+                <h3>🏗️ Filtres Hydrauliques</h3>
+                <p>Solutions de filtration pour systèmes hydrauliques industriels et engins de chantier.</p>
+                <span class="badge">Hydraulique</span>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=400" alt="Filtre cabine">
+            <div class="card-body">
+                <h3>🚛 Filtres Poids Lourds</h3>
+                <p>Gamme complète pour camions, semi-remorques et véhicules de transport.</p>
+                <span class="badge">Poids lourds</span>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?w=400" alt="Filtre habitacle">
+            <div class="card-body">
+                <h3>🌿 Filtres d'Habitacle</h3>
+                <p>Air pur à l'intérieur de votre véhicule. Protection contre pollens et particules fines.</p>
+                <span class="badge">Voitures légères</span>
+            </div>
+        </div>
     </div>
-    <div class="produit-card fade-in">
-      <div class="produit-img bg2">💨</div>
-      <div class="produit-body">
-        <span class="produit-badge b-both">Auto & PL</span>
-        <h3>Filtre à Air</h3>
-        <p>Assure un mélange air/carburant optimal pour le moteur.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Faible perte de charge</li>
-          <li><i class="fas fa-circle"></i> Longue durée de vie</li>
-          <li><i class="fas fa-circle"></i> Haute capacité de rétention</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <div class="produit-card fade-in">
-      <div class="produit-img bg3">⛽</div>
-      <div class="produit-body">
-        <span class="produit-badge b-both">Auto & PL</span>
-        <h3>Filtre à Carburant</h3>
-        <p>Élimine particules et eau pour protéger votre injection.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Séparateur eau/carburant</li>
-          <li><i class="fas fa-circle"></i> Diesel & essence</li>
-          <li><i class="fas fa-circle"></i> Haute pression admissible</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <div class="produit-card fade-in">
-      <div class="produit-img bg4">🌿</div>
-      <div class="produit-body">
-        <span class="produit-badge b-auto">Véhicules légers</span>
-        <h3>Filtre d'Habitacle</h3>
-        <p>Purifie l'air intérieur, retient poussières et pollens.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Anti-allergènes</li>
-          <li><i class="fas fa-circle"></i> Charbon actif disponible</li>
-          <li><i class="fas fa-circle"></i> Montage facile</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <div class="produit-card fade-in">
-      <div class="produit-img bg5">⚙️</div>
-      <div class="produit-body">
-        <span class="produit-badge b-pl">Poids Lourds</span>
-        <h3>Filtre Hydraulique</h3>
-        <p>Protège les circuits hydrauliques des engins et camions.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Haute pression</li>
-          <li><i class="fas fa-circle"></i> Résistance thermique</li>
-          <li><i class="fas fa-circle"></i> Longue durée de service</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <div class="produit-card fade-in">
-      <div class="produit-img bg6">💧</div>
-      <div class="produit-body">
-        <span class="produit-badge b-pl">Poids Lourds</span>
-        <h3>Séparateur Eau/Huile</h3>
-        <p>Élimine l'eau des circuits pour moteurs diesels lourds.</p>
-        <ul class="produit-features">
-          <li><i class="fas fa-circle"></i> Haute efficacité de séparation</li>
-          <li><i class="fas fa-circle"></i> Protection moteur maximale</li>
-          <li><i class="fas fa-circle"></i> Robustesse industrielle</li>
-        </ul>
-        <a href="#contact" class="produit-link">Demander un devis <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-  </div>
 </section>
 
-<!-- VEHICULES -->
-<section class="vehicules" id="vehicules">
-  <div class="section-header fade-in">
-    <span class="section-tag">Compatibilité</span>
-    <h2>Tous types de <span style="color:var(--accent)">véhicules</span></h2>
-    <p style="color:rgba(255,255,255,0.7)">Nous couvrons l'ensemble des véhicules du marché.</p>
-    <div class="underline" style="background:var(--accent)"></div>
-  </div>
-  <div class="vehicules-grid">
-    <div class="vehicule-card fade-in"><span class="v-icon">🚗</span><h3>Voitures</h3><p>Toutes marques</p></div>
-    <div class="vehicule-card fade-in"><span class="v-icon">🚚</span><h3>Camions</h3><p>PL & semi-remorques</p></div>
-    <div class="vehicule-card fade-in"><span class="v-icon">🚌</span><h3>Bus & Cars</h3><p>Transport en commun</p></div>
-    <div class="vehicule-card fade-in"><span class="v-icon">🚜</span><h3>Engins Agricoles</h3><p>Tracteurs & moissonneuses</p></div>
-    <div class="vehicule-card fade-in"><span class="v-icon">🏗️</span><h3>Engins de Chantier</h3><p>BTP & manutention</p></div>
-    <div class="vehicule-card fade-in"><span class="v-icon">🚐</span><h3>Utilitaires</h3><p>Vans & fourgons</p></div>
-  </div>
+<!-- HISTORIQUE -->
+<section class="historique" id="historique">
+    <h2>Notre Histoire</h2>
+    <div class="underline"></div>
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>2000</h3>
+                <p>Fondation de <strong>Le Comptoir</strong> avec une vision claire : devenir le spécialiste de référence en filtration automobile en Tunisie.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>2005</h3>
+                <p>Expansion de la gamme avec l'introduction des filtres pour <strong>poids lourds</strong> et véhicules industriels.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>2010</h3>
+                <p>Partenariat stratégique avec <strong>UFI Filters</strong>, leader européen de la filtration automobile.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>2015</h3>
+                <p>Lancement de la gamme <strong>hydraulique</strong> pour répondre aux besoins des industries et engins de chantier.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>2020</h3>
+                <p>Nouveau partenariat avec <strong>Eksper Tech</strong> et consolidation comme leader national de la filtration.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>Aujourd'hui</h3>
+                <p>Plus de <strong>5000 références</strong> disponibles, desservant toute la Tunisie avec excellence et fiabilité.</p>
+            </div>
+        </div>
+    </div>
 </section>
 
-<!-- POURQUOI -->
-<section class="pourquoi" id="pourquoi">
-  <div class="section-header fade-in">
-    <span class="section-tag">À propos</span>
-    <h2>Notre <span>expertise</span> à votre service</h2>
-    <p>Depuis plus de 15 ans, Le Comptoir est votre partenaire de confiance.</p>
+<!-- FOURNISSEURS -->
+<section class="fournisseurs" id="fournisseurs">
+    <h2>Nos Partenaires de Confiance</h2>
     <div class="underline"></div>
-  </div>
-  <div class="raisons-list">
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-medal"></i></div>
-      <div><h4>Produits de qualité supérieure</h4><p>Nous sélectionnons rigoureusement nos fournisseurs pour garantir des filtres durables conformes aux normes constructeurs.</p></div>
+    <div class="fournisseurs-grid">
+        <div class="fournisseur-card">
+            <div class="logo-text">UFI<span> Filters</span></div>
+            <p>Leader européen de la filtration automobile depuis 1971. Qualité premium pour tous types de moteurs. Présent dans plus de 80 pays.</p>
+        </div>
+        <div class="fournisseur-card">
+            <div class="logo-text">Eksper<span>Tech</span></div>
+            <p>Spécialiste des filtres techniques haute performance pour applications industrielles et véhicules lourds. Innovation et fiabilité.</p>
+        </div>
     </div>
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-users"></i></div>
-      <div><h4>Équipe technique expérimentée</h4><p>Nos conseillers connaissent chaque référence et vous orientent vers la solution idéale pour votre véhicule.</p></div>
-    </div>
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-clock"></i></div>
-      <div><h4>Disponibilité & réactivité</h4><p>Commandez avant 15h, expédié le jour même. Nous minimisons l'immobilisation de vos véhicules.</p></div>
-    </div>
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-handshake"></i></div>
-      <div><h4>Partenariats professionnels</h4><p>Tarifs dégressifs pour garages, transporteurs et gestionnaires de flottes. Contactez-nous pour votre offre.</p></div>
-    </div>
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-leaf"></i></div>
-      <div><h4>Engagement environnemental</h4><p>Nous privilégions des filtres longue durée et favorisons le recyclage pour réduire notre impact.</p></div>
-    </div>
-    <div class="raison-item fade-in">
-      <div class="raison-icon"><i class="fas fa-map-marker-alt"></i></div>
-      <div><h4>Présence locale forte</h4><p>Un comptoir physique accessible pour vos achats immédiats avec une équipe prête à vous accueillir.</p></div>
-    </div>
-  </div>
 </section>
 
-<!-- TEMOIGNAGES -->
-<section class="temoignages" id="temoignages">
-  <div class="section-header fade-in">
-    <span class="section-tag">Ils nous font confiance</span>
-    <h2>Ce que disent <span>nos clients</span></h2>
-    <p>Des professionnels satisfaits témoignent de leur expérience.</p>
-    <div class="underline"></div>
-  </div>
-  <div class="temoignages-grid">
-    <div class="temoignage-card fade-in">
-      <span class="quote">"</span>
-      <div class="stars">★★★★★</div>
-      <p>"Service impeccable, les filtres sont arrivés le lendemain. Qualité au rendez-vous pour mes camions. Je recommande vivement Le Comptoir !"</p>
-      <div class="author">
-        <div class="avatar" style="background:var(--primary)">KA</div>
-        <div><strong>Karim A.</strong><span>Transporteur routier</span></div>
-      </div>
-    </div>
-    <div class="temoignage-card fade-in">
-      <span class="quote">"</span>
-      <div class="stars">★★★★★</div>
-      <p>"Je gère une flotte de 30 véhicules. Le Comptoir me propose des tarifs compétitifs et une disponibilité remarquable. Partenaire idéal !"</p>
-      <div class="author">
-        <div class="avatar" style="background:var(--secondary)">SM</div>
-        <div><strong>Sophie M.</strong><span>Responsable de flotte</span></div>
-      </div>
-    </div>
-    <div class="temoignage-card fade-in">
-      <span class="quote">"</span>
-      <div class="stars">★★★★★</div>
-      <p>"En tant que garagiste, j'ai besoin de fiabilité. Le Comptoir ne m'a jamais déçu. Les références sont toujours disponibles et la qualité constante."</p>
-      <div class="author">
-        <div class="avatar" style="background:#006064">MB</div>
-        <div><strong>Mohamed B.</strong><span>Gérant de garage</span></div>
-      </div>
-    </div>
-  </div>
-</section>
 <!-- CONTACT -->
 <section class="contact" id="contact">
-  <div class="section-header fade-in">
-    <span class="section-tag">Contact</span>
-    <h2>Contactez <span>notre équipe</span></h2>
-    <p>Un besoin, une question ? Nous répondons rapidement à toutes vos demandes.</p>
-    <div class="underline"></div>
-  </div>
-  <div class="contact-inner">
-    <div class="contact-info fade-in">
-      <h3>Parlons de votre projet</h3>
-      <p>Que vous soyez particulier, garagiste ou gestionnaire de flotte, notre équipe est disponible pour vous accompagner.</p>
-      <div class="contact-items">
+    <h2>Contactez-Nous</h2>
+    <div class="underline" style="background:#e94560;"></div>
+    <div class="contact-info">
         <div class="contact-item">
-          <div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div>
-          <div><strong>Adresse</strong><span>Zone Industrielle, Votre Ville</span></div>
+            <div class="icon">📍</div>
+            <h3>Adresse</h3>
+            <p>Tunisie</p>
         </div>
         <div class="contact-item">
-          <div class="ci-icon"><i class="fas fa-phone"></i></div>
-          <div><strong>Téléphone</strong><span>+33 (0)1 23 45 67 89</span></div>
+            <div class="icon">📞</div>
+            <h3>Téléphone</h3>
+            <p>+216 XX XXX XXX</p>
         </div>
         <div class="contact-item">
-          <div class="ci-icon"><i class="fas fa-envelope"></i></div>
-          <div><strong>Email</strong><span>contact@lecomptoir-filtres.fr</span></div>
+            <div class="icon">✉️</div>
+            <h3>Email</h3>
+            <p>contact@lecomptoir.tn</p>
         </div>
         <div class="contact-item">
-          <div class="ci-icon"><i class="fas fa-clock"></i></div>
-          <div><strong>Horaires</strong><span>Lun–Ven : 8h–18h | Sam : 9h–13h</span></div>
+            <div class="icon">🕐</div>
+            <h3>Horaires</h3>
+            <p>Lun - Sam : 8h00 - 18h00</p>
         </div>
-      </div>
     </div>
-    <div class="contact-form fade-in">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Prénom</label>
-          <input type="text" placeholder="Votre prénom"/>
-        </div>
-        <div class="form-group">
-          <label>Nom</label>
-          <input type="text" placeholder="Votre nom"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" placeholder="votre@email.com"/>
-      </div>
-      <div class="form-group">
-        <label>Téléphone</label>
-        <input type="tel" placeholder="+33 6 00 00 00 00"/>
-      </div>
-      <div class="form-group">
-        <label>Type de véhicule</label>
-        <select>
-          <option value="">-- Sélectionnez --</option>
-          <option>Voiture particulière</option>
-          <option>Utilitaire</option>
-          <option>Camion / Poids Lourd</option>
-          <option>Bus / Car</option>
-          <option>Engin agricole</option>
-          <option>Engin de chantier</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Votre message</label>
-        <textarea placeholder="Décrivez votre besoin, référence du filtre, marque et modèle du véhicule..."></textarea>
-      </div>
-      <button class="btn-submit">
-        <i class="fas fa-paper-plane"></i> Envoyer ma demande
-      </button>
-    </div>
-  </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-grid">
-    <div class="footer-brand footer-col">
-      <a href="#accueil" class="logo" style="margin-bottom:15px;display:inline-flex">
-        <div class="logo-icon"><i class="fas fa-cog"></i></div>
-        <div class="logo-text">
-          <span>Le Comptoir</span>
-          <span>Filtres & Pièces Auto</span>
-        </div>
-      </a>
-      <p>Votre spécialiste en filtration automobile depuis plus de 15 ans. Qualité, réactivité et expertise pour tous types de véhicules.</p>
-      <div class="social-links">
-        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
-      </div>
-    </div>
-    <div class="footer-col">
-      <h4>Navigation</h4>
-      <ul class="footer-links">
-        <li><a href="#accueil"><i class="fas fa-chevron-right"></i> Accueil</a></li>
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Produits</a></li>
-        <li><a href="#vehicules"><i class="fas fa-chevron-right"></i> Véhicules</a></li>
-        <li><a href="#pourquoi"><i class="fas fa-chevron-right"></i> À propos</a></li>
-        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Nos produits</h4>
-      <ul class="footer-links">
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Filtre à huile</a></li>
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Filtre à air</a></li>
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Filtre carburant</a></li>
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Filtre habitacle</a></li>
-        <li><a href="#produits"><i class="fas fa-chevron-right"></i> Filtre hydraulique</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul class="fc-list">
-        <li><i class="fas fa-map-marker-alt"></i> Zone Industrielle, Votre Ville</li>
-        <li><i class="fas fa-phone"></i> +33 (0)1 23 45 67 89</li>
-        <li><i class="fas fa-envelope"></i> contact@lecomptoir-filtres.fr</li>
-        <li><i class="fas fa-clock"></i> Lun–Ven : 8h–18h</li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2024 <span>Le Comptoir</span> — Tous droits réservés</p>
-    <p>Fait avec ❤️ pour nos clients</p>
-  </div>
+    <p>© 2025 Le Comptoir — Tous droits réservés | Spécialiste en filtres automobile & hydraulique</p>
 </footer>
 
-<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-  <i class="fas fa-arrow-up"></i>
-</button>
-
-<script>
-  function toggleMenu(){
-    document.getElementById('navLinks').classList.toggle('open');
-  }
-  function closeMenu(){
-    document.getElementById('navLinks').classList.remove('open');
-  }
-  window.addEventListener('scroll',function(){
-    var btn=document.getElementById('scrollTop');
-    if(window.scrollY>300){btn.classList.add('visible');}
-    else{btn.classList.remove('visible');}
-  });
-  var observer=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('visible');}
-    });
-  },{threshold:0.1});
-  document.querySelectorAll('.fade-in').forEach(function(el){
-    observer.observe(el);
-  });
-</script>
 </body>
 </html>
