@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selectum Spare Parts — Gestion Stock</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f4f6f9;color:#222;min-height:100vh}
+header{background:#0a1628;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.logo{font-size:18px;font-weight:900;letter-spacing:1px}.logo span{color:#c62828}
+.sub{font-size:12px;opacity:.6;margin-top:2px}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+a.back{color:rgba(255,255,255,.8);font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:4px;font-weight:600}
+a.back:hover{background:rgba(255,255,255,.1)}
+button{cursor:pointer;border:none;border-radius:4px;font-weight:700;font-size:13px;padding:9px 16px}
+.bRed{background:#c62828;color:#fff}.bRed:hover{background:#b71c1c}
+.bGreen{background:#2e7d32;color:#fff}.bGreen:hover{background:#1b5e20}
+.bGray{background:#e0e0e0;color:#333}.bGray:hover{background:#bdbdbd}
+.bBlue{background:#1565c0;color:#fff}.bBlue:hover{background:#0d47a1}
+.bSm{padding:5px 11px;font-size:11px}
+
+.wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:650px){.stats{grid-template-columns:1fr 1fr}}
+.scard{background:#fff;padding:18px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.06);border-top:3px solid #1565c0;text-align:center}
+.scard h2{font-size:28px;font-weight:900;color:#1565c0}
+.scard p{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-top:4px}
+.scard.red{border-color:#c62828}.scard.red h2{color:#c62828}
+.scard.green{border-color:#2e7d32}.scard.green h2{color:#2e7d32}
+
+.fbar{background:#fff;padding:14px 18px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.fbar input,.fbar select{padding:8px 11px;border:1px solid #ddd;border-radius:4px;font-size:13px;color:#333}
+.fbar input{min-width:180px}
+
+.tbl-wrap{background:#fff;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:#0a1628;color:#fff;padding:12px 13px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+tbody tr{border-bottom:1px solid #f0f0f0}
+tbody tr:hover{background:#fafafa}
+td{padding:11px 13px;font-size:13px;vertical-align:middle}
+.empty{text-align:center;padding:50px;color:#aaa;font-size:14px}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.b-huile{background:#fff3e0;color:#e65100}
+.b-air{background:#e3f2fd;color:#1565c0}
+.b-carburant{background:#fce4ec;color:#c62828}
+.b-hydraulique{background:#e8f5e9;color:#2e7d32}
+.b-habitacle{background:#f3e5f5;color:#6a1b9a}
+.b-poids{background:#e0f2f1;color:#00695c}
+
+.low{color:#c62828;font-weight:700}.ok{color:#2e7d32;font-weight:700}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.dg{background:#4caf50}.dr{background:#f44336}
+.acts{display:flex;gap:5px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:8px;padding:26px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);margin:10px}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #c62828;padding-bottom:10px}
+.mhead h2{font-size:17px;font-weight:800;color:#0a1628}
+.mclose{background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:0 4px;line-height:1}
+.mclose:hover{color:#333}
+.frow{margin-bottom:13px}
+.frow label{display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.frow input,.frow select{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:4px;font-size:14px;color:#333;font-family:Arial,sans-serif}
+.frow input:focus,.frow select:focus{outline:none;border-color:#1565c0}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:480px){.fgrid{grid-template-columns:1fr}}
+.macts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:14px;border-top:1px solid #eee}
+.cbwrap{display:flex;align-items:center;gap:8px;margin-top:8px}
+.cbwrap input[type=checkbox]{width:16px;height:16px;cursor:pointer}
+
+/* ALERTE */
+.alert{padding:11px 16px;border-radius:4px;margin-bottom:14px;font-size:13px;font-weight:600;display:none}
+.aOk{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.aErr{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">SELECTUM <span>SPARE PARTS</span></div>
+    <div class="sub">Gestion des filtres en stock</div>
+  </div>
+  <div class="hbtns">
+    <a href="index.html" class="back">Retour au site</a>
+    <button class="bGreen" onclick="exportCSV()">Exporter CSV</button>
+    <button class="bRed" onclick="openAdd()">+ Ajouter un filtre</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="alertBox" class="alert"></div>
+
+  <div class="stats">
+    <div class="scard"><h2 id="sTotal">0</h2><p>References</p></div>
+    <div class="scard"><h2 id="sStock">0</h2><p>Pieces en stock</p></div>
+    <div class="scard red"><h2 id="sLow">0</h2><p>Stock faible</p></div>
+    <div class="scard green"><h2 id="sActif">0</h2><p>Actifs</p></div>
+  </div>
+
+  <div class="fbar">
+    <input type="text" id="srch" placeholder="Rechercher..." oninput="render()">
+    <select id="fType" onchange="render()">
+      <option value="">Tous les types</option>
+      <option>Huile</option><option>Air</option><option>Carburant</option>
+      <option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option>
+    </select>
+    <select id="fMarque" onchange="render()"><option value="">Toutes les marques</option></select>
+    <button class="bGray" onclick="resetF()">Reset</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th><th>Designation</th><th>Type</th><th>Marque</th>
+          <th>Compatibilite</th><th>Stock</th><th>Prix DT</th><th>Statut</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="mhead">
+      <h2 id="mtitle">Ajouter un filtre</h2>
+      <button type="button" class="mclose" onclick="closeModal()">X</button>
+    </div>
+
+    <input type="hidden" id="eid">
+
+    <div class="fgrid">
+      <div class="frow">
+        <label>Reference *</label>
+        <input type="text" id="iRef" placeholder="ex: UFI-23.100.00" autocomplete="off">
+      </div>
+      <div class="frow">
+        <label>Type *</label>
+        <select id="iType">
+          <option>Huile</option><option>Air</option><option>Carburant</option>
+          <option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="frow">
+      <label>Designation *</label>
+      <input type="text" id="iDes" placeholder="ex: Filtre a huile moteur" autocomplete="off">
+    </div>
+
+    <div class="fgrid">
+      <div class="frow">
+        <label>Marque</label>
+        <input type="text" id="iMarque" placeholder="ex: UFI Filters" autocomplete="off">
+      </div>
+      <div class="frow">
+        <label>Stock</label>
+        <input type="number" id="iStock" placeholder="0" min="0" step="1">
+      </div>
+    </div>
+
+    <div class="frow">
+      <label>Compatibilite vehicules</label>
+      <input type="text" id="iCompat" placeholder="ex: Renault, Peugeot" autocomplete="off">
+    </div>
+
+    <div class="fgrid">
+      <div class="frow">
+        <label>Prix (DT)</label>
+        <input type="number" id="iPrix" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="frow">
+        <label>Statut</label>
+        <div class="cbwrap">
+          <input type="checkbox" id="iActif" checked>
+          <span style="font-size:13px;font-weight:600">Actif</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="macts">
+      <button type="button" class="bGray" onclick="closeModal()">Annuler</button>
+      <button type="button" class="bRed" id="saveBtn" onclick="save()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var KEY = 'ssp_filtres';
+
+function load(){
+  try{ var d=JSON.parse(localStorage.getItem(KEY)); return Array.isArray(d)?d:defaults(); }
+  catch(e){ return defaults(); }
+}
+
+function store(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).substr(2,5); }
+
+function defaults(){
+  return [
+    {id:uid(),reference:'UFI-23.100.00',designation:'Filtre a huile moteur',type_filtre:'Huile',marque:'UFI Filters',compatibilite:'Renault, Peugeot, Citroen',stock:45,prix:12.5,actif:true},
+    {id:uid(),reference:'UFI-30.925.00',designation:'Filtre a air moteur',type_filtre:'Air',marque:'UFI Filters',compatibilite:'Toyota, Honda',stock:30,prix:18,actif:true},
+    {id:uid(),reference:'UFI-24.090.00',designation:'Filtre a carburant diesel',type_filtre:'Carburant',marque:'UFI Filters',compatibilite:'Mercedes, VW, BMW',stock:20,prix:22,actif:true},
+    {id:uid(),reference:'EKS-HYD-001',designation:'Filtre hydraulique industriel',type_filtre:'Hydraulique',marque:'Eksper Tech',compatibilite:'Engins de chantier',stock:15,prix:35,actif:true},
+    {id:uid(),reference:'UFI-53.150.00',designation:'Filtre habitacle',type_filtre:'Habitacle',marque:'UFI Filters',compatibilite:'Tous vehicules legers',stock:60,prix:9.5,actif:true},
+    {id:uid(),reference:'EKS-PL-002',designation:'Filtre huile poids lourd',type_filtre:'Poids Lourds',marque:'Eksper Tech',compatibilite:'Iveco, MAN, DAF, Volvo',stock:25,prix:28,actif:true}
+  ];
+}
+
+var DATA = load();
+if(!DATA.length){ DATA=defaults(); store(DATA); }
+
+function badge(t){
+  var m={'Huile':'b-huile','Air':'b-air','Carburant':'b-carburant','Hydraulique':'b-hydraulique','Habitacle':'b-habitacle','Poids Lourds':'b-poids'};
+  return '<span class="badge '+(m[t]||'b-air')+'">'+t+'</span>';
+}
+
+function render(){
+  var s=(document.getElementById('srch').value||'').toLowerCase();
+  var ft=document.getElementById('fType').value;
+  var fm=document.getElementById('fMarque').value;
+
+  var list=DATA.filter(function(f){
+    var ms=!s||(f.reference||'').toLowerCase().indexOf(s)>=0||(f.designation||'').toLowerCase().indexOf(s)>=0||(f.compatibilite||'').toLowerCase().indexOf(s)>=0;
+    var mt=!ft||f.type_filtre===ft;
+    var mm=!fm||f.marque===fm;
+    return ms&&mt&&mm;
+  });
+
+  var tb=document.getElementById('tbody');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">Aucun filtre trouve</td></tr>'; }
+  else{
+    tb.innerHTML=list.map(function(f){
+      return '<tr>'
+        +'<td><strong>'+(f.reference||'')+'</strong></td>'
+        +'<td>'+(f.designation||'')+'</td>'
+        +'<td>'+badge(f.type_filtre||'')+'</td>'
+        +'<td>'+(f.marque||'')+'</td>'
+        +'<td style="max-width:150px;font-size:12px;color:#666">'+(f.compatibilite||'')+'</td>'
+        +'<td class="'+(f.stock<10?'low':'ok')+'">'+(f.stock||0)+'</td>'
+        +'<td>'+(f.prix!=null?parseFloat(f.prix).toFixed(2)+' DT':'')+'</td>'
+        +'<td><span class="dot '+(f.actif?'dg':'dr')+'"></span>'+(f.actif?'Actif':'Inactif')+'</td>'
+        +'<td><div class="acts">'
+        +'<button type="button" class="bBlue bSm" onclick="edit(\''+f.id+'\')">Modifier</button>'
+        +'<button type="button" class="bGray bSm" onclick="del(\''+f.id+'\')">Suppr.</button>'
+        +'</div></td>'
+        +'</tr>';
+    }).join('');
+  }
+
+  // stats
+  document.getElementById('sTotal').textContent=DATA.length;
+  document.getElementById('sStock').textContent=DATA.reduce(function(s,f){return s+(f.stock||0)},0);
+  document.getElementById('sLow').textContent=DATA.filter(function(f){return(f.stock||0)<10}).length;
+  document.getElementById('sActif').textContent=DATA.filter(function(f){return f.actif}).length;
+
+  // marques filter
+  var marques=[...new Set(DATA.map(function(f){return f.marque}).filter(Boolean))];
+  var sel=document.getElementById('fMarque');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">Toutes les marques</option>'+marques.map(function(m){return'<option>'+m+'</option>';}).join('');
+  if(cur) sel.value=cur;
+}
+
+function resetF(){
+  document.getElementById('srch').value='';
+  document.getElementById('fType').value='';
+  document.getElementById('fMarque').value='';
+  render();
+}
+
+// MODAL
+function openAdd(){
+  document.getElementById('eid').value='';
+  document.getElementById('mtitle').textContent='Ajouter un filtre';
+  document.getElementById('iRef').value='';
+  document.getElementById('iDes').value='';
+  document.getElementById('iType').value='Huile';
+  document.getElementById('iMarque').value='';
+  document.getElementById('iStock').value='';
+  document.getElementById('iCompat').value='';
+  document.getElementById('iPrix').value='';
+  document.getElementById('iActif').checked=true;
+  document.getElementById('overlay').className='overlay on';
+  setTimeout(function(){document.getElementById('iRef').focus();},100);
+}
+
+function edit(id){
+  var f=null;
+  for(var i=0;i<DATA.length;i++){if(DATA[i].id===id){f=DATA[i];break;}}
+  if(!f) return;
+  document.getElementById('eid').value=f.id;
+  document.getElementById('mtitle').textContent='Modifier le filtre';
+  document.getElementById('iRef').value=f.reference||'';
+  document.getElementById('iDes').value=f.designation||'';
+  document.getElementById('iType').value=f.type_filtre||'Huile';
+  document.getElementById('iMarque').value=f.marque||'';
+  document.getElementById('iStock').value=f.stock!=null?f.stock:'';
+  document.getElementById('iCompat').value=f.compatibilite||'';
+  document.getElementById('iPrix').value=f.prix!=null?f.prix:'';
+  document.getElementById('iActif').checked=!!f.actif;
+  document.getElementById('overlay').className='overlay on';
+}
+
+function closeModal(){
+  document.getElementById('overlay').className='overlay';
+}
+
+function overlayClick(e){
+  if(e.target===document.getElementById('overlay')) closeModal();
+}
+
+function save(){
+  var ref=document.getElementById('iRef').value.trim();
+  var des=document.getElementById('iDes').value.trim();
+  if(!ref||!des){ alert('La reference et la designation sont obligatoires.'); return; }
+
+  var id=document.getElementById('eid').value;
+  var rec={
+    reference:ref,
+    designation:des,
+    type_filtre:document.getElementById('iType').value,
+    marque:document.getElementById('iMarque').value.trim(),
+    compatibilite:document.getElementById('iCompat').value.trim(),
+    stock:document.getElementById('iStock').value!==''?parseInt(document.getElementById('iStock').value,10):0,
+    prix:document.getElementById('iPrix').value!==''?parseFloat(document.getElementById('iPrix').value):null,
+    actif:document.getElementById('iActif').checked
+  };
+
+  if(id){
+    for(var i=0;i<DATA.length;i++){
+      if(DATA[i].id===id){ DATA[i]=Object.assign({},DATA[i],rec); break; }
+    }
+    showAlert('Filtre mis a jour avec succes !','ok');
+  } else {
+    rec.id=uid();
+    DATA.push(rec);
+    showAlert('Filtre ajoute avec succes !','ok');
+  }
+
+  store(DATA);
+  closeModal();
+  render();
+}
+
+function del(id){
+  if(!confirm('Supprimer ce filtre ?')) return;
+  DATA=DATA.filter(function(f){return f.id!==id;});
+  store(DATA);
+  showAlert('Filtre supprime.','ok');
+  render();
+}
+
+function exportCSV(){
+  var rows=[['Reference','Designation','Type','Marque','Compatibilite','Stock','Prix DT','Actif']];
+  DATA.forEach(function(f){
+    rows.push([f.reference||'',f.designation||'',f.type_filtre||'',f.marque||'',f.compatibilite||'',f.stock||0,f.prix!=null?f.prix:'',f.actif?'Oui':'Non']);
+  });
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='selectum_stock.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function showAlert(msg,type){
+  var el=document.getElementById('alertBox');
+  el.textContent=msg;
+  el.className='alert '+(type==='ok'?'aOk':'aErr');
+  el.style.display='block';
+  clearTimeout(el._t);
+  el._t=setTimeout(function(){el.style.display='none';},4000);
+}
+
+// Raccourci clavier Echap
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeModal();
+});
+
+render();
+</script>
+</body>
+</html>
