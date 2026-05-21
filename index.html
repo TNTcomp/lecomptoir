@@ -9,19 +9,22 @@
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6f9;color:#222}
 
 /* NAV */
-nav{background:#0a1628;color:#fff;padding:0 30px;display:flex;justify-content:space-between;align-items:center;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
-.nav-logo{font-size:20px;font-weight:900;letter-spacing:1px;cursor:pointer}.nav-logo span{color:#c62828}
+nav{background:#0a1628;color:#fff;padding:0 16px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.nav-logo{font-size:18px;font-weight:900;letter-spacing:1px;cursor:pointer;flex:1}.nav-logo span{color:#c62828}
 .nav-links{display:flex;gap:6px;align-items:center}
 .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:13px;font-weight:600;padding:8px 14px;border-radius:4px;transition:.2s}
 .nav-links a:hover{background:rgba(255,255,255,.1);color:#fff}
-.nav-cart{position:relative;cursor:pointer;background:rgba(255,255,255,.1);border:none;color:#fff;padding:10px 16px;border-radius:4px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-cart{position:relative;cursor:pointer;background:rgba(255,255,255,.1);border:none;color:#fff;padding:9px 14px;border-radius:4px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
 .nav-cart:hover{background:rgba(255,255,255,.2)}
 .cart-count{background:#c62828;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.burger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer}
+.burger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
 @media(max-width:768px){
-  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:#0a1628;flex-direction:column;padding:16px;gap:4px}
+  .nav-logo{font-size:14px;}
+  .nav-links{display:none;position:absolute;top:60px;left:0;right:0;background:#0a1628;flex-direction:column;padding:12px 16px;gap:4px;border-top:1px solid rgba(255,255,255,.1);z-index:200}
   .nav-links.open{display:flex}
   .burger{display:block}
+  nav{padding:0 12px}
 }
 
 /* HERO */
@@ -201,15 +204,17 @@ footer a{color:rgba(255,255,255,.5);text-decoration:none}
 <!-- NAV -->
 <nav>
   <div class="nav-logo" onclick="scrollTo('hero')">SELECTUM <span>SPARE PARTS</span></div>
-  <button class="burger" onclick="toggleMenu()">&#9776;</button>
   <div class="nav-links" id="navLinks">
-    <a href="#" onclick="scrollTo('categories-section')">Catalogue</a>
-    <a href="#" onclick="scrollTo('suivi-section')">Suivi commande</a>
+    <a href="#" onclick="scrollTo('categories-section');closeMenu()">Catalogue</a>
+    <a href="#" onclick="scrollTo('suivi-section');closeMenu()">Suivi commande</a>
     <a href="gestion.html" style="background:#c62828;color:#fff;border-radius:4px;padding:8px 14px">📦 Stock</a>
   </div>
-  <button class="nav-cart" onclick="openCart()">
-    Panier <span class="cart-count" id="cartCount">0</span>
-  </button>
+  <div class="nav-right">
+    <button class="nav-cart" onclick="openCart()">
+      🛒 <span class="cart-count" id="cartCount">0</span>
+    </button>
+    <button class="burger" onclick="toggleMenu()">&#9776;</button>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -932,6 +937,10 @@ function scrollTo(id){
 function toggleMenu(){
   var nl=document.getElementById('navLinks');
   nl.className=nl.className.includes('open')?'nav-links':'nav-links open';
+}
+function closeMenu(){
+  var nl=document.getElementById('navLinks');
+  nl.className='nav-links';
 }
 
 function showToast(msg,type){
