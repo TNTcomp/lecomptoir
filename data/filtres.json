@@ -1,0 +1,77 @@
+{
+  "filtres": [
+    {
+      "id": "6a0b2ee3d0efc6155a535e3a",
+      "reference": "UFI-23.100.00",
+      "designation": "Filtre à huile moteur",
+      "type_filtre": "Huile",
+      "marque": "UFI Filters",
+      "compatibilite": "Renault, Peugeot, Citroën",
+      "stock": 45.0,
+      "prix": 12.5,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    },
+    {
+      "id": "6a0b2ee3d0efc6155a535e3b",
+      "reference": "UFI-30.925.00",
+      "designation": "Filtre à air moteur",
+      "type_filtre": "Air",
+      "marque": "UFI Filters",
+      "compatibilite": "Toyota, Honda, Hyundai",
+      "stock": 30.0,
+      "prix": 18.0,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    },
+    {
+      "id": "6a0b2ee3d0efc6155a535e3c",
+      "reference": "UFI-24.090.00",
+      "designation": "Filtre à carburant diesel",
+      "type_filtre": "Carburant",
+      "marque": "UFI Filters",
+      "compatibilite": "Mercedes, Volkswagen, BMW",
+      "stock": 20.0,
+      "prix": 22.0,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    },
+    {
+      "id": "6a0b2ee3d0efc6155a535e3d",
+      "reference": "EKS-HYD-001",
+      "designation": "Filtre hydraulique industriel",
+      "type_filtre": "Hydraulique",
+      "marque": "Eksper Tech",
+      "compatibilite": "Engins de chantier, tracteurs",
+      "stock": 15.0,
+      "prix": 35.0,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    },
+    {
+      "id": "6a0b2ee3d0efc6155a535e3e",
+      "reference": "UFI-53.150.00",
+      "designation": "Filtre habitacle antipoussière",
+      "type_filtre": "Habitacle",
+      "marque": "UFI Filters",
+      "compatibilite": "Tous véhicules légers",
+      "stock": 60.0,
+      "prix": 9.5,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    },
+    {
+      "id": "6a0b2ee3d0efc6155a535e3f",
+      "reference": "EKS-PL-002",
+      "designation": "Filtre à huile poids lourd",
+      "type_filtre": "Poids Lourds",
+      "marque": "Eksper Tech",
+      "compatibilite": "Iveco, MAN, DAF, Volvo",
+      "stock": 25.0,
+      "prix": 28.0,
+      "actif": true,
+      "created_date": "2026-05-18T15:23:15.699000"
+    }
+  ],
+  "updated": "2026-05-21"
+}
