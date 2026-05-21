@@ -3,171 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Selectum Spare Parts — Gestion Stock</title>
+<title>Selectum — Gestion Stock</title>
 <style>
 :root{--navy:#0a1628;--blue:#1a2d4e;--red:#c62828;--redh:#e53935;--green:#2e7d32;--orange:#e65100;--light:#f0f4f8;--white:#fff;--border:#dde3ea;--text:#1a1a2e;--muted:#6b7a8d;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
 
-.header{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
-.header .logo{font-size:1.1rem;font-weight:700;letter-spacing:1px;}
-.header .logo span{color:var(--red);}
-.header-links{display:flex;align-items:center;gap:12px;}
-.back-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);padding:7px 14px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;}
-.back-btn:hover{background:rgba(255,255,255,.2);}
-.api-status{font-size:.75rem;padding:4px 10px;border-radius:20px;font-weight:600;}
-.api-status.ok{background:#1b5e20;color:#a5d6a7;}
-.api-status.err{background:#b71c1c;color:#ffcdd2;}
-.api-status.warn{background:#e65100;color:#ffe0b2;}
+/* ─── NAV ─── */
+.nav{background:var(--navy);color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;box-shadow:0 2px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:600;transition:.2s;cursor:pointer;}
+.back-btn:hover{background:rgba(255,255,255,.22);}
+.nav-title{font-size:1rem;font-weight:700;letter-spacing:.5px;}
+.nav-title span{color:var(--red);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.status-dot{font-size:.75rem;padding:4px 10px;border-radius:20px;font-weight:700;}
+.status-dot.ok{background:#1b5e20;color:#a5d6a7;}
+.status-dot.err{background:#b71c1c;color:#ffcdd2;}
 
-/* Auth screen */
-.auth-screen{display:flex;align-items:center;justify-content:center;min-height:80vh;}
-.auth-box{background:#fff;border-radius:16px;padding:40px;max-width:420px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;}
-.auth-box .logo-big{font-size:1.5rem;font-weight:900;color:var(--navy);margin-bottom:8px;}
-.auth-box .logo-big span{color:var(--red);}
-.auth-box p{color:var(--muted);font-size:.9rem;margin-bottom:24px;line-height:1.5;}
-.auth-box input{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:12px;outline:none;}
-.auth-box input:focus{border-color:var(--navy);}
-.auth-box .hint{font-size:.78rem;color:var(--muted);margin-top:12px;line-height:1.5;}
-.auth-box .hint a{color:var(--navy);}
+/* ─── AUTH ─── */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:20px;}
+.auth-box{background:#fff;border-radius:16px;padding:36px;max-width:380px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1);text-align:center;}
+.auth-logo{font-size:1.4rem;font-weight:900;color:var(--navy);margin-bottom:6px;}
+.auth-logo span{color:var(--red);}
+.auth-sub{color:var(--muted);font-size:.88rem;margin-bottom:28px;line-height:1.5;}
+.auth-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.95rem;margin-bottom:14px;outline:none;text-align:center;letter-spacing:2px;}
+.auth-input:focus{border-color:var(--navy);}
+.auth-err{color:var(--red);font-size:.82rem;margin-bottom:10px;display:none;}
 
-.container{max-width:1300px;margin:0 auto;padding:24px;}
+/* ─── CONTAINER ─── */
+.container{max-width:1280px;margin:0 auto;padding:20px;}
 
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
-.stat-card{background:var(--white);border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid var(--navy);}
-.stat-card.red{border-color:var(--red);}
-.stat-card.green{border-color:var(--green);}
-.stat-card.orange{border-color:var(--orange);}
-.stat-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-.stat-value{font-size:2rem;font-weight:700;color:var(--text);}
+/* ─── STATS ─── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px;margin-bottom:20px;}
+.stat{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--navy);}
+.stat.green{border-color:var(--green);}
+.stat.orange{border-color:var(--orange);}
+.stat.red{border-color:var(--red);}
+.stat-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.stat-val{font-size:1.9rem;font-weight:700;}
 
-.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
-.toolbar input,.toolbar select{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none;background:#fff;}
+/* ─── TOOLBAR ─── */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.toolbar input,.toolbar select{padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;outline:none;background:#fff;}
 .toolbar input:focus,.toolbar select:focus{border-color:var(--navy);}
-.toolbar input{flex:1;min-width:180px;}
-
-.btn{padding:9px 18px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none;display:inline-block;}
+.toolbar input{flex:1;min-width:170px;}
+.btn{padding:9px 16px;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;transition:.15s;}
 .btn-primary{background:var(--navy);color:#fff;}
 .btn-primary:hover{background:var(--blue);}
-.btn-red{background:var(--red);color:#fff;}
-.btn-red:hover{background:var(--redh);}
 .btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy);}
 .btn-outline:hover{background:var(--navy);color:#fff;}
-.btn-sm{padding:5px 10px;font-size:.8rem;}
+.btn-sm{padding:5px 9px;font-size:.78rem;}
 
-.table-wrap{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;}
+/* ─── TABLE ─── */
+.table-wrap{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;}
 table{width:100%;border-collapse:collapse;}
 thead{background:var(--navy);color:#fff;}
-th{padding:12px 14px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:.87rem;vertical-align:middle;}
+th{padding:11px 13px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+td{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.85rem;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#f7f9fc;}
+.ref-code{background:#f0f4f8;padding:2px 7px;border-radius:4px;font-size:.76rem;font-family:monospace;}
 
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:700;}
-.badge-actif{background:#e8f5e9;color:#2e7d32;}
-.badge-inactif{background:#fce4ec;color:#c62828;}
-.badge-ok{background:#e3f2fd;color:#1565c0;}
-.badge-low{background:#fff8e1;color:#f57f17;}
-.badge-zero{background:#ffebee;color:#b71c1c;}
+/* ─── BADGES ─── */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.71rem;font-weight:700;}
+.b-ok{background:#e3f2fd;color:#1565c0;}
+.b-low{background:#fff8e1;color:#e65100;}
+.b-zero{background:#ffebee;color:#c62828;}
+.b-actif{background:#e8f5e9;color:#2e7d32;}
+.b-inactif{background:#fce4ec;color:#c62828;}
 
-.stock-bar{display:flex;align-items:center;gap:8px;}
-.bar{height:6px;border-radius:3px;background:#e0e0e0;width:70px;overflow:hidden;}
+/* ─── STOCK BAR ─── */
+.sbar{display:flex;align-items:center;gap:7px;}
+.bar{height:5px;border-radius:3px;background:#e0e0e0;width:60px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:3px;background:var(--green);}
 .bar-fill.low{background:var(--orange);}
 .bar-fill.zero{background:var(--red);}
-.actions{display:flex;gap:5px;}
 
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
-.modal-header{background:var(--navy);color:#fff;padding:18px 22px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;}
-.modal-header h3{font-size:1rem;}
-.modal-body{padding:22px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-group{display:flex;flex-direction:column;gap:5px;}
-.form-group.full{grid-column:1/-1;}
-.form-group label{font-size:.78rem;font-weight:600;color:var(--muted);}
-.form-group input,.form-group select{padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none;}
-.form-group input:focus,.form-group select:focus{border-color:var(--navy);}
-.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+/* ─── ACTIONS ─── */
+.acts{display:flex;gap:4px;}
+.act-btn{padding:5px 8px;border-radius:6px;border:1.5px solid;font-size:.85rem;cursor:pointer;transition:.15s;background:#fff;}
+.act-edit{border-color:var(--navy);color:var(--navy);}
+.act-edit:hover{background:var(--navy);color:#fff;}
+.act-tog{border-color:var(--orange);color:var(--orange);}
+.act-tog:hover{background:var(--orange);color:#fff;}
+.act-del{border-color:var(--red);color:var(--red);}
+.act-del:hover{background:var(--red);color:#fff;}
 
-.switch{position:relative;display:inline-block;width:46px;height:24px;}
-.switch input{opacity:0;width:0;height:0;}
-.slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:26px;transition:.3s;}
-.slider:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
-input:checked+.slider{background:var(--green);}
-input:checked+.slider:before{transform:translateX(22px);}
+/* ─── MODAL ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;z-index:200;padding:14px;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.mhead{background:var(--navy);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;}
+.mhead h3{font-size:.98rem;}
+.mbody{padding:20px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.frow{display:flex;flex-direction:column;gap:4px;}
+.frow.full{grid-column:1/-1;}
+.frow label{font-size:.75rem;font-weight:700;color:var(--muted);}
+.frow input,.frow select{padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:.88rem;outline:none;}
+.frow input:focus,.frow select:focus{border-color:var(--navy);}
+.mfoot{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
 
-.toast{position:fixed;bottom:24px;right:24px;padding:13px 18px;border-radius:10px;color:#fff;font-weight:600;z-index:2000;animation:slideUp .3s ease;}
-.toast.success{background:#2e7d32;}
-.toast.error{background:#c62828;}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+/* ─── SWITCH ─── */
+.sw{position:relative;display:inline-block;width:44px;height:22px;}
+.sw input{opacity:0;width:0;height:0;}
+.sl{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:22px;transition:.3s;}
+.sl:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+input:checked+.sl{background:var(--green);}
+input:checked+.sl:before{transform:translateX(22px);}
 
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:2000;}
-.confirm-box{background:#fff;border-radius:12px;padding:26px;max-width:360px;width:90%;text-align:center;}
-.confirm-box h4{font-size:1.05rem;margin-bottom:10px;}
-.confirm-box p{color:var(--muted);font-size:.87rem;margin-bottom:18px;}
+/* ─── CONFIRM ─── */
+.cofirm-ov{position:fixed;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;z-index:300;}
+.confirm-box{background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center;}
+.confirm-box h4{margin-bottom:8px;font-size:1rem;}
+.confirm-box p{color:var(--muted);font-size:.85rem;margin-bottom:18px;}
 .confirm-btns{display:flex;gap:10px;justify-content:center;}
 
-.empty{text-align:center;padding:50px 20px;color:var(--muted);}
-.empty .ico{font-size:3rem;margin-bottom:10px;}
-.loading-row{text-align:center;padding:40px;color:var(--muted);}
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:22px;right:22px;padding:12px 18px;border-radius:9px;color:#fff;font-weight:700;z-index:500;animation:su .3s ease;font-size:.88rem;}
+.toast.s{background:#2e7d32;}
+.toast.e{background:#c62828;}
+@keyframes su{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-@media(max-width:680px){
-  .form-grid{grid-template-columns:1fr;}
-  .stats{grid-template-columns:1fr 1fr;}
-  th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none;}
+.empty{text-align:center;padding:44px;color:var(--muted);}
+.empty .ico{font-size:2.6rem;margin-bottom:9px;}
+.loading-row{text-align:center;padding:36px;color:var(--muted);}
+
+@media(max-width:650px){
+  .fg{grid-template-columns:1fr;}
+  th:nth-child(4),td:nth-child(4){display:none;}
 }
 </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
-<div id="authScreen" class="auth-screen">
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <a href="index.html" class="back-btn">← Retour au site</a>
+    <div class="nav-title">SELECTUM <span>SPARE PARTS</span> — Stock</div>
+  </div>
+  <div class="nav-right">
+    <span class="status-dot ok" id="statusDot">● Connecté</span>
+    <button class="back-btn" onclick="logout()" style="border-color:rgba(198,40,40,.5);background:rgba(198,40,40,.2)">Déconnexion</button>
+  </div>
+</nav>
+
+<!-- AUTH -->
+<div id="authWrap" class="auth-wrap">
   <div class="auth-box">
-    <div class="logo-big">SELECTUM <span>SPARE PARTS</span></div>
-    <p>Interface de gestion du stock.<br>Entrez votre clé GitHub pour accéder à l'administration.</p>
-    <input type="password" id="ghTokenInput" placeholder="Token GitHub (ghp_...)">
-    <button class="btn btn-primary" style="width:100%" onclick="connecter()">Se connecter</button>
-    <div class="hint">
-      Créez un token sur <strong>github.com → Settings → Developer settings → Tokens (classic)</strong><br>
-      Permissions requises : <strong>repo</strong>
-    </div>
+    <div class="auth-logo">SELECTUM <span>SPARE PARTS</span></div>
+    <div class="auth-sub">Interface de gestion du stock<br>Entrez le mot de passe administrateur</div>
+    <input type="password" class="auth-input" id="pwdInput" placeholder="••••••••" maxlength="30">
+    <div class="auth-err" id="authErr">Mot de passe incorrect</div>
+    <button class="btn btn-primary" style="width:100%;padding:12px" onclick="doLogin()">Accéder →</button>
   </div>
 </div>
 
-<!-- APP PRINCIPALE -->
-<div id="appMain" style="display:none">
-  <div class="header">
-    <div class="logo">SELECTUM <span>SPARE PARTS</span> — Gestion Stock</div>
-    <div class="header-links">
-      <a href="index.html" class="back-btn">← Retour au site</a>
-      <span class="api-status ok" id="apiStatus">● Connecté</span>
-      <button class="back-btn" onclick="deconnecter()" style="background:rgba(198,40,40,.4)">Déconnexion</button>
-    </div>
-  </div>
-
+<!-- MAIN -->
+<div id="mainApp" style="display:none">
   <div class="container">
+
     <div class="stats">
-      <div class="stat-card"><div class="stat-label">Total produits</div><div class="stat-value" id="statTotal">—</div></div>
-      <div class="stat-card green"><div class="stat-label">Actifs</div><div class="stat-value" id="statActif">—</div></div>
-      <div class="stat-card orange"><div class="stat-label">Stock faible (&lt;10)</div><div class="stat-value" id="statLow">—</div></div>
-      <div class="stat-card red"><div class="stat-label">En rupture</div><div class="stat-value" id="statZero">—</div></div>
+      <div class="stat"><div class="stat-label">Total produits</div><div class="stat-val" id="sTotal">—</div></div>
+      <div class="stat green"><div class="stat-label">Actifs</div><div class="stat-val" id="sActif">—</div></div>
+      <div class="stat orange"><div class="stat-label">Stock faible</div><div class="stat-val" id="sLow">—</div></div>
+      <div class="stat red"><div class="stat-label">Rupture</div><div class="stat-val" id="sZero">—</div></div>
     </div>
 
     <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="🔍 Rechercher désignation, référence, marque...">
-      <select id="filterType">
+      <input type="text" id="srch" placeholder="🔍 Rechercher référence, désignation, marque...">
+      <select id="fType">
         <option value="">Tous les types</option>
         <option>Huile</option><option>Air</option><option>Carburant</option>
         <option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option>
       </select>
-      <select id="filterActif">
+      <select id="fActif">
         <option value="">Tous statuts</option>
         <option value="1">Actifs</option>
         <option value="0">Inactifs</option>
       </select>
       <button class="btn btn-primary" onclick="openModal()">+ Nouveau produit</button>
-      <button class="btn btn-outline" onclick="loadProduits()">↻ Actualiser</button>
+      <button class="btn btn-outline" onclick="init()">↻ Actualiser</button>
     </div>
 
     <div class="table-wrap">
@@ -177,14 +194,14 @@ input:checked+.slider:before{transform:translateX(22px);}
             <th>Référence</th>
             <th>Désignation</th>
             <th>Type</th>
-            <th>Marque</th>
+            <th>Marque / Compat.</th>
             <th>Stock</th>
-            <th>Prix (DT)</th>
+            <th>Prix DT</th>
             <th>Statut</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
+        <tbody id="tbody">
           <tr><td colspan="8" class="loading-row">Chargement...</td></tr>
         </tbody>
       </table>
@@ -192,338 +209,256 @@ input:checked+.slider:before{transform:translateX(22px);}
   </div>
 </div>
 
-<!-- Modal -->
+<!-- MODAL -->
 <div class="overlay" id="modal" style="display:none">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Nouveau produit</h3>
-      <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:none" onclick="closeModal()">✕</button>
+    <div class="mhead">
+      <h3 id="mtitle">Nouveau produit</h3>
+      <button style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.9rem" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Référence *</label>
-          <input type="text" id="fRef" placeholder="ex: UFI-23.100.00">
-        </div>
-        <div class="form-group">
-          <label>Type *</label>
-          <select id="fType">
+    <div class="mbody">
+      <div class="fg">
+        <div class="frow"><label>Référence *</label><input id="iRef" placeholder="ex: UFI-23.100.00"></div>
+        <div class="frow"><label>Type *</label>
+          <select id="iType">
             <option>Huile</option><option>Air</option><option>Carburant</option>
             <option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option>
           </select>
         </div>
-        <div class="form-group full">
-          <label>Désignation *</label>
-          <input type="text" id="fDes" placeholder="ex: Filtre à huile moteur">
-        </div>
-        <div class="form-group">
-          <label>Marque</label>
-          <input type="text" id="fMarque" placeholder="ex: UFI Filters">
-        </div>
-        <div class="form-group">
-          <label>Stock (unités)</label>
-          <input type="number" id="fStock" min="0" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label>Prix (DT)</label>
-          <input type="number" id="fPrix" min="0" step="0.01" placeholder="0.00">
-        </div>
-        <div class="form-group full">
-          <label>Compatibilité véhicules</label>
-          <input type="text" id="fCompat" placeholder="ex: Renault, Peugeot, Citroën">
-        </div>
-        <div class="form-group">
+        <div class="frow full"><label>Désignation *</label><input id="iDes" placeholder="ex: Filtre à huile moteur"></div>
+        <div class="frow"><label>Marque</label><input id="iMarq" placeholder="ex: UFI Filters"></div>
+        <div class="frow"><label>Stock (unités)</label><input type="number" id="iStock" min="0" placeholder="0"></div>
+        <div class="frow"><label>Prix (DT)</label><input type="number" id="iPrix" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="frow full"><label>Compatibilité véhicules</label><input id="iCompat" placeholder="ex: Renault, Peugeot, Citroën"></div>
+        <div class="frow">
           <label>Statut</label>
           <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
-            <label class="switch"><input type="checkbox" id="fActif" checked><span class="slider"></span></label>
-            <span id="actifLabel" style="font-size:.9rem;color:var(--green);font-weight:600">Actif</span>
+            <label class="sw"><input type="checkbox" id="iActif" checked><span class="sl"></span></label>
+            <span id="actifLbl" style="font-size:.88rem;font-weight:700;color:var(--green)">Actif</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="mfoot">
       <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="sauvegarder()">💾 Sauvegarder</button>
+      <button class="btn btn-primary" onclick="save()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
 
-<!-- Confirm Delete -->
-<div class="confirm-overlay" id="confirmBox" style="display:none">
+<!-- CONFIRM -->
+<div class="cofirm-ov" id="confirmOv" style="display:none">
   <div class="confirm-box">
     <h4>Supprimer ce produit ?</h4>
-    <p id="confirmMsg">Cette action est irréversible.</p>
+    <p id="confirmTxt"></p>
     <div class="confirm-btns">
-      <button class="btn btn-outline" onclick="document.getElementById('confirmBox').style.display='none'">Annuler</button>
-      <button class="btn btn-red" id="confirmOk">Supprimer</button>
+      <button class="btn btn-outline" onclick="document.getElementById('confirmOv').style.display='none'">Annuler</button>
+      <button class="btn" style="background:var(--red);color:#fff" id="confirmBtn">Supprimer</button>
     </div>
   </div>
 </div>
 
 <script>
-const REPO = 'TNTcomp/lecomptoir';
-const DATA_PATH = 'data/filtres.json';
-const RAW_URL = `https://raw.githubusercontent.com/${REPO}/main/${DATA_PATH}`;
-const API_URL = `https://api.github.com/repos/${REPO}/contents/${DATA_PATH}`;
+// ─── CONFIG ────────────────────────────────────────────────
+var PWD = 'selectum2024';      // Mot de passe admin (modifiable)
+var STORAGE_KEY = 'selectum_filtres_v2';
 
-let allProduits = [];
-let editId = null;
-let ghToken = '';
-let currentSha = '';
+// Données initiales (depuis Base44)
+var DATA_INIT = [
+  {id:'6a0b2ee3d0efc6155a535e3a',ref:'UFI-23.100.00',designation:'Filtre à huile moteur',type_filtre:'Huile',marque:'UFI Filters',compatibilite:'Renault, Peugeot, Citroën',stock:45,prix:12.5,actif:true},
+  {id:'6a0b2ee3d0efc6155a535e3b',ref:'UFI-30.925.00',designation:'Filtre à air moteur',type_filtre:'Air',marque:'UFI Filters',compatibilite:'Volkswagen, BMW, Audi',stock:30,prix:18.0,actif:true},
+  {id:'6a0b2ee3d0efc6155a535e3c',ref:'UFI-24.001.00',designation:'Filtre à carburant diesel',type_filtre:'Carburant',marque:'UFI Filters',compatibilite:'Ford, Opel, Mercedes',stock:20,prix:22.0,actif:true},
+  {id:'6a0b2ee3d0efc6155a535e3d',ref:'HYD-200-IND',designation:'Filtre hydraulique industriel',type_filtre:'Hydraulique',marque:'Donaldson',compatibilite:'Engins industriels, chariots élévateurs',stock:15,prix:35.0,actif:true},
+  {id:'6a0b2ee3d0efc6155a535e3e',ref:'CAB-ANTI-01',designation:'Filtre habitacle antipoussière',type_filtre:'Habitacle',marque:'Valeo',compatibilite:'Renault, Citroën, Peugeot',stock:60,prix:9.5,actif:true},
+  {id:'6a0b2ee3d0efc6155a535e3f',ref:'PL-BOSCH-HD',designation:'Filtre à huile poids lourd',type_filtre:'Poids Lourds',marque:'Bosch',compatibilite:'Mercedes Actros, Volvo FH, MAN TGX',stock:25,prix:28.0,actif:true}
+];
 
-// ─── Auth ──────────────────────────────────────────────────
-function connecter() {
-  const token = document.getElementById('ghTokenInput').value.trim();
-  if (!token) { toastMsg('Entrez votre token GitHub', 'error'); return; }
-  ghToken = token;
-  localStorage.setItem('selectum_gh_token', token);
-  showApp();
-}
-
-function deconnecter() {
-  localStorage.removeItem('selectum_gh_token');
-  ghToken = '';
-  document.getElementById('appMain').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'flex';
-}
-
-function showApp() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('appMain').style.display = 'block';
-  loadProduits();
-}
-
-// ─── Données ───────────────────────────────────────────────
-async function loadProduits() {
-  document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="loading-row">Chargement...</td></tr>';
-  try {
-    // Lecture publique (pas besoin du token)
-    const r = await fetch(RAW_URL + '?t=' + Date.now());
-    if (!r.ok) throw new Error('Impossible de charger les données');
-    const d = await r.json();
-    allProduits = d.filtres || [];
-    renderTable(allProduits);
-    updateStats(allProduits);
-    setStatus(true);
-    // Récupérer le SHA pour les modifications
-    fetchSha();
-  } catch(e) {
-    setStatus(false);
-    document.getElementById('tableBody').innerHTML = `<tr><td colspan="8" class="empty"><div class="ico">⚠️</div>${e.message}</td></tr>`;
+// ─── AUTH ──────────────────────────────────────────────────
+function doLogin(){
+  var pwd = document.getElementById('pwdInput').value;
+  if(pwd === PWD){
+    sessionStorage.setItem('sel_auth','1');
+    document.getElementById('authWrap').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    init();
+  } else {
+    document.getElementById('authErr').style.display='block';
+    document.getElementById('pwdInput').value='';
+    document.getElementById('pwdInput').focus();
   }
 }
+function logout(){
+  sessionStorage.removeItem('sel_auth');
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('authWrap').style.display='flex';
+  document.getElementById('pwdInput').value='';
+}
+document.getElementById('pwdInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
-async function fetchSha() {
+// ─── DATA ──────────────────────────────────────────────────
+var ALL = [];
+var editId = null;
+
+function loadData(){
   try {
-    const r = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${ghToken}` } });
-    const d = await r.json();
-    currentSha = d.sha || '';
-  } catch {}
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if(stored) return JSON.parse(stored);
+  } catch(e){}
+  return JSON.parse(JSON.stringify(DATA_INIT));
+}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(ALL));
 }
 
-async function saveToGitHub(newProduits) {
-  if (!ghToken) throw new Error('Non connecté');
-  const data = { filtres: newProduits, updated: new Date().toISOString().split('T')[0] };
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-  
-  // Récupérer SHA frais
-  const shaResp = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${ghToken}` } });
-  const shaData = await shaResp.json();
-  const sha = shaData.sha || currentSha;
-
-  const r = await fetch(API_URL, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${ghToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: 'Selectum - MAJ stock', content, sha })
-  });
-  if (!r.ok) {
-    const err = await r.json();
-    throw new Error(err.message || 'Erreur GitHub');
-  }
-  return r.json();
+function init(){
+  ALL = loadData();
+  render();
+  updateStats();
 }
 
-// ─── Rendu table ───────────────────────────────────────────
-function renderTable(data) {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const typeF = document.getElementById('filterType').value;
-  const actifF = document.getElementById('filterActif').value;
+// ─── RENDER ────────────────────────────────────────────────
+function render(){
+  var srch = document.getElementById('srch').value.toLowerCase();
+  var fType = document.getElementById('fType').value;
+  var fActif = document.getElementById('fActif').value;
 
-  let filtered = data.filter(p => {
-    const txt = (p.designation||'')+(p.reference||'')+(p.marque||'');
-    if (search && !txt.toLowerCase().includes(search)) return false;
-    if (typeF && p.type_filtre !== typeF) return false;
-    if (actifF === '1' && !p.actif) return false;
-    if (actifF === '0' && p.actif) return false;
+  var list = ALL.filter(function(p){
+    var txt = (p.designation||'')+(p.ref||'')+(p.marque||'');
+    if(srch && txt.toLowerCase().indexOf(srch)<0) return false;
+    if(fType && p.type_filtre!==fType) return false;
+    if(fActif==='1' && !p.actif) return false;
+    if(fActif==='0' && p.actif) return false;
     return true;
   });
 
-  if (!filtered.length) {
-    document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty"><div class="ico">📦</div>Aucun produit trouvé.</td></tr>';
+  if(!list.length){
+    document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="empty"><div class="ico">📦</div>Aucun produit trouvé</td></tr>';
     return;
   }
 
-  document.getElementById('tableBody').innerHTML = filtered.map(p => {
-    const stock = Number(p.stock) || 0;
-    const pct = Math.min(100, (stock/100)*100);
-    const barClass = stock === 0 ? 'zero' : stock < 10 ? 'low' : '';
-    const stockBadge = stock === 0 ? 'badge-zero' : stock < 10 ? 'badge-low' : 'badge-ok';
-    const stockLabel = stock === 0 ? '⚠️ Rupture' : stock < 10 ? `⬇ ${stock}` : stock;
-    return `<tr>
-      <td><code style="background:#f0f4f8;padding:2px 6px;border-radius:4px;font-size:.78rem">${p.reference||'—'}</code></td>
-      <td><strong>${p.designation||'—'}</strong></td>
-      <td>${p.type_filtre||'—'}</td>
-      <td>${p.marque||'—'}</td>
-      <td>
-        <div class="stock-bar">
-          <span class="badge ${stockBadge}">${stockLabel}</span>
-          <div class="bar"><div class="bar-fill ${barClass}" style="width:${pct}%"></div></div>
-        </div>
-      </td>
-      <td><strong>${Number(p.prix||0).toFixed(2)} DT</strong></td>
-      <td><span class="badge ${p.actif ? 'badge-actif':'badge-inactif'}">${p.actif ? '✓ Actif':'✗ Inactif'}</span></td>
-      <td>
-        <div class="actions">
-          <button class="btn btn-sm btn-outline" title="Modifier" onclick="editProduit('${p.id}')">✏️</button>
-          <button class="btn btn-sm" style="background:#fff3e0;border:1.5px solid #e65100;color:#e65100" title="${p.actif?'Désactiver':'Activer'}" onclick="toggleActif('${p.id}',${p.actif})">${p.actif?'⏸':'▶'}</button>
-          <button class="btn btn-sm" style="background:#ffebee;border:1.5px solid #c62828;color:#c62828" title="Supprimer" onclick="confirmDelete('${p.id}','${(p.designation||'').replace(/'/g,"\\'")}')">🗑</button>
-        </div>
-      </td>
-    </tr>`;
+  var html = list.map(function(p){
+    var stock = Number(p.stock)||0;
+    var pct = Math.min(100,(stock/80)*100);
+    var bc = stock===0?'zero':stock<10?'low':'';
+    var sb = stock===0?'b-zero':stock<10?'b-low':'b-ok';
+    var sl = stock===0?'⚠️ Rupture':stock<10?'⬇ '+stock:stock;
+    var combi = (p.marque||'—') + (p.compatibilite ? '<br><small style="color:var(--muted);font-size:.76rem">'+p.compatibilite+'</small>' : '');
+    return '<tr>'
+      +'<td><span class="ref-code">'+esc(p.ref||'—')+'</span></td>'
+      +'<td><strong>'+esc(p.designation||'—')+'</strong></td>'
+      +'<td>'+esc(p.type_filtre||'—')+'</td>'
+      +'<td>'+combi+'</td>'
+      +'<td><div class="sbar"><span class="badge '+sb+'">'+sl+'</span><div class="bar"><div class="bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></td>'
+      +'<td><strong>'+Number(p.prix||0).toFixed(2)+' DT</strong></td>'
+      +'<td><span class="badge '+(p.actif?'b-actif':'b-inactif')+'">'+(p.actif?'✓ Actif':'✗ Inactif')+'</span></td>'
+      +'<td><div class="acts">'
+        +'<button class="act-btn act-edit" title="Modifier" onclick="openEdit(\''+p.id+'\')">✏️</button>'
+        +'<button class="act-btn act-tog" title="'+(p.actif?'Désactiver':'Activer')+'" onclick="toggle(\''+p.id+'\','+p.actif+')">'+(p.actif?'⏸':'▶')+'</button>'
+        +'<button class="act-btn act-del" title="Supprimer" onclick="askDel(\''+p.id+'\',\''+esc(p.designation||'')+'\')" >🗑</button>'
+        +'</div></td>'
+      +'</tr>';
   }).join('');
+  document.getElementById('tbody').innerHTML=html;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function updateStats(){
+  document.getElementById('sTotal').textContent=ALL.length;
+  document.getElementById('sActif').textContent=ALL.filter(function(p){return p.actif;}).length;
+  document.getElementById('sLow').textContent=ALL.filter(function(p){return Number(p.stock)>0&&Number(p.stock)<10;}).length;
+  document.getElementById('sZero').textContent=ALL.filter(function(p){return Number(p.stock)===0;}).length;
 }
 
-function updateStats(data) {
-  document.getElementById('statTotal').textContent = data.length;
-  document.getElementById('statActif').textContent = data.filter(p=>p.actif).length;
-  document.getElementById('statLow').textContent = data.filter(p=>Number(p.stock)>0 && Number(p.stock)<10).length;
-  document.getElementById('statZero').textContent = data.filter(p=>Number(p.stock)===0).length;
-}
+document.getElementById('srch').addEventListener('input',render);
+document.getElementById('fType').addEventListener('change',render);
+document.getElementById('fActif').addEventListener('change',render);
 
-document.getElementById('searchInput').addEventListener('input', ()=>renderTable(allProduits));
-document.getElementById('filterType').addEventListener('change', ()=>renderTable(allProduits));
-document.getElementById('filterActif').addEventListener('change', ()=>renderTable(allProduits));
-
-// ─── Modal ──────────────────────────────────────────────────
-function openModal(data={}) {
-  editId = data.id || null;
-  document.getElementById('modalTitle').textContent = editId ? 'Modifier le produit' : 'Nouveau produit';
-  document.getElementById('fRef').value = data.reference || '';
-  document.getElementById('fType').value = data.type_filtre || 'Huile';
-  document.getElementById('fDes').value = data.designation || '';
-  document.getElementById('fMarque').value = data.marque || '';
-  document.getElementById('fStock').value = data.stock !== undefined ? data.stock : '';
-  document.getElementById('fPrix').value = data.prix !== undefined ? data.prix : '';
-  document.getElementById('fCompat').value = data.compatibilite || '';
-  document.getElementById('fActif').checked = data.actif !== undefined ? data.actif : true;
-  updateActifLabel();
-  document.getElementById('modal').style.display = 'flex';
+// ─── MODAL ─────────────────────────────────────────────────
+function openModal(data){
+  data=data||{};
+  editId=data.id||null;
+  document.getElementById('mtitle').textContent=editId?'Modifier le produit':'Nouveau produit';
+  document.getElementById('iRef').value=data.ref||'';
+  document.getElementById('iType').value=data.type_filtre||'Huile';
+  document.getElementById('iDes').value=data.designation||'';
+  document.getElementById('iMarq').value=data.marque||'';
+  document.getElementById('iStock').value=data.stock!==undefined?data.stock:'';
+  document.getElementById('iPrix').value=data.prix!==undefined?data.prix:'';
+  document.getElementById('iCompat').value=data.compatibilite||'';
+  document.getElementById('iActif').checked=data.actif!==undefined?data.actif:true;
+  updActifLbl();
+  document.getElementById('modal').style.display='flex';
+  document.getElementById('iRef').focus();
 }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
-function updateActifLabel() {
-  const v = document.getElementById('fActif').checked;
-  const lbl = document.getElementById('actifLabel');
-  lbl.textContent = v ? 'Actif' : 'Inactif';
-  lbl.style.color = v ? 'var(--green)' : 'var(--red)';
+function openEdit(id){var p=ALL.find(function(x){return x.id===id;});if(p)openModal(p);}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function updActifLbl(){
+  var v=document.getElementById('iActif').checked;
+  var l=document.getElementById('actifLbl');
+  l.textContent=v?'Actif':'Inactif';
+  l.style.color=v?'var(--green)':'var(--red)';
 }
-document.getElementById('fActif').addEventListener('change', updateActifLabel);
+document.getElementById('iActif').addEventListener('change',updActifLbl);
 
-function editProduit(id) {
-  const p = allProduits.find(x=>x.id===id);
-  if (p) openModal(p);
-}
-
-// ─── Sauvegarde ────────────────────────────────────────────
-async function sauvegarder() {
-  const payload = {
-    reference: document.getElementById('fRef').value.trim(),
-    designation: document.getElementById('fDes').value.trim(),
-    type_filtre: document.getElementById('fType').value,
-    marque: document.getElementById('fMarque').value.trim(),
-    stock: parseFloat(document.getElementById('fStock').value) || 0,
-    prix: parseFloat(document.getElementById('fPrix').value) || 0,
-    compatibilite: document.getElementById('fCompat').value.trim(),
-    actif: document.getElementById('fActif').checked,
+// ─── SAVE ──────────────────────────────────────────────────
+function save(){
+  var payload={
+    ref: document.getElementById('iRef').value.trim(),
+    designation: document.getElementById('iDes').value.trim(),
+    type_filtre: document.getElementById('iType').value,
+    marque: document.getElementById('iMarq').value.trim(),
+    stock: parseFloat(document.getElementById('iStock').value)||0,
+    prix: parseFloat(document.getElementById('iPrix').value)||0,
+    compatibilite: document.getElementById('iCompat').value.trim(),
+    actif: document.getElementById('iActif').checked
   };
-  if (!payload.reference || !payload.designation) { toastMsg('Référence et désignation obligatoires', 'error'); return; }
-
-  let updatedList;
-  if (editId) {
-    updatedList = allProduits.map(p => p.id === editId ? { ...p, ...payload } : p);
+  if(!payload.ref||!payload.designation){toast('Référence et désignation obligatoires','e');return;}
+  if(editId){
+    var idx=ALL.findIndex(function(p){return p.id===editId;});
+    if(idx>=0) ALL[idx]=Object.assign({},ALL[idx],payload);
   } else {
-    payload.id = 'sel-' + Date.now();
-    payload.created_date = new Date().toISOString().split('T')[0];
-    updatedList = [...allProduits, payload];
+    payload.id='sel-'+Date.now();
+    ALL.push(payload);
   }
-
-  try {
-    await saveToGitHub(updatedList);
-    allProduits = updatedList;
-    renderTable(allProduits);
-    updateStats(allProduits);
-    toastMsg(editId ? 'Produit mis à jour ✓' : 'Produit créé ✓', 'success');
-    closeModal();
-  } catch(e) {
-    toastMsg('Erreur: ' + e.message, 'error');
-  }
+  saveData();
+  render();
+  updateStats();
+  closeModal();
+  toast(editId?'Produit mis à jour ✓':'Produit créé ✓','s');
 }
 
-// ─── Toggle actif ──────────────────────────────────────────
-async function toggleActif(id, actuel) {
-  const updatedList = allProduits.map(p => p.id === id ? { ...p, actif: !actuel } : p);
-  try {
-    await saveToGitHub(updatedList);
-    allProduits = updatedList;
-    renderTable(allProduits);
-    updateStats(allProduits);
-    toastMsg(!actuel ? 'Produit activé ✓' : 'Produit désactivé ✓', 'success');
-  } catch(e) { toastMsg('Erreur: ' + e.message, 'error'); }
+// ─── TOGGLE ────────────────────────────────────────────────
+function toggle(id,actuel){
+  var idx=ALL.findIndex(function(p){return p.id===id;});
+  if(idx>=0){ ALL[idx].actif=!actuel; saveData(); render(); updateStats(); toast((!actuel?'Activé':'Désactivé')+' ✓','s'); }
 }
 
-// ─── Suppression ───────────────────────────────────────────
-function confirmDelete(id, nom) {
-  document.getElementById('confirmMsg').textContent = `Supprimer "${nom}" ? Cette action est irréversible.`;
-  document.getElementById('confirmBox').style.display = 'flex';
-  document.getElementById('confirmOk').onclick = () => deleteProduit(id);
-}
-async function deleteProduit(id) {
-  document.getElementById('confirmBox').style.display = 'none';
-  const updatedList = allProduits.filter(p => p.id !== id);
-  try {
-    await saveToGitHub(updatedList);
-    allProduits = updatedList;
-    renderTable(allProduits);
-    updateStats(allProduits);
-    toastMsg('Produit supprimé ✓', 'success');
-  } catch(e) { toastMsg('Erreur: ' + e.message, 'error'); }
+// ─── DELETE ────────────────────────────────────────────────
+function askDel(id,nom){
+  document.getElementById('confirmTxt').textContent='Supprimer "'+nom+'" ? Cette action est irréversible.';
+  document.getElementById('confirmOv').style.display='flex';
+  document.getElementById('confirmBtn').onclick=function(){
+    document.getElementById('confirmOv').style.display='none';
+    ALL=ALL.filter(function(p){return p.id!==id;});
+    saveData(); render(); updateStats(); toast('Produit supprimé ✓','s');
+  };
 }
 
-// ─── Utils ─────────────────────────────────────────────────
-function toastMsg(msg, type='success') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
+// ─── TOAST ─────────────────────────────────────────────────
+function toast(msg,type){
+  var el=document.createElement('div');
+  el.className='toast '+(type||'s');
+  el.textContent=msg;
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 3500);
+  setTimeout(function(){el.remove();},3200);
 }
 
-function setStatus(ok) {
-  const el = document.getElementById('apiStatus');
-  if (!el) return;
-  el.textContent = ok ? '● Connecté' : '● Erreur';
-  el.className = 'api-status ' + (ok ? 'ok' : 'err');
+// ─── INIT ──────────────────────────────────────────────────
+if(sessionStorage.getItem('sel_auth')==='1'){
+  document.getElementById('authWrap').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  init();
 }
-
-// ─── Init ──────────────────────────────────────────────────
-const savedToken = localStorage.getItem('selectum_gh_token');
-if (savedToken) {
-  ghToken = savedToken;
-  showApp();
-}
-// Enter sur le champ token
-document.getElementById('ghTokenInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') connecter();
-});
 </script>
 </body>
 </html>
