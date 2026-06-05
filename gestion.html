@@ -10,14 +10,14 @@
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
 
 /* ─── NAV ─── */
-.nav{background:var(--navy);color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;box-shadow:0 2px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;}
-.nav-left{display:flex;align-items:center;gap:12px;}
-.back-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:600;transition:.2s;cursor:pointer;}
+.nav{background:var(--navy);color:#fff;padding:0 12px;display:flex;align-items:center;justify-content:space-between;height:54px;box-shadow:0 2px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;gap:8px;}
+.nav-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
+.back-btn{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 10px;border-radius:6px;text-decoration:none;font-size:.78rem;font-weight:600;transition:.2s;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .back-btn:hover{background:rgba(255,255,255,.22);}
-.nav-title{font-size:1rem;font-weight:700;letter-spacing:.5px;}
+.nav-title{font-size:.82rem;font-weight:700;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .nav-title span{color:var(--red);}
-.nav-right{display:flex;align-items:center;gap:10px;}
-.status-dot{font-size:.75rem;padding:4px 10px;border-radius:20px;font-weight:700;}
+.nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.status-dot{font-size:.7rem;padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;}
 .status-dot.ok{background:#1b5e20;color:#a5d6a7;}
 .status-dot.err{background:#b71c1c;color:#ffcdd2;}
 
@@ -44,7 +44,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);color:var(-
 .stat-val{font-size:1.9rem;font-weight:700;}
 
 /* ─── TOOLBAR ─── */
-.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
 .toolbar input,.toolbar select{padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;outline:none;background:#fff;}
 .toolbar input:focus,.toolbar select:focus{border-color:var(--navy);}
 .toolbar input{flex:1;min-width:170px;}
@@ -56,7 +56,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);color:var(-
 .btn-sm{padding:5px 9px;font-size:.78rem;}
 
 /* ─── TABLE ─── */
-.table-wrap{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;}
+.table-wrap{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;}
 thead{background:var(--navy);color:#fff;}
 th{padding:11px 13px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
@@ -145,7 +145,7 @@ input:checked+.sl:before{transform:translateX(22px);}
   </div>
   <div class="nav-right">
     <span class="status-dot ok" id="statusDot">● Connecté</span>
-    <button class="back-btn" onclick="logout()" style="border-color:rgba(198,40,40,.5);background:rgba(198,40,40,.2)">Déconnexion</button>
+    <button class="back-btn" onclick="logout()" style="border-color:rgba(198,40,40,.5);background:rgba(198,40,40,.2);font-size:.75rem;padding:5px 8px">⏏ Sortir</button>
   </div>
 </nav>
 
