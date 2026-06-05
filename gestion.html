@@ -262,6 +262,7 @@ input:checked+.sl:before{transform:translateX(21px);}
           <option value="Cash">Cash</option>
         </select>
         <button class="btn btn-primary" onclick="openCmdModal()">+ Nouvelle commande</button>
+        <button class="btn btn-outline" onclick="refreshFromSite()" title="Importer depuis le site">🌐 Sync site</button>
         <button class="btn btn-outline" onclick="renderCommandes()">↻</button>
       </div>
       <div class="table-wrap">
@@ -633,7 +634,51 @@ document.getElementById('fActif').addEventListener('change',renderStock);
 // COMMANDES
 // ════════════════════════════════════════════════
 var CMDS=[], editCmdId=null;
-function initCommandes(){CMDS=load(KEYS.commandes,[]);renderCommandes();updateCmdStats();}
+
+function importCmdsFromSite(){
+  // Importer les commandes passées depuis le site (panier index.html)
+  var siteCmds = [];
+  try { var d = JSON.parse(localStorage.getItem('lc_commandes')); if(Array.isArray(d)) siteCmds = d; } catch(e){}
+  if(!siteCmds.length) return 0;
+  var existingNums = CMDS.map(function(c){return c.num||c.id;});
+  var imported = 0;
+  siteCmds.forEach(function(sc){
+    var num = sc.num || sc.id;
+    if(existingNums.indexOf(num) >= 0) return; // déjà présent
+    // Convertir format site → format gestion
+    var total = sc.total || (sc.items ? sc.items.reduce(function(s,x){return s+Number(x.prix||0)*Number(x.qty||1);},0) : 0);
+    var articles = sc.items ? sc.items.map(function(x){return (x.qty||1)+'x '+x.nom;}).join(', ') : '';
+    var mode = sc.paiement === 'card' ? 'Carte' : 'Cash';
+    var dateStr = sc.date ? sc.date.slice(0,10) : today();
+    var payload = {
+      id: sc.id || uid(),
+      num: num,
+      client: sc.nom || '—',
+      tel: sc.tel || '',
+      date: dateStr,
+      montant: total,
+      livraison: sc.status === 'delivered' ? 'Livrée' : sc.status === 'cancelled' ? 'Annulée' : 'En cours',
+      paiement: sc.status === 'delivered' ? 'Payée' : 'Non payée',
+      mode: mode,
+      ville: sc.addr || '',
+      articles: articles,
+      note: sc.note || '',
+      _source: 'site'
+    };
+    CMDS.push(payload);
+    imported++;
+  });
+  if(imported > 0) save(KEYS.commandes, CMDS);
+  return imported;
+}
+
+function initCommandes(){
+  CMDS=load(KEYS.commandes,[]);
+  var n = importCmdsFromSite();
+  renderCommandes();
+  updateCmdStats();
+  if(n>0) toast(n+' commande(s) importée(s) depuis le site ✓','s');
+}
 
 function renderCommandes(){
   var srch=document.getElementById('srchCmd').value.toLowerCase();
@@ -654,7 +699,7 @@ function renderCommandes(){
     var bPaye=c.paiement==='Payée'?'b-paye':'b-nonpaye';
     var bMode=c.mode==='Carte'?'b-carte':'b-cash';
     return '<tr>'
-      +'<td><span class="ref-code">'+esc(c.num||c.id.slice(-6))+'</span></td>'
+      +'<td><span class="ref-code">'+esc(c.num||c.id.slice(-6))+'</span>'+(c._source==='site'?'<br><span class="badge b-encours" style="font-size:.62rem;padding:1px 5px">🌐 Site</span>':'')+'</td>'
       +'<td>'+fmtDate(c.date)+'</td>'
       +'<td><strong>'+esc(c.client)+'</strong>'+(c.tel?'<br><small style="color:var(--muted)">'+esc(c.tel)+'</small>':'')+'</td>'
       +'<td><strong>'+fmtDT(c.montant)+'</strong></td>'
@@ -734,6 +779,12 @@ function markPaye(id){
   if(idx>=0){CMDS[idx].paiement='Payée';save(KEYS.commandes,CMDS);renderCommandes();updateCmdStats();toast('Marquée payée ✓','s');renderTresorerie();}
 }
 
+function refreshFromSite(){
+  var n = importCmdsFromSite();
+  renderCommandes();
+  updateCmdStats();
+  toast(n>0? n+' nouvelle(s) commande(s) importée(s) ✓' : 'Aucune nouvelle commande depuis le site','s');
+}
 document.getElementById('srchCmd').addEventListener('input',renderCommandes);
 document.getElementById('fLivr').addEventListener('change',renderCommandes);
 document.getElementById('fPaye').addEventListener('change',renderCommandes);
