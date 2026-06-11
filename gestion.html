@@ -1012,50 +1012,134 @@ function downloadCSV(rows, filename){
 }
 
 function exportStock(){
-  var headers = ['Référence','Désignation','Type','Marque','Compatibilité','Stock','Prix (DT)','Statut'];
+  // Chaque info dans sa propre colonne pour tri Excel
+  var headers = [
+    'Référence',
+    'Désignation',
+    'Type de filtre',
+    'Marque',
+    'Compatibilité véhicules',
+    'Quantité en stock',
+    'Prix unitaire (DT)',
+    'Statut'
+  ];
   var rows = [headers].concat(STOCK.map(function(p){
-    return [p.ref, p.designation, p.type_filtre, p.marque||'', p.compatibilite||'',
-      p.stock, Number(p.prix||0).toFixed(3), p.actif?'Actif':'Inactif'];
+    return [
+      p.ref||'',
+      p.designation||'',
+      p.type_filtre||'',
+      p.marque||'',
+      p.compatibilite||'',
+      Number(p.stock||0),
+      Number(p.prix||0).toFixed(3),
+      p.actif?'Actif':'Inactif'
+    ];
   }));
-  var d = new Date(); var ts = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var d = new Date();
+  var ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   downloadCSV(rows, 'selectum_stock_'+ts+'.csv');
 }
 
 function exportCommandes(){
-  var headers = ['N° Commande','Date','Client','Téléphone','Ville','Montant (DT)',
-    'Livraison','Paiement','Mode règlement','Articles','Note','Source'];
+  // Chaque info dans sa propre colonne pour tri Excel
+  var headers = [
+    'N° Commande',
+    'Année',
+    'Mois',
+    'Jour',
+    'Date complète',
+    'Nom client',
+    'Téléphone',
+    'Ville / Adresse',
+    'Montant total (DT)',
+    'Statut livraison',
+    'Statut paiement',
+    'Mode règlement',
+    'Détail articles',
+    'Note interne',
+    'Source'
+  ];
   var rows = [headers].concat(CMDS.map(function(c){
-    return [c.num||c.id, c.date||'', c.client||'', c.tel||'', c.ville||'',
-      Number(c.montant||0).toFixed(3), c.livraison||'', c.paiement||'',
-      c.mode||'', c.articles||'', c.note||'', c._source==='site'?'Site':'Manuel'];
+    var d = c.date||'';
+    var parts = d.split('-');
+    var annee = parts[0]||'';
+    var mois = parts[1]||'';
+    var jour = parts[2]||'';
+    return [
+      c.num||c.id||'',
+      annee,
+      mois,
+      jour,
+      d,
+      c.client||'',
+      c.tel||'',
+      c.ville||'',
+      Number(c.montant||0).toFixed(3),
+      c.livraison||'',
+      c.paiement||'',
+      c.mode||'',
+      c.articles||'',
+      c.note||'',
+      c._source==='site'?'Site web':'Manuel'
+    ];
   }));
-  var d = new Date(); var ts = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var d = new Date();
+  var ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   downloadCSV(rows, 'selectum_commandes_'+ts+'.csv');
 }
 
 function exportTresorerie(){
-  // Export complet : commandes payées + dépôts + réceptions carte
-  var h1 = ['=== COMMANDES PAYÉES ==='];
-  var h2 = ['N° Commande','Date','Client','Montant (DT)','Mode'];
-  var rows = [h1, h2];
-  CMDS.filter(function(c){return c.paiement==='Payée';}).forEach(function(c){
-    rows.push([c.num||c.id, c.date||'', c.client||'',
-      Number(c.montant||0).toFixed(3), c.mode||'']);
+  // Onglet 1 : Commandes payées détaillées
+  var rows1 = [[
+    'N° Commande','Année','Mois','Jour','Date',
+    'Nom client','Téléphone','Montant (DT)','Mode règlement','Statut livraison'
+  ]];
+  CMDS.filter(function(c){return c.paiement==='Payée';})
+    .sort(function(a,b){return a.date>b.date?1:-1;})
+    .forEach(function(c){
+      var parts=(c.date||'').split('-');
+      rows1.push([
+        c.num||c.id||'',
+        parts[0]||'', parts[1]||'', parts[2]||'',
+        c.date||'',
+        c.client||'', c.tel||'',
+        Number(c.montant||0).toFixed(3),
+        c.mode||'',
+        c.livraison||''
+      ]);
   });
-  rows.push(['']);
-  rows.push(['=== DÉPÔTS CASH EN BANQUE ===']);
-  rows.push(['Date','Montant (DT)','Référence','Note']);
-  DEPOTS.forEach(function(d){
-    rows.push([d.date||'', Number(d.montant||0).toFixed(3), d.ref||'', d.note||'']);
+
+  // Ligne vide + Onglet 2 : Dépôts cash
+  rows1.push(['']);
+  rows1.push(['--- DÉPÔTS CASH EN BANQUE ---']);
+  rows1.push(['Année','Mois','Jour','Date dépôt','Montant déposé (DT)','Référence bordereau','Note']);
+  DEPOTS.sort(function(a,b){return a.date>b.date?1:-1;}).forEach(function(d){
+    var parts=(d.date||'').split('-');
+    rows1.push([
+      parts[0]||'', parts[1]||'', parts[2]||'',
+      d.date||'',
+      Number(d.montant||0).toFixed(3),
+      d.ref||'', d.note||''
+    ]);
   });
-  rows.push(['']);
-  rows.push(['=== RÉCEPTIONS VIREMENTS CARTE ===']);
-  rows.push(['Date','Montant (DT)','Période','Note']);
-  RECARTEC.forEach(function(r){
-    rows.push([r.date||'', Number(r.montant||0).toFixed(3), r.periode||'', r.note||'']);
+
+  // Ligne vide + Onglet 3 : Réceptions carte
+  rows1.push(['']);
+  rows1.push(['--- RÉCEPTIONS VIREMENTS CARTE ---']);
+  rows1.push(['Année','Mois','Jour','Date réception','Montant reçu (DT)','Période couverte','Note']);
+  RECARTEC.sort(function(a,b){return a.date>b.date?1:-1;}).forEach(function(r){
+    var parts=(r.date||'').split('-');
+    rows1.push([
+      parts[0]||'', parts[1]||'', parts[2]||'',
+      r.date||'',
+      Number(r.montant||0).toFixed(3),
+      r.periode||'', r.note||''
+    ]);
   });
-  var d = new Date(); var ts = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
-  downloadCSV(rows, 'selectum_tresorerie_'+ts+'.csv');
+
+  var d = new Date();
+  var ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  downloadCSV(rows1, 'selectum_tresorerie_'+ts+'.csv');
 }
 // ════════════════════════════════════════════════
 // INIT
