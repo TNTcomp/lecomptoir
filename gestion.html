@@ -163,6 +163,7 @@ input:checked+.sl:before{transform:translateX(21px);}
   th:nth-child(n+5),td:nth-child(n+5){font-size:.75rem;}
 }
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -264,7 +265,7 @@ input:checked+.sl:before{transform:translateX(21px);}
         </select>
         <button class="btn btn-primary" onclick="openCmdModal()">+ Nouvelle commande</button>
         <button class="btn btn-outline" onclick="refreshFromSite()" title="Importer depuis le site">🌐 Sync site</button>
-        <button class="btn btn-outline" onclick="exportCommandes()" title="Exporter en Excel">📊 Excel</button>
+        <button class="btn btn-outline" onclick="exportRapportComplet()" title="Rapport complet multi-feuilles">📊 Rapport Excel</button>
         <button class="btn btn-outline" onclick="renderCommandes()">↻</button>
       </div>
       <div class="table-wrap">
@@ -989,8 +990,311 @@ function askDel(type,id,label){
 
 
 // ════════════════════════════════════════════════
-// EXPORT EXCEL (CSV encodé UTF-8 BOM pour Excel)
+// EXPORT EXCEL MULTI-FEUILLES (SheetJS)
 // ════════════════════════════════════════════════
+
+// Garder CSV simple pour stock
+function csvEscape(v){
+  var s = String(v===null||v===undefined?'':v);
+  if(s.indexOf(',')>=0||s.indexOf('"')>=0||s.indexOf('\n')>=0)
+    s='"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function downloadCSV(rows, filename){
+  var BOM = '\uFEFF';
+  var csv = BOM + rows.map(function(r){return r.map(csvEscape).join(';');}).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Export CSV téléchargé ✓','s');
+}
+
+// ─── Détecter région depuis adresse ─────────────────
+var REGIONS_TN = [
+  'Tunis','Ariana','Ben Arous','Manouba','Bizerte','Nabeul','Zaghouan',
+  'Béja','Jendouba','Kef','Siliana','Sousse','Monastir','Mahdia',
+  'Kairouan','Kasserine','Sidi Bouzid','Sfax','Gabès','Médenine',
+  'Tataouine','Gafsa','Tozeur','Kébili'
+];
+function detectRegion(addr){
+  if(!addr) return 'Non précisé';
+  var a = addr.toLowerCase();
+  for(var i=0;i<REGIONS_TN.length;i++){
+    if(a.indexOf(REGIONS_TN[i].toLowerCase())>=0) return REGIONS_TN[i];
+  }
+  if(a.indexOf('carthage')>=0||a.indexOf('la marsa')>=0||a.indexOf('marsa')>=0) return 'Tunis';
+  if(a.indexOf('hammamet')>=0||a.indexOf('nabeul')>=0) return 'Nabeul';
+  if(a.indexOf('djerba')>=0||a.indexOf('houmt')>=0) return 'Médenine';
+  if(a.indexOf('sfax')>=0) return 'Sfax';
+  if(a.indexOf('sousse')>=0||a.indexOf('kantaoui')>=0) return 'Sousse';
+  return 'Autre';
+}
+
+// ─── Style helper ───────────────────────────────────
+function styleCell(bold, bg, color, sz){
+  return {
+    font:{bold:!!bold, sz:sz||11, color:{rgb:color||'000000'}},
+    fill:{fgColor:{rgb:bg||'FFFFFF'}, patternType:'solid'},
+    alignment:{horizontal:'center',vertical:'center',wrapText:true},
+    border:{top:{style:'thin',color:{rgb:'CCCCCC'}},bottom:{style:'thin',color:{rgb:'CCCCCC'}},left:{style:'thin',color:{rgb:'CCCCCC'}},right:{style:'thin',color:{rgb:'CCCCCC'}}}
+  };
+}
+function applyStyle(ws, cellRef, style){
+  if(!ws[cellRef]) return;
+  ws[cellRef].s = style;
+}
+function colLetter(n){ return String.fromCharCode(65+n); }
+
+function autoWidth(ws, data){
+  var maxW = [];
+  data.forEach(function(row){
+    row.forEach(function(v,i){
+      var l = String(v===null||v===undefined?'':v).length;
+      if(!maxW[i]||l>maxW[i]) maxW[i]=l;
+    });
+  });
+  ws['!cols'] = maxW.map(function(w){return {wch:Math.min(Math.max(w+2,8),40)};});
+}
+
+// ─── FEUILLE 1 : Données commandes ──────────────────
+function buildSheetCommandes(){
+  var headers = ['N° Commande','Date','Année','Mois','Nom client','Téléphone',
+    'Ville','Région','Montant (DT)','Livraison','Paiement','Mode','Articles','Source'];
+  var data = [headers].concat(CMDS.map(function(cmd){
+    var parts=(cmd.date||'').split('-');
+    return [
+      cmd.num||cmd.id||'',
+      cmd.date||'',
+      parts[0]||'', parts[1]||'',
+      cmd.client||'', cmd.tel||'',
+      cmd.ville||'',
+      detectRegion(cmd.ville||''),
+      Number(cmd.montant||0).toFixed(3),
+      cmd.livraison||'', cmd.paiement||'', cmd.mode||'',
+      cmd.articles||'',
+      cmd._source==='site'?'Site web':'Manuel'
+    ];
+  }));
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  autoWidth(ws, data);
+  // Style entêtes
+  headers.forEach(function(_,i){
+    var ref = colLetter(i)+'1';
+    ws[ref] = ws[ref]||{v:headers[i],t:'s'};
+    ws[ref].s = styleCell(true,'0A1628','FFFFFF',11);
+  });
+  return ws;
+}
+
+// ─── FEUILLE 2 : Dashboard statistiques ─────────────
+function buildSheetStats(){
+  var d = new Date();
+  var curMois = String(d.getMonth()+1).padStart(2,'0');
+  var curAn = String(d.getFullYear());
+
+  var total = CMDS.length;
+  var livrees = CMDS.filter(function(c){return c.livraison==='Livrée';}).length;
+  var payees = CMDS.filter(function(c){return c.paiement==='Payée';}).length;
+  var ca = CMDS.filter(function(c){return c.paiement==='Payée';}).reduce(function(s,c){return s+Number(c.montant||0);},0);
+  var caMois = CMDS.filter(function(c){return c.paiement==='Payée'&&(c.date||'').startsWith(curAn+'-'+curMois);}).reduce(function(s,c){return s+Number(c.montant||0);},0);
+  var cashTotal = CMDS.filter(function(c){return c.mode==='Cash'&&c.paiement==='Payée';}).reduce(function(s,c){return s+Number(c.montant||0);},0);
+  var carteTotal = CMDS.filter(function(c){return c.mode==='Carte'&&c.paiement==='Payée';}).reduce(function(s,c){return s+Number(c.montant||0);},0);
+  var panierMoyen = payees>0?(ca/payees).toFixed(3):'0.000';
+
+  // Top clients
+  var clients = {};
+  CMDS.forEach(function(c){
+    var k=c.client||'Inconnu';
+    if(!clients[k]) clients[k]={nom:k,tel:c.tel||'',cmds:0,ca:0};
+    clients[k].cmds++;
+    clients[k].ca+=Number(c.montant||0);
+  });
+  var topClients = Object.values(clients).sort(function(a,b){return b.ca-a.ca;}).slice(0,10);
+
+  // Top articles vendus
+  var articles = {};
+  CMDS.forEach(function(c){
+    if(!c.articles) return;
+    c.articles.split(',').forEach(function(a){
+      var m = a.trim().match(/^(\d+)x (.+)/);
+      var nom = m?m[2].trim():a.trim();
+      var qty = m?Number(m[1]):1;
+      if(!nom) return;
+      if(!articles[nom]) articles[nom]={nom:nom,qty:0,ca:0};
+      articles[nom].qty+=qty;
+      articles[nom].ca+=qty*Number(c.montant||0)/Math.max((c.articles||'').split(',').length,1);
+    });
+  });
+  var topArticles = Object.values(articles).sort(function(a,b){return b.qty-a.qty;}).slice(0,10);
+
+  // Ventes par région
+  var regions = {};
+  CMDS.forEach(function(c){
+    var r=detectRegion(c.ville||'');
+    if(!regions[r]) regions[r]={region:r,cmds:0,ca:0};
+    regions[r].cmds++;
+    regions[r].ca+=Number(c.montant||0);
+  });
+  var topRegions = Object.values(regions).sort(function(a,b){return b.ca-a.ca;});
+
+  var rows = [
+    ['RAPPORT STATISTIQUES SELECTUM SPARE PARTS','','','',''],
+    ['Généré le', d.toLocaleDateString('fr-TN'),'','',''],
+    ['','','','',''],
+    ['━━ RÉSUMÉ GÉNÉRAL ━━','','','',''],
+    ['Indicateur','Valeur','','',''],
+    ['Total commandes',total,'','',''],
+    ['Commandes livrées',livrees,'','',''],
+    ['Commandes payées',payees,'','',''],
+    ["CA total encaissé (DT)",ca.toFixed(3),'','',''],
+    ['CA ce mois (DT)',caMois.toFixed(3),'','',''],
+    ['Panier moyen (DT)',panierMoyen,'','',''],
+    ['Encaissements cash (DT)',cashTotal.toFixed(3),'','',''],
+    ['Encaissements carte (DT)',carteTotal.toFixed(3),'','',''],
+    ['','','','',''],
+    ['━━ TOP 10 CLIENTS ━━','','','',''],
+    ['Rang','Nom client','Téléphone','Nb commandes','CA total (DT)'],
+  ];
+  topClients.forEach(function(cl,i){
+    rows.push([i+1, cl.nom, cl.tel, cl.cmds, Number(cl.ca).toFixed(3)]);
+  });
+  rows.push(['','','','','']);
+  rows.push(['━━ TOP 10 ARTICLES VENDUS ━━','','','','']);
+  rows.push(['Rang','Article','Quantité vendue','','']);
+  topArticles.forEach(function(a,i){
+    rows.push([i+1, a.nom, a.qty,'','']);
+  });
+  rows.push(['','','','','']);
+  rows.push(['━━ VENTES PAR RÉGION ━━','','','','']);
+  rows.push(['Rang','Région','Nb commandes','CA total (DT)','% du CA']);
+  topRegions.forEach(function(r,i){
+    var pct = ca>0?((r.ca/ca)*100).toFixed(1)+'%':'0%';
+    rows.push([i+1, r.region, r.cmds, Number(r.ca).toFixed(3), pct]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:35},{wch:20},{wch:18},{wch:18},{wch:12}];
+
+  // Style titre
+  if(ws['A1']){ ws['A1'].s = styleCell(true,'0A1628','FFFFFF',14); }
+  // Style sections
+  [4,15].concat([
+    rows.findIndex(function(r){return r[0]==='━━ TOP 10 ARTICLES VENDUS ━━';})+1,
+    rows.findIndex(function(r){return r[0]==='━━ VENTES PAR RÉGION ━━';})+1
+  ]).forEach(function(ri){
+    var ref='A'+(ri+1);
+    if(ws[ref]) ws[ref].s = styleCell(true,'C62828','FFFFFF',11);
+  });
+  return ws;
+}
+
+// ─── FEUILLE 3 : Carte Tunisie par région ───────────
+function buildSheetCarte(){
+  // Représentation ASCII des régions avec données
+  var regions = {};
+  CMDS.forEach(function(c){
+    var r=detectRegion(c.ville||'');
+    if(!regions[r]) regions[r]={cmds:0,ca:0};
+    regions[r].cmds++;
+    regions[r].ca+=Number(c.montant||0);
+  });
+  var totalCa = CMDS.filter(function(c){return c.paiement==='Payée';})
+    .reduce(function(s,c){return s+Number(c.montant||0);},0);
+
+  // Carte textuelle Tunisie Nord→Sud avec données
+  var carteRows = [
+    ['CARTE DES VENTES — TUNISIE','','','','',''],
+    ['Région (Nord → Sud)','Nb commandes','CA (DT)','% CA','Niveau activité',''],
+    ['','','','','',''],
+  ];
+
+  var ordreRegions = [
+    'Bizerte','Ariana','Tunis','Ben Arous','Manouba','Nabeul','Béja',
+    'Jendouba','Zaghouan','Kef','Siliana','Sousse','Monastir','Mahdia',
+    'Kairouan','Kasserine','Sidi Bouzid','Sfax','Gabès','Gafsa',
+    'Médenine','Tozeur','Kébili','Tataouine','Autre','Non précisé'
+  ];
+
+  ordreRegions.forEach(function(reg){
+    var r = regions[reg];
+    if(!r) return;
+    var pct = totalCa>0?((r.ca/totalCa)*100).toFixed(1):0;
+    var niveau = r.cmds>=10?'🔴 Fort':r.cmds>=5?'🟠 Moyen':r.cmds>=2?'🟡 Faible':'⚪ Rare';
+    var bar = '';
+    var barLen = Math.round(Number(pct)/2);
+    for(var i=0;i<barLen;i++) bar+='█';
+    carteRows.push([reg, r.cmds, Number(r.ca).toFixed(3), pct+'%', niveau, bar]);
+  });
+
+  carteRows.push(['','','','','','']);
+  carteRows.push(['LÉGENDE','','','','','']);
+  carteRows.push(['🔴 Fort','10+ commandes','','','','']);
+  carteRows.push(['🟠 Moyen','5-9 commandes','','','','']);
+  carteRows.push(['🟡 Faible','2-4 commandes','','','','']);
+  carteRows.push(['⚪ Rare','1 commande','','','','']);
+
+  var ws = XLSX.utils.aoa_to_sheet(carteRows);
+  ws['!cols'] = [{wch:18},{wch:16},{wch:14},{wch:10},{wch:16},{wch:25}];
+  if(ws['A1']) ws['A1'].s = styleCell(true,'0A1628','FFFFFF',13);
+  if(ws['A2']) ws['A2'].s = styleCell(true,'1565C0','FFFFFF',11);
+  if(ws['B2']) ws['B2'].s = styleCell(true,'1565C0','FFFFFF',11);
+  if(ws['C2']) ws['C2'].s = styleCell(true,'1565C0','FFFFFF',11);
+  if(ws['D2']) ws['D2'].s = styleCell(true,'1565C0','FFFFFF',11);
+  if(ws['E2']) ws['E2'].s = styleCell(true,'1565C0','FFFFFF',11);
+  return ws;
+}
+
+// ─── FEUILLE 4 : Stock ──────────────────────────────
+function buildSheetStock(){
+  var headers = ['Référence','Désignation','Type','Marque','Compatibilité','Stock','Prix (DT)','Valeur stock (DT)','Statut'];
+  var data = [headers].concat(STOCK.map(function(p){
+    var valeur = (Number(p.stock||0)*Number(p.prix||0)).toFixed(3);
+    return [p.ref||'',p.designation||'',p.type_filtre||'',p.marque||'',p.compatibilite||'',
+      Number(p.stock||0),Number(p.prix||0).toFixed(3),valeur,p.actif?'Actif':'Inactif'];
+  }));
+  var totalValeur = STOCK.reduce(function(s,p){return s+Number(p.stock||0)*Number(p.prix||0);},0);
+  data.push(['','','','','','','TOTAL',totalValeur.toFixed(3),'']);
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  autoWidth(ws, data);
+  headers.forEach(function(_,i){
+    var ref=colLetter(i)+'1';
+    ws[ref]=ws[ref]||{v:headers[i],t:'s'};
+    ws[ref].s=styleCell(true,'0A1628','FFFFFF',11);
+  });
+  return ws;
+}
+
+// ─── EXPORT RAPPORT COMPLET ──────────────────────────
+function exportRapportComplet(){
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheetStats(),       '📊 Statistiques');
+  XLSX.utils.book_append_sheet(wb, buildSheetCarte(),       '🗺️ Carte Tunisie');
+  XLSX.utils.book_append_sheet(wb, buildSheetCommandes(),   '📋 Commandes');
+  XLSX.utils.book_append_sheet(wb, buildSheetStock(),       '📦 Stock');
+  var d = new Date();
+  var ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  XLSX.writeFile(wb, 'selectum_rapport_'+ts+'.xlsx', {bookSST:false, type:'binary', cellStyles:true});
+  toast('Rapport Excel complet téléchargé ✓','s');
+}
+
+// CSV simple pour stock uniquement
+function exportStock(){
+  var headers = ['Référence','Désignation','Type de filtre','Marque','Compatibilité véhicules','Quantité en stock','Prix unitaire (DT)','Statut'];
+  var rows = [headers].concat(STOCK.map(function(p){
+    return [p.ref||'',p.designation||'',p.type_filtre||'',p.marque||'',p.compatibilite||'',
+      Number(p.stock||0),Number(p.prix||0).toFixed(3),p.actif?'Actif':'Inactif'];
+  }));
+  var d = new Date();
+  var ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  downloadCSV(rows, 'selectum_stock_'+ts+'.csv');
+}
+
+function exportCommandes(){ exportRapportComplet(); }
+function exportTresorerie(){ exportRapportComplet(); }
+
+
 function csvEscape(v){
   var s = String(v===null||v===undefined?'':v);
   if(s.indexOf(',')>=0||s.indexOf('"')>=0||s.indexOf('\n')>=0)
