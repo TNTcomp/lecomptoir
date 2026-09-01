@@ -104,6 +104,10 @@ switch ($action) {
                 jsonResponse(['error' => 'Ce nom d\'utilisateur existe deja'], 409);
             }
         }
+        // Limite Formule 2: 20 utilisateurs max
+        if (count($users) >= MAX_USERS) {
+            jsonResponse(['error' => 'Limite de ' . MAX_USERS . ' utilisateurs atteinte. Upgrade vers Flotte Enterprise.'], 403);
+        }
         
         $validRoles = ['chauffeur', 'comptable', 'manager', 'admin'];
         if (!in_array($newUser['role'], $validRoles)) {
@@ -185,6 +189,9 @@ switch ($action) {
     case 'add_truck':
         $me = requireAuth('manager');
         $db = readJSON('fleet.json') ?: newDB();
+        if (count($db['trucks']) >= MAX_TRUCKS) {
+            jsonResponse(['error' => 'Limite de ' . MAX_TRUCKS . ' camions atteinte. Upgrade vers Flotte Enterprise pour un nombre illimite.'], 403);
+        }
         $truck = $input['truck'];
         $truck['id'] = genId();
         $db['trucks'][] = $truck;
