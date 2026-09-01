@@ -7,10 +7,17 @@
 define('DATA_DIR', __DIR__ . '/../data/');
 
 // Cle secrete pour les sessions (A PERSONNALISER)
-define('SECRET_KEY', 'Fl0ttePr0_2026_Ch4ngeM3!');
+define('SECRET_KEY', 'Pr0Fl0tte_2026_Ch4ngeM3!');
+
+// Limites Formule 2
+define('MAX_TRUCKS', 100);
+define('MAX_SITES', 5);
+define('MAX_USERS', 20);
 
 // Nom de l'entreprise cliente (A PERSONNALISER lors de l'installation)
-define('CLIENT_NAME', 'Nos Spare Parts');
+define('CLIENT_NAME', 'Flotte Pro');
+// Formule 2 - Licence 4500 TND + 200 TND/mois
+// Max 100 camions, 5 sites, 20 utilisateurs, tous les 10 modules
 
 // Session timeout (30 minutes)
 define('SESSION_TIMEOUT', 1800);
