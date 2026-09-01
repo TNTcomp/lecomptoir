@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestion Flotte - Nos Spare Parts</title>
+<style>
+:root{--navy:#0A1628;--gold:#B89414;--blue:#1A55B8;--green:#275E32;--red:#C62828;--orange:#E65100;--lgray:#F5F5F5;--gray:#757575;--white:#fff}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:var(--lgray);color:#333;font-size:14px}
+.header{background:linear-gradient(135deg,var(--navy),#1a2942);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;gap:12px}
+.header .logo{font-size:26px}
+.header h1{font-size:16px;font-weight:600}
+.header .sub{font-size:11px;color:#aab;margin-top:2px}
+.header .spacer{flex:1}
+.header button{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer}
+.nav{display:flex;gap:4px;padding:8px 12px;background:#fff;border-bottom:2px solid var(--gold);overflow-x:auto;position:sticky;top:54px;z-index:90}
+.nav button{padding:7px 12px;border:none;background:transparent;color:#555;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;white-space:nowrap;transition:.2s}
+.nav button:hover{background:var(--lgray)}
+.nav button.active{background:var(--navy);color:#fff}
+.container{max-width:1000px;margin:0 auto;padding:14px}
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
+.card-header{padding:10px 14px;border-bottom:1px solid #eee;font-weight:600;color:var(--navy)}
+.card-body{padding:14px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-weight:500;margin-bottom:3px;font-size:12px;color:#444}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:560px){.form-row,.form-row-3{grid-template-columns:1fr}}
+.btn{padding:9px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-primary{background:var(--navy);color:#fff}.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}.btn-warning{background:var(--orange);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}.btn-sm{padding:5px 10px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:3px solid var(--navy)}
+.stat-card.green{border-left-color:var(--green)}.stat-card.red{border-left-color:var(--red)}
+.stat-card.orange{border-left-color:var(--orange)}.stat-card.gold{border-left-color:var(--gold)}
+.stat-card .label{font-size:10px;color:var(--gray);font-weight:500}
+.stat-card .value{font-size:20px;font-weight:700;color:var(--navy);margin-top:2px}
+.stat-card.green .value{color:var(--green)}.stat-card.red .value{color:var(--red)}
+.stat-card.orange .value{color:var(--orange)}.stat-card.gold .value{color:var(--gold)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--navy);color:#fff;padding:8px 6px;text-align:left;font-size:11px;font-weight:600}
+td{padding:7px 6px;border-bottom:1px solid #eee;font-size:12px}
+tr:hover{background:var(--lgray)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-green{background:#E8F5E9;color:var(--green)}.badge-red{background:#FFEBEE;color:var(--red)}
+.badge-orange{background:#FFF3E0;color:var(--orange)}.badge-blue{background:#E3F2FD;color:var(--blue)}
+.badge-gray{background:#EEE;color:var(--gray)}
+.info-box{background:#E3F2FD;border-left:3px solid var(--blue);padding:10px 12px;border-radius:6px;margin-bottom:8px;font-size:12px}
+.success-box{background:#E8F5E9;border-left:3px solid var(--green);padding:10px 12px;border-radius:6px;margin-bottom:8px;font-size:12px}
+.alert-box{background:#FFEBEE;border-left:3px solid var(--red);padding:10px 12px;border-radius:6px;margin:4px 0;font-size:12px}
+.alert-warn{background:#FFF8E1;border-left:3px solid var(--gold);padding:10px 12px;border-radius:6px;margin:4px 0;font-size:12px}
+.empty{text-align:center;padding:24px;color:var(--gray);font-size:13px}
+.filter-tag{display:inline-block;background:#E8EEF5;color:var(--navy);padding:3px 8px;border-radius:4px;font-size:11px;margin:2px}
+.action-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.dur-box{background:#FFF8E1;border:1px solid #FFD54F;border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
+.dur-box .days{font-weight:700;color:var(--orange);font-size:14px}
+.prog-bar{height:6px;border-radius:3px;background:#E0E0E0;overflow:hidden;margin-top:3px}
+.prog-fill{height:100%;border-radius:3px}
+.prog-green{background:var(--green)}.prog-orange{background:var(--orange)}.prog-red{background:var(--red)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:start;padding:20px;overflow-y:auto}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:10px;max-width:550px;width:100%;margin:20px auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-h{padding:14px 16px;border-bottom:1px solid #eee;font-size:15px;font-weight:600;color:var(--navy)}
+.modal-b{padding:16px;max-height:55vh;overflow-y:auto}
+.modal-f{padding:10px 16px;border-top:1px solid #eee;display:flex;justify-content:flex-end}
+</style>
+</head>
+<body>
+
+<div class="header">
+<span class="logo">🚛</span>
+<div style="flex:1"><h1>Gestion Flotte Poids Lourds</h1><div class="sub">Nos Spare Parts</div></div>
+<button onclick="hardRefresh()">🔄 Actualiser</button>
+</div>
+
+<div class="nav" id="nav"></div>
+
+<div class="container" id="mainContent"></div>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this)document.getElementById('modal').classList.remove('show')">
+<div class="modal"><div class="modal-h" id="modalTitle"></div><div class="modal-b" id="modalBody"></div>
+<div class="modal-f"><button class="btn" onclick="document.getElementById('modal').classList.remove('show')">Fermer</button></div></div>
+</div>
+
+<script>
+// ============================================
+// DATABASE - Simple localStorage with version key
+// ============================================
+var DB_KEY = 'fleet_db_final_v2';
+
+// Fallback memoire si localStorage est bloque (ex: ouverture fichier local file:// sur certains navigateurs mobiles)
+var MEMORY_DB = null;
+var STORAGE_OK = true;
+try {
+  var testKey = '__fleet_test__';
+  localStorage.setItem(testKey, '1');
+  localStorage.removeItem(testKey);
+} catch(e) {
+  STORAGE_OK = false;
+}
+
+function loadDB() {
+  if (!STORAGE_OK) {
+    return MEMORY_DB || newDB();
+  }
+  try {
+    var raw = localStorage.getItem(DB_KEY);
+    if (!raw) return newDB();
+    return JSON.parse(raw);
+  } catch(e) {
+    console.error('DB load error', e);
+    STORAGE_OK = false;
+    return MEMORY_DB || newDB();
+  }
+}
+
+function saveDB(db) {
+  if (!STORAGE_OK) {
+    MEMORY_DB = db;
+    return;
+  }
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+  } catch(e) {
+    console.error('DB save error', e);
+    STORAGE_OK = false;
+    MEMORY_DB = db;
+  }
+}
+
+function newDB() {
+  return { trucks: [], statusHistory: [], filterChanges: [], oilChanges: [], fuel: [], mileage: [] };
+}
+
+// ============================================
+// SEED DATA - 3 test trucks with full history
+// ============================================
+function seedData() {
+  var db = newDB();
+  
+  db.trucks = [
+    {ref:'LC-001', immat:'TN-123456-A', brand:'Mercedes', model:'Actros 1845', year:2020, cg:'CG-2024-001234', chassis:'WVWZZZ12345678901', driver:'Ahmed Ben Salah', convoyeur:'Mohamed Trabelsi', dateMC:'2020-03-15', kmInit:45000, seuilVidange:30000, seuilAir:40000, seuilHuile:30000, statut:'Actif', statusDate:'', statusReason:''},
+    {ref:'LC-002', immat:'TN-234567-B', brand:'Volvo', model:'FH 540', year:2021, cg:'CG-2024-002345', chassis:'WVWZZZ23456789012', driver:'Slim Gharbi', convoyeur:'Hassine Mansouri', dateMC:'2021-06-20', kmInit:22000, seuilVidange:30000, seuilAir:40000, seuilHuile:30000, statut:'Actif', statusDate:'', statusReason:''},
+    {ref:'LC-003', immat:'TN-345678-C', brand:'Renault', model:'T High 520', year:2019, cg:'CG-2023-003456', chassis:'WVWZZZ34567890123', driver:'Karim Bouzid', convoyeur:'', dateMC:'2019-11-10', kmInit:180000, seuilVidange:30000, seuilAir:40000, seuilHuile:30000, statut:'Actif', statusDate:'', statusReason:''}
+  ];
+  
+  // Mileage history (3 months for each truck)
+  db.mileage = [
+    {truckRef:'LC-001', month:'2026-06', kmStart:45000, kmEnd:52000, source:'GPS Teltonika', notes:'Regulier'},
+    {truckRef:'LC-001', month:'2026-07', kmStart:52000, kmEnd:58500, source:'GPS Teltonika', notes:'Regulier'},
+    {truckRef:'LC-001', month:'2026-08', kmStart:58500, kmEnd:64100, source:'GPS Teltonika', notes:'Regulier'},
+    {truckRef:'LC-002', month:'2026-06', kmStart:22000, kmEnd:28000, source:'GPS Teltonika', notes:''},
+    {truckRef:'LC-002', month:'2026-07', kmStart:28000, kmEnd:33500, source:'GPS Teltonika', notes:''},
+    {truckRef:'LC-002', month:'2026-08', kmStart:33500, kmEnd:39000, source:'GPS Teltonika', notes:''},
+    {truckRef:'LC-003', month:'2026-06', kmStart:180000, kmEnd:185000, source:'GPS Teltonika', notes:'Maintenance 3j'},
+    {truckRef:'LC-003', month:'2026-07', kmStart:185000, kmEnd:191000, source:'GPS Teltonika', notes:''},
+    {truckRef:'LC-003', month:'2026-08', kmStart:191000, kmEnd:197200, source:'GPS Teltonika', notes:''}
+  ];
+  
+  // Fuel history
+  db.fuel = [
+    {truckRef:'LC-001', date:'2026-06-05', km:45200, liters:180, pricePerL:2.250, type:'Gasoil', station:'Station SAG Ben Arous'},
+    {truckRef:'LC-001', date:'2026-06-20', km:48500, liters:175, pricePerL:2.250, type:'Gasoil', station:'Station SAG Rades'},
+    {truckRef:'LC-001', date:'2026-07-10', km:52500, liters:190, pricePerL:2.300, type:'Gasoil', station:'Station Agil Zarzis'},
+    {truckRef:'LC-001', date:'2026-08-05', km:58000, liters:185, pricePerL:2.300, type:'Gasoil', station:'Station SAG Rades'},
+    {truckRef:'LC-002', date:'2026-06-08', km:22500, liters:160, pricePerL:2.250, type:'Gasoil', station:'Station SAG Megrine'},
+    {truckRef:'LC-002', date:'2026-07-05', km:27500, liters:165, pricePerL:2.300, type:'Gasoil', station:'Station Total La Charguia'},
+    {truckRef:'LC-002', date:'2026-08-10', km:33000, liters:170, pricePerL:2.300, type:'Gasoil', station:'Station Agil Ben Arous'},
+    {truckRef:'LC-003', date:'2026-06-15', km:181000, liters:210, pricePerL:2.250, type:'Gasoil', station:'Station SAG Sfax'},
+    {truckRef:'LC-003', date:'2026-07-20', km:186500, liters:205, pricePerL:2.300, type:'Gasoil', station:'Station Agil Gabs'},
+    {truckRef:'LC-003', date:'2026-08-15', km:192000, liters:200, pricePerL:2.300, type:'Gasoil', station:'Station SAG Sousse'}
+  ];
+  
+  // Oil changes
+  db.oilChanges = [
+    {truckRef:'LC-001', date:'2026-06-10', km:45000, oilType:'15W40', oilBrand:'Total', liters:28, pricePerL:6.500, supplier:'Nos Spare Parts', notes:'Huile moteur'},
+    {truckRef:'LC-002', date:'2026-05-20', km:22000, oilType:'10W40', oilBrand:'Shell', liters:30, pricePerL:7.200, supplier:'Nos Spare Parts', notes:'Huile moteur'},
+    {truckRef:'LC-003', date:'2026-04-10', km:170000, oilType:'15W40', oilBrand:'Elf', liters:35, pricePerL:6.500, supplier:'Total Tunisie', notes:'Vidange + filtre'}
+  ];
+  
+  // Filter changes
+  db.filterChanges = [
+    {truckRef:'LC-001', date:'2026-06-10', filterType:'Filtre Huile', filterRef:'W712/52', filterBrand:'Sofima', qty:1, price:45.000, supplier:'Nos Spare Parts', notes:''},
+    {truckRef:'LC-001', date:'2026-06-10', filterType:'Filtre Air', filterRef:'C21850', filterBrand:'Sofima', qty:1, price:85.000, supplier:'Nos Spare Parts', notes:''},
+    {truckRef:'LC-002', date:'2026-05-20', filterType:'Filtre Huile', filterRef:'21525559', filterBrand:'UFI Filters', qty:1, price:42.000, supplier:'Nos Spare Parts', notes:''},
+    {truckRef:'LC-003', date:'2026-04-10', filterType:'Filtre Huile', filterRef:'5001860219', filterBrand:'Misfat', qty:1, price:38.000, supplier:'Total Tunisie', notes:''},
+    {truckRef:'LC-003', date:'2026-04-10', filterType:'Filtre Carburant', filterRef:'509029905', filterBrand:'Misfat', qty:1, price:55.000, supplier:'Total Tunisie', notes:''}
+  ];
+  
+  // Status history
+  db.statusHistory = [
+    {truckRef:'LC-003', oldStatus:'Actif', newStatus:'Maintenance', date:'2026-06-05', dateRetour:'2026-06-08', durationDays:3, reason:'Revision boite de vitesses'}
+  ];
+  
+  db.ticketCounter = {car:10, filter:5, oil:3};
+  
+  // Assign ticket numbers to existing entries
+  db.fuel.forEach(function(f, i) { f.ticketNo = 'CAR-2026-' + String(i+1).padStart(4,'0'); });
+  db.filterChanges.forEach(function(f, i) { f.ticketNo = 'FLT-2026-' + String(i+1).padStart(4,'0'); });
+  db.oilChanges.forEach(function(o, i) { o.ticketNo = 'HUI-2026-' + String(i+1).padStart(4,'0'); });
+  
+  saveDB(db);
+  return db;
+}
+
+// ============================================
+// FILTERS BY BRAND
+// ============================================
+var FILTERS_BY_BRAND = {
+  'Mercedes': [
+    {type:'Filtre Huile', desc:'Actros OM471/OM473'},
+    {type:'Filtre Air', desc:'Actros double filtre air'},
+    {type:'Filtre Carburant', desc:'Actros filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'Separateur eau pre-filtre'},
+    {type:'Filtre Cabine', desc:'Filtre cabine Actros'},
+    {type:'Air Dryer', desc:'Cartouche air dryer WABCO'}
+  ],
+  'Volvo': [
+    {type:'Filtre Huile', desc:'FH D13A/D16G'},
+    {type:'Filtre Air', desc:'FH filtre air'},
+    {type:'Filtre Carburant', desc:'FH filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'FH separateur eau'},
+    {type:'Filtre Cabine', desc:'FH filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer FH/FM'},
+    {type:'Filtre Hydraulique', desc:'Direction assistee'}
+  ],
+  'Renault': [
+    {type:'Filtre Huile', desc:'T High DH16'},
+    {type:'Filtre Air', desc:'T High filtre air'},
+    {type:'Filtre Carburant', desc:'T filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'T separateur eau'},
+    {type:'Filtre Cabine', desc:'T filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer T/K'}
+  ],
+  'Iveco': [
+    {type:'Filtre Huile', desc:'S-Way Cursor 13'},
+    {type:'Filtre Air', desc:'S-Way filtre air'},
+    {type:'Filtre Carburant', desc:'S-Way filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'S-Way separateur eau'},
+    {type:'Filtre Cabine', desc:'S-Way filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer'}
+  ],
+  'DAF': [
+    {type:'Filtre Huile', desc:'XF MX13'},
+    {type:'Filtre Air', desc:'XF filtre air'},
+    {type:'Filtre Carburant', desc:'XF filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'XF separateur eau'},
+    {type:'Filtre Cabine', desc:'XF filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer XF/XG'}
+  ],
+  'MAN': [
+    {type:'Filtre Huile', desc:'TGX D26'},
+    {type:'Filtre Air', desc:'TGX filtre air'},
+    {type:'Filtre Carburant', desc:'TGX filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'TGX separateur eau'},
+    {type:'Filtre Cabine', desc:'TGX filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer TGX/TGS'}
+  ],
+  'Scania': [
+    {type:'Filtre Huile', desc:'R/S DC13'},
+    {type:'Filtre Air', desc:'R/S filtre air'},
+    {type:'Filtre Carburant', desc:'R/S filtre gazoil'},
+    {type:'Separateur d\'eau', desc:'R/S separateur eau'},
+    {type:'Filtre Cabine', desc:'R/S filtre cabine'},
+    {type:'Air Dryer', desc:'Cartouche air dryer R/S'}
+  ]
+};
+
+// ============================================
+// NAVIGATION
+// ============================================
+var TABS = [
+  {id:'dashboard', icon:'📊', label:'Tableau de bord'},
+  {id:'trucks', icon:'🚛', label:'Parc Camions'},
+  {id:'addTruck', icon:'➕', label:'Ajouter Camion'},
+  {id:'status', icon:'🔧', label:'Statut & Panne'},
+  {id:'filters', icon:'🧰', label:'Changement Filtre'},
+  {id:'oil', icon:'🛢️', label:'Vidange / Huile'},
+  {id:'fuel', icon:'⛽', label:'Carburant'},
+  {id:'mileage', icon:'📏', label:'Kilometrage'},
+  {id:'alerts', icon:'⚠️', label:'Alertes Entretien'},
+  {id:'filterbase', icon:'📋', label:'Base Filtres'},
+  {id:'reports', icon:'📈', label:'Rapports'},
+  {id:'export', icon:'📥', label:'Export'}
+];
+
+var currentTab = 'dashboard';
+
+function buildNav() {
+  var nav = document.getElementById('nav');
+  nav.innerHTML = TABS.map(function(t) {
+    return '<button class="' + (t.id === currentTab ? 'active' : '') + '" onclick="switchTab(\'' + t.id + '\')">' + t.icon + ' ' + t.label + '</button>';
+  }).join('');
+}
+
+function switchTab(tabId) {
+  currentTab = tabId;
+  buildNav();
+  renderTab(tabId);
+}
+
+function hardRefresh() {
+  renderTab(currentTab);
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+function daysBetween(d) { if (!d) return 0; return Math.floor((new Date() - new Date(d)) / 86400000); }
+
+function getLatestKm(ref) {
+  var db = loadDB();
+  var truck = db.trucks.find(function(t) { return t.ref === ref; });
+  var max = truck ? (truck.kmInit || 0) : 0;
+  db.mileage.forEach(function(m) { if (m.truckRef === ref && (m.kmEnd || 0) > max) max = m.kmEnd; });
+  db.fuel.forEach(function(f) { if (f.truckRef === ref && (f.km || 0) > max) max = f.km; });
+  db.oilChanges.forEach(function(o) { if (o.truckRef === ref && (o.km || 0) > max) max = o.km; });
+  return max;
+}
+
+function getKmAtLastOilChange(ref) {
+  var db = loadDB();
+  var oils = db.oilChanges.filter(function(o) { return o.truckRef === ref; })
+    .sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+  return oils.length > 0 ? (oils[0].km || 0) : 0;
+}
+
+function getKmAtLastFilter(ref, fType) {
+  var db = loadDB();
+  var filters = db.filterChanges.filter(function(f) { return f.truckRef === ref && f.filterType === fType; })
+    .sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+  if (filters.length === 0) return 0;
+  var date = filters[0].date;
+  var km = 0;
+  db.fuel.forEach(function(f) { if (f.truckRef === ref && f.date <= date && f.km > km) km = f.km; });
+  db.mileage.forEach(function(m) { if (m.truckRef === ref && (m.month || '').substr(0,7) <= (date || '').substr(0,7) && (m.kmEnd || 0) > km) km = m.kmEnd; });
+  return km;
+}
+
+function checkAlert(truck) {
+  var currentKm = getLatestKm(truck.ref);
+  var lastOilKm = getKmAtLastOilChange(truck.ref);
+  var kmSinceOil = currentKm - lastOilKm;
+  var seuilV = truck.seuilVidange || 30000;
+  var seuilA = truck.seuilAir || 40000;
+  var seuilH = truck.seuilHuile || 30000;
+  
+  var alerts = [];
+  
+  // Vidange
+  if (lastOilKm > 0) {
+    if (kmSinceOil >= seuilV) alerts.push({level:'crit', msg:'VIDANGE DEPASSEE: ' + kmSinceOil.toLocaleString() + ' km / ' + seuilV.toLocaleString() + ' km'});
+    else if (kmSinceOil >= seuilV * 0.8) alerts.push({level:'warn', msg:'Vidange bientot: ' + kmSinceOil.toLocaleString() + ' / ' + seuilV.toLocaleString() + ' km (' + Math.round(kmSinceOil/seuilV*100) + '%)'});
+  } else {
+    var kmInit = truck.kmInit || 0;
+    var kmSinceInit = currentKm - kmInit;
+    if (kmSinceInit >= seuilV) alerts.push({level:'crit', msg:'VIDANGE JAMAIS FAITE! ' + kmSinceInit.toLocaleString() + ' km (seuil: ' + seuilV.toLocaleString() + ' km)'});
+    else if (kmSinceInit >= seuilV * 0.8) alerts.push({level:'warn', msg:'Premiere vidange a prevoir: ' + kmSinceInit.toLocaleString() + ' / ' + seuilV.toLocaleString() + ' km'});
+  }
+  
+  // Filtre air
+  var lastAirKm = getKmAtLastFilter(truck.ref, 'Filtre Air');
+  var kmSinceAir = currentKm - lastAirKm;
+  if (lastAirKm > 0) {
+    if (kmSinceAir >= seuilA) alerts.push({level:'crit', msg:'FILTRE AIR DEPASSE: ' + kmSinceAir.toLocaleString() + ' km / ' + seuilA.toLocaleString() + ' km'});
+    else if (kmSinceAir >= seuilA * 0.8) alerts.push({level:'warn', msg:'Filtre air bientot: ' + kmSinceAir.toLocaleString() + ' / ' + seuilA.toLocaleString() + ' km (' + Math.round(kmSinceAir/seuilA*100) + '%)'});
+  }
+  
+  // Filtre huile
+  var lastFHuileKm = getKmAtLastFilter(truck.ref, 'Filtre Huile');
+  var kmSinceFH = currentKm - lastFHuileKm;
+  if (lastFHuileKm > 0) {
+    if (kmSinceFH >= seuilH) alerts.push({level:'crit', msg:'FILTRE HUILE DEPASSE: ' + kmSinceFH.toLocaleString() + ' km / ' + seuilH.toLocaleString() + ' km'});
+    else if (kmSinceFH >= seuilH * 0.8) alerts.push({level:'warn', msg:'Filtre huile bientot: ' + kmSinceFH.toLocaleString() + ' / ' + seuilH.toLocaleString() + ' km (' + Math.round(kmSinceFH/seuilH*100) + '%)'});
+  }
+  
+  return alerts.length > 0 ? alerts[0] : null;
+}
+
+function truckSelectOptions() {
+  var db = loadDB();
+  return '<option value="">-- Choisir --</option>' + db.trucks.map(function(t) {
+    return '<option value="' + t.ref + '">' + t.ref + ' - ' + t.brand + ' ' + t.model + ' (' + t.statut + ')</option>';
+  }).join('');
+}
+
+// ============================================
+// RENDER TABS
+// ============================================
+function renderTab(tabId) {
+  var el = document.getElementById('mainContent');
+  switch(tabId) {
+    case 'dashboard': el.innerHTML = renderDashboard(); break;
+    case 'trucks': el.innerHTML = renderTrucks(); break;
+    case 'addTruck': el.innerHTML = renderAddTruck(); break;
+    case 'status': el.innerHTML = renderStatus(); break;
+    case 'filters': el.innerHTML = renderFilters(); break;
+    case 'oil': el.innerHTML = renderOil(); break;
+    case 'fuel': el.innerHTML = renderFuel(); break;
+    case 'mileage': el.innerHTML = renderMileage(); break;
+    case 'alerts': el.innerHTML = renderAlerts(); break;
+    case 'filterbase': el.innerHTML = renderFilterBase(); break;
+    case 'reports': el.innerHTML = renderReports(); break;
+    case 'export': el.innerHTML = renderExport(); break;
+  }
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+function renderDashboard() {
+  var db = loadDB();
+  var actif = db.trucks.filter(function(t){return t.statut==='Actif';}).length;
+  var maint = db.trucks.filter(function(t){return t.statut==='Maintenance';}).length;
+  var panne = db.trucks.filter(function(t){return t.statut==='En panne';}).length;
+  var totalKm = db.mileage.reduce(function(s,m){return s+((m.kmEnd||0)-(m.kmStart||0));},0);
+  var totalFuel = db.fuel.reduce(function(s,f){return s+(f.liters||0);},0);
+  var fuelCost = db.fuel.reduce(function(s,f){return s+((f.liters||0)*(f.pricePerL||0));},0);
+  var filterCost = db.filterChanges.reduce(function(s,f){return s+((f.qty||0)*(f.price||0));},0);
+  var oilCost = db.oilChanges.reduce(function(s,o){return s+((o.liters||0)*(o.pricePerL||0));},0);
+  var critCount = 0;
+  db.trucks.forEach(function(t){ var a = checkAlert(t); if (a && a.level==='crit') critCount++; });
+  
+  var html = '<div class="stats">';
+  html += '<div class="stat-card green"><div class="label">🟢 Actifs</div><div class="value">'+actif+'</div></div>';
+  html += '<div class="stat-card orange"><div class="label">🔧 Maintenance</div><div class="value">'+maint+'</div></div>';
+  html += '<div class="stat-card red"><div class="label">🚨 En panne</div><div class="value">'+panne+'</div></div>';
+  html += '<div class="stat-card"><div class="label">🚛 Total</div><div class="value">'+db.trucks.length+'</div></div>';
+  html += '<div class="stat-card red"><div class="label">⚠️ Alertes</div><div class="value">'+critCount+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">⛽ Carburant</div><div class="value">'+fuelCost.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">🧰 Filtres</div><div class="value">'+filterCost.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">🛢️ Huile</div><div class="value">'+oilCost.toFixed(0)+'</div></div>';
+  html += '</div>';
+  
+  // Alertes
+  html += '<div class="card"><div class="card-header">⚠️ Alertes entretien preventif</div><div class="card-body">';
+  var hasAlerts = false;
+  db.trucks.forEach(function(t) {
+    var a = checkAlert(t);
+    if (a) {
+      hasAlerts = true;
+      if (a.level === 'crit') html += '<div class="alert-box">🚨 <b>'+t.ref+'</b> - '+t.brand+' '+t.model+'<br>'+a.msg+'</div>';
+      else html += '<div class="alert-warn">⚠️ <b>'+t.ref+'</b> - '+t.brand+' '+t.model+'<br>'+a.msg+'</div>';
+    }
+  });
+  if (!hasAlerts) html += '<div class="success-box">✅ Aucune alerte. Maintenances a jour.</div>';
+  html += '</div></div>';
+  
+  // Status tracking
+  html += '<div class="card"><div class="card-header">🚧 Camions en maintenance / panne</div><div class="card-body">';
+  var inProg = db.trucks.filter(function(t){return t.statut==='Maintenance'||t.statut==='En panne';});
+  if (inProg.length === 0) {
+    html += '<div class="success-box">✅ Toute la flotte est operationnelle.</div>';
+  } else {
+    inProg.forEach(function(t) {
+      var d = daysBetween(t.statusDate);
+      var badge = t.statut === 'En panne' ? 'badge-red' : 'badge-orange';
+      html += '<div class="dur-box"><span class="badge '+badge+'">'+t.statut+'</span> <b>'+t.ref+'</b> - '+t.brand+' '+t.model+' | depuis '+t.statusDate+' | <span class="days">'+d+' jour(s)</span>'+(t.statusReason?'<br><small>'+t.statusReason+'</small>':'')+'</div>';
+    });
+  }
+  html += '</div></div>';
+  
+  // Recent ops
+  html += '<div class="card"><div class="card-header">🔧 Dernieres operations</div><div class="card-body" style="overflow-x:auto">';
+  var allOps = [];
+  db.filterChanges.forEach(function(f){ allOps.push({date:f.date, truckRef:f.truckRef, type:'Filtre', detail:f.filterType+' '+(f.filterRef||''), cost:(f.qty||0)*(f.price||0)}); });
+  db.oilChanges.forEach(function(o){ allOps.push({date:o.date, truckRef:o.truckRef, type:'Vidange', detail:o.oilType+' '+(o.oilBrand||'')+' '+(o.liters||0)+'L', cost:(o.liters||0)*(o.pricePerL||0)}); });
+  allOps.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  if (allOps.length === 0) { html += '<div class="empty">Aucune operation</div>'; }
+  else {
+    html += '<table><thead><tr><th>Date</th><th>Camion</th><th>Type</th><th>Detail</th><th>Cout</th></tr></thead><tbody>';
+    allOps.slice(0,10).forEach(function(m) {
+      html += '<tr><td>'+m.date+'</td><td>'+m.truckRef+'</td><td><span class="badge '+(m.type==='Filtre'?'badge-blue':'badge-green')+'">'+m.type+'</span></td><td>'+m.detail+'</td><td>'+(m.cost>0?m.cost.toFixed(3)+' TND':'-')+'</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div></div>';
+  
+  // Recent fuel
+  html += '<div class="card"><div class="card-header">⛽ Derniers pleins</div><div class="card-body" style="overflow-x:auto">';
+  var rf = db.fuel.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');}).slice(0,5);
+  if (rf.length === 0) { html += '<div class="empty">Aucun plein</div>'; }
+  else {
+    html += '<table><thead><tr><th>Date</th><th>Camion</th><th>Litres</th><th>Cout</th><th>Station</th></tr></thead><tbody>';
+    rf.forEach(function(f) {
+      html += '<tr><td>'+f.date+'</td><td>'+f.truckRef+'</td><td>'+(f.liters||0)+' L</td><td>'+((f.liters||0)*(f.pricePerL||0)).toFixed(3)+' TND</td><td>'+(f.station||'')+'</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div></div>';
+  
+  return html;
+}
+
+// ============================================
+// PARC CAMIONS
+// ============================================
+function renderTrucks() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">🚛 Liste du Parc</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Ref</th><th>Immat</th><th>Marque/Modele</th><th>Chauffeur</th><th>Statut</th><th>Depuis</th><th>Duree</th><th>Actions</th></tr></thead><tbody>';
+  if (db.trucks.length === 0) {
+    html += '<tr><td colspan="8" class="empty">Aucun camion</td></tr>';
+  } else {
+    db.trucks.forEach(function(t, i) {
+      var badge = t.statut === 'Actif' ? 'badge-green' : t.statut === 'Maintenance' ? 'badge-orange' : t.statut === 'En panne' ? 'badge-red' : 'badge-gray';
+      var dur = '';
+      if (t.statut === 'Maintenance' || t.statut === 'En panne') {
+        dur = '<span style="color:#E65100;font-weight:700">'+daysBetween(t.statusDate)+' j</span>';
+      }
+      var alertBadge = '';
+      var a = checkAlert(t);
+      if (a) alertBadge = a.level === 'crit' ? ' 🚨' : ' ⚠️';
+      html += '<tr><td><b>'+t.ref+'</b>'+alertBadge+'</td><td>'+t.immat+'</td><td>'+t.brand+' '+t.model+'</td><td>'+t.driver+'</td><td><span class="badge '+badge+'">'+t.statut+'</span></td><td>'+(t.statusDate||'-')+'</td><td>'+(dur||'-')+'</td><td><button class="btn btn-sm btn-primary" onclick="showTruckDetail('+i+')">👁️</button> <button class="btn btn-sm btn-danger" onclick="deleteTruck('+i+')">🗑️</button></td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function showTruckDetail(idx) {
+  var db = loadDB();
+  var t = db.trucks[idx];
+  var filters = FILTERS_BY_BRAND[t.brand] || [];
+  var currentKm = getLatestKm(t.ref);
+  var lastOilKm = getKmAtLastOilChange(t.ref);
+  var a = checkAlert(t);
+  
+  var html = '<p>🚛 <b>'+t.ref+'</b> | '+t.immat+'</p>';
+  html += '<p>📍 '+t.brand+' '+t.model+' ('+t.year+')</p>';
+  html += '<p>📋 CG: '+t.cg+' | Chassis: '+t.chassis+'</p>';
+  html += '<p>👤 '+t.driver+(t.convoyeur?' / '+t.convoyeur:'')+'</p>';
+  html += '<p>📅 MC: '+t.dateMC+' | KM initial: '+(t.kmInit||0).toLocaleString()+'</p>';
+  html += '<p>📊 KM actuel: <b>'+currentKm.toLocaleString()+'</b> | Derniere vidange: '+lastOilKm.toLocaleString()+'</p>';
+  html += '<p>🔄 Statut: <span class="badge '+(t.statut==='Actif'?'badge-green':'badge-orange')+'">'+t.statut+'</span>'+(t.statusDate?' depuis le '+t.statusDate+' ('+daysBetween(t.statusDate)+' j)':'')+'</p>';
+  
+  if (a) html += '<div style="margin:8px 0">'+(a.level==='crit'?'<div class="alert-box">🚨 '+a.msg+'</div>':'<div class="alert-warn">⚠️ '+a.msg+'</div>')+'</div>';
+  
+  html += '<p style="margin-top:10px;font-weight:600;color:var(--navy)">🧰 Filtres necessaires ('+t.brand+'):</p>';
+  if (filters.length > 0) {
+    filters.forEach(function(f) { html += '<span class="filter-tag">'+f.type+' - '+f.desc+'</span>'; });
+  } else {
+    html += '<span class="empty">Aucun filtre reference</span>';
+  }
+  
+  // Status history
+  var sh = db.statusHistory.filter(function(s){return s.truckRef===t.ref;});
+  if (sh.length > 0) {
+    html += '<p style="margin-top:10px;font-weight:600;color:var(--navy)">📋 Historique statuts:</p>';
+    html += '<table><thead><tr><th>Date</th><th>Statut</th><th>Motif</th><th>Duree</th></tr></thead><tbody>';
+    sh.forEach(function(s) { html += '<tr><td>'+s.date+'</td><td>'+s.newStatus+'</td><td>'+(s.reason||'')+'</td><td>'+(s.durationDays?s.durationDays+' j':'En cours')+'</td></tr>'; });
+    html += '</tbody></table>';
+  }
+  
+  document.getElementById('modalTitle').innerHTML = '🚛 '+t.ref;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.add('show');
+}
+
+function deleteTruck(idx) {
+  if (!confirm('Supprimer ce camion?')) return;
+  var db = loadDB();
+  db.trucks.splice(idx, 1);
+  saveDB(db);
+  renderTab('trucks');
+}
+
+// ============================================
+// AJOUTER CAMION
+// ============================================
+function renderAddTruck() {
+  var html = '<div class="card"><div class="card-header">➕ Nouveau Camion</div><div class="card-body">';
+  
+  html += '<div class="form-group"><label>Marque *</label><select id="truckBrand" onchange="updateBrandFilters()">';
+  html += '<option value="">-- Choisir --</option>';
+  ['Mercedes','Volvo','Renault','Iveco','DAF','MAN','Scania','Ford','Autre'].forEach(function(b) {
+    html += '<option value="'+b+'">'+b+'</option>';
+  });
+  html += '</select></div>';
+  
+  html += '<div id="brandFiltersInfo" style="display:none" class="info-box"></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Modele *</label><input type="text" id="truckModel" placeholder="ex: Actros 1845"></div>';
+  html += '<div class="form-group"><label>Annee</label><input type="number" id="truckYear" placeholder="2020"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Reference interne *</label><input type="text" id="truckRef" placeholder="LC-001"></div>';
+  html += '<div class="form-group"><label>Immatriculation</label><input type="text" id="truckImmat" placeholder="TN-123456-A"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>N Carte Grise</label><input type="text" id="truckCG"></div>';
+  html += '<div class="form-group"><label>N Chassis</label><input type="text" id="truckChassis"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Chauffeur</label><input type="text" id="truckDriver"></div>';
+  html += '<div class="form-group"><label>Convoyeur</label><input type="text" id="truckConvoyeur"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Date mise en circulation</label><input type="date" id="truckDateMC"></div>';
+  html += '<div class="form-group"><label>KM initial</label><input type="number" id="truckKmInit" value="0"></div></div>';
+  
+  html += '<div class="form-row-3"><div class="form-group"><label>Seuil vidange (km)</label><input type="number" id="truckSeuilVidange" value="30000"></div>';
+  html += '<div class="form-group"><label>Seuil filtre air (km)</label><input type="number" id="truckSeuilAir" value="40000"></div>';
+  html += '<div class="form-group"><label>Seuil filtre huile (km)</label><input type="number" id="truckSeuilHuile" value="30000"></div></div>';
+  
+  html += '<div class="action-btns"><button class="btn btn-primary" onclick="saveTruck()">💾 Enregistrer</button>';
+  html += '<button class="btn" onclick="resetTruckForm()">↩️ Reinitialiser</button></div>';
+  
+  html += '</div></div>';
+  return html;
+}
+
+function updateBrandFilters() {
+  var brand = val('truckBrand');
+  var box = document.getElementById('brandFiltersInfo');
+  if (!brand) { box.style.display = 'none'; return; }
+  var filters = FILTERS_BY_BRAND[brand] || [];
+  box.style.display = 'block';
+  box.innerHTML = '<b>🧰 Filtres necessaires pour '+brand+':</b><br>' + filters.map(function(f) {
+    return '<span class="filter-tag">'+f.type+' - '+f.desc+'</span>';
+  }).join('');
+}
+
+function saveTruck() {
+  var db = loadDB();
+  var truck = {
+    ref: val('truckRef'), immat: val('truckImmat'), brand: val('truckBrand'),
+    model: val('truckModel'), year: val('truckYear'), cg: val('truckCG'),
+    chassis: val('truckChassis'), driver: val('truckDriver'), convoyeur: val('truckConvoyeur'),
+    dateMC: val('truckDateMC'), kmInit: parseInt(val('truckKmInit'))||0,
+    seuilVidange: parseInt(val('truckSeuilVidange'))||30000,
+    seuilAir: parseInt(val('truckSeuilAir'))||40000,
+    seuilHuile: parseInt(val('truckSeuilHuile'))||30000,
+    statut: 'Actif', statusDate: '', statusReason: ''
+  };
+  if (!truck.brand || !truck.ref) { alert('Marque et reference obligatoires!'); return; }
+  
+  var idx = db.trucks.findIndex(function(t){return t.ref===truck.ref;});
+  if (idx >= 0) {
+    if (!confirm('Camion '+truck.ref+' existe. Remplacer?')) return;
+    db.trucks[idx] = truck;
+  } else {
+    db.trucks.push(truck);
+  }
+  saveDB(db);
+  alert('✅ Camion '+truck.ref+' enregistre!');
+  switchTab('trucks');
+}
+
+function resetTruckForm() {
+  ['truckBrand','truckModel','truckRef','truckImmat','truckCG','truckChassis','truckDriver','truckConvoyeur','truckDateMC','truckYear','truckKmInit'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['truckSeuilVidange','truckSeuilAir','truckSeuilHuile'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = id === 'truckSeuilAir' ? '40000' : '30000';
+  });
+  var box = document.getElementById('brandFiltersInfo'); if (box) box.style.display = 'none';
+}
+
+// ============================================
+// STATUT & PANNE
+// ============================================
+function renderStatus() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">🔧 Changer le statut d\'un camion</div><div class="card-body">';
+  html += '<div class="info-box">La date d\'entree en maintenance/panne est enregistree. Au retour en service, la duree est calculee automatiquement.</div>';
+  html += '<div class="form-group"><label>Camion *</label><select id="statusTruck" onchange="loadCurrentStatus()">'+truckSelectOptions()+'</select></div>';
+  html += '<div id="currentStatusInfo" style="display:none"></div>';
+  html += '<div class="form-row"><div class="form-group"><label>Nouveau statut *</label><select id="newStatus">';
+  ['Actif','Maintenance','En panne','Hors service','En vente'].forEach(function(s) {
+    html += '<option value="'+s+'">'+s+'</option>';
+  });
+  html += '</select></div><div class="form-group"><label>Date *</label><input type="date" id="statusDate" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
+  html += '<div class="form-group"><label>Motif</label><textarea id="statusReason" rows="2" placeholder="ex: Revision, panne moteur..."></textarea></div>';
+  html += '<div class="action-btns"><button class="btn btn-warning" onclick="saveStatus()">🔧 Changer le statut</button></div>';
+  html += '</div></div>';
+  
+  // History
+  html += '<div class="card"><div class="card-header">📋 Historique des statuts</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Camion</th><th>Ancien</th><th>Nouveau</th><th>Date</th><th>Retour</th><th>Duree</th><th>Motif</th></tr></thead><tbody>';
+  if (db.statusHistory.length === 0) {
+    html += '<tr><td colspan="7" class="empty">Aucun historique</td></tr>';
+  } else {
+    db.statusHistory.slice().reverse().forEach(function(s) {
+      var dur = s.durationDays ? s.durationDays + ' j' : (s.newStatus === 'Actif' ? '-' : 'En cours...');
+      var badge = s.newStatus === 'Actif' ? 'badge-green' : s.newStatus === 'Maintenance' ? 'badge-orange' : 'badge-red';
+      html += '<tr><td>'+s.truckRef+'</td><td>'+(s.oldStatus||'')+'</td><td><span class="badge '+badge+'">'+s.newStatus+'</span></td><td>'+s.date+'</td><td>'+(s.dateRetour||'-')+'</td><td>'+dur+'</td><td>'+(s.reason||'')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function loadCurrentStatus() {
+  var ref = val('statusTruck');
+  var db = loadDB();
+  var t = db.trucks.find(function(x){return x.ref===ref;});
+  var info = document.getElementById('currentStatusInfo');
+  if (!t) { info.style.display = 'none'; return; }
+  info.style.display = 'block';
+  var d = daysBetween(t.statusDate);
+  info.innerHTML = '<div class="info-box">Statut actuel: <b>'+t.statut+'</b>'+(t.statusDate?' depuis le '+t.statusDate+' ('+d+' jour(s))':'')+(t.statusReason?'<br>Motif: '+t.statusReason:'')+'</div>';
+}
+
+function saveStatus() {
+  var db = loadDB();
+  var ref = val('statusTruck');
+  var newSt = val('newStatus');
+  var date = val('statusTruck') ? val('statusDate') : '';
+  var reason = val('statusReason');
+  
+  if (!ref) { alert('Choisir un camion!'); return; }
+  if (!date) { alert('Date obligatoire!'); return; }
+  
+  var idx = db.trucks.findIndex(function(x){return x.ref===ref;});
+  if (idx === -1) { alert('Camion introuvable!'); return; }
+  
+  var oldStatus = db.trucks[idx].statut || 'Actif';
+  
+  // Si remise en Actif, calculer duree
+  var prev = db.statusHistory.filter(function(s){return s.truckRef===ref && s.newStatus!=='Actif' && !s.durationDays;}).pop();
+  if (prev && newSt === 'Actif') {
+    prev.dateRetour = date;
+    prev.durationDays = daysBetween(prev.date);
+  }
+  
+  // Historique
+  db.statusHistory.push({
+    truckRef: ref, oldStatus: oldStatus, newStatus: newSt,
+    date: date, dateRetour: newSt === 'Actif' ? date : '',
+    durationDays: newSt === 'Actif' && prev ? prev.durationDays : 0,
+    reason: reason
+  });
+  
+  // MAJ camion PAR INDEX
+  db.trucks[idx].statut = newSt;
+  db.trucks[idx].statusDate = (newSt === 'Maintenance' || newSt === 'En panne') ? date : '';
+  db.trucks[idx].statusReason = (newSt === 'Maintenance' || newSt === 'En panne') ? reason : '';
+  
+  saveDB(db);
+  
+  // VERIFICATION
+  var verify = loadDB();
+  var vt = verify.trucks.find(function(x){return x.ref===ref;});
+  if (!vt || vt.statut !== newSt) {
+    alert('ERREUR: sauvegarde echouee!');
+    return;
+  }
+  
+  alert('✅ '+ref+' -> '+newSt+(newSt==='Actif'?' (remis en service)':''));
+  switchTab('status');
+}
+
+// ============================================
+// CHANGEMENT FILTRE
+// ============================================
+function renderFilters() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">🧰 Enregistrer un changement de filtre</div><div class="card-body">';
+  html += '<div class="form-group"><label>Camion *</label><select id="filterTruck" onchange="loadCompatibleFilters()">'+truckSelectOptions()+'</select></div>';
+  html += '<div id="filterCompatSection" style="display:none"><div id="filterCompatList"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="filterDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+  html += '<div class="form-group"><label>Type de filtre *</label><select id="filterType"><option value="">-- Choisir --</option>';
+  ['Filtre Huile','Filtre Air','Filtre Carburant','Separateur d\'eau','Filtre Cabine','Air Dryer','Filtre Hydraulique','Filtre Transmission'].forEach(function(t) {
+    html += '<option value="'+t+'">'+t.replace('Separateur', 'Separateur ')+'</option>';
+  });
+  html += '</select></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Reference filtre</label><input type="text" id="filterRef" placeholder="Saisie libre"></div>';
+  html += '<div class="form-group"><label>Marque filtre</label><select id="filterBrand"><option value="">--</option>';
+  ['Sofima','UFI Filters','Misfat','MANN-FILTER','Mahle/Knecht','Bosch','Purflux','WIX Filters','FILTRON','Autre'].forEach(function(b) {
+    html += '<option value="'+b+'">'+b+'</option>';
+  });
+  html += '</select></div></div>';
+  
+  html += '<div class="form-row-3"><div class="form-group"><label>Quantite *</label><input type="number" id="filterQty" value="1" min="1"></div>';
+  html += '<div class="form-group"><label>Prix unitaire (TND) *</label><input type="number" step="0.001" id="filterPrice" placeholder="0.000"></div>';
+  html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="filterSupplier" placeholder="Nos Spare Parts..."></div></div>';
+  
+  html += '<div class="form-group"><label>Notes</label><input type="text" id="filterNotes"></div>';
+  html += '<div class="action-btns"><button class="btn btn-success" onclick="saveFilterChange()">✅ Enregistrer</button></div>';
+  html += '</div></div>';
+  
+  // History
+  html += '<div class="card"><div class="card-header">📋 Historique changements de filtres</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>Type</th><th>Ref</th><th>Marque</th><th>Qte</th><th>Prix U.</th><th>Total</th><th>Fourn.</th><th></th></tr></thead><tbody>';
+  if (db.filterChanges.length === 0) { html += '<tr><td colspan="9" class="empty">Aucun changement</td></tr>'; }
+  else {
+    db.filterChanges.slice().reverse().forEach(function(f) {
+      var total = (f.qty||0)*(f.price||0);
+      html += '<tr><td><b>'+(f.ticketNo||'FLT-?')+'</b></td><td>'+f.date+'</td><td>'+f.truckRef+'</td><td>'+f.filterType+'</td><td>'+(f.filterRef||'')+'</td><td>'+(f.filterBrand||'')+'</td><td>'+(f.qty||1)+'</td><td>'+(f.price>0?f.price.toFixed(3):'-')+'</td><td><b>'+(f.price>0?total.toFixed(3)+' TND':'-')+'</b></td><td>'+(f.supplier||'')+'</td><td>'+(f.ticketNo?'<button class="btn btn-sm btn-primary" onclick="printTicket(\'filter\',\''+f.ticketNo+'\')">🖨️</button>':'')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function loadCompatibleFilters() {
+  var ref = val('filterTruck');
+  var db = loadDB();
+  var t = db.trucks.find(function(x){return x.ref===ref;});
+  var section = document.getElementById('filterCompatSection');
+  var list = document.getElementById('filterCompatList');
+  if (!t) { section.style.display = 'none'; return; }
+  var filters = FILTERS_BY_BRAND[t.brand] || [];
+  if (filters.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = '<p style="font-weight:600;color:var(--navy);margin-bottom:6px">Filtres compatibles '+t.brand+' '+t.model+':</p>' + filters.map(function(f) {
+    return '<span class="filter-tag" style="cursor:pointer" onclick="document.getElementById(\'filterType\').value=\''+f.type+'\'">'+f.type+' ('+f.desc+')</span>';
+  }).join('');
+}
+
+// ============================================
+// TICKET GENERATION
+// ============================================
+function nextTicket(db, type) {
+  var prefix = type === 'car' ? 'CAR' : type === 'filter' ? 'FLT' : 'HUI';
+  var year = new Date().getFullYear();
+  if (!db.ticketCounter) db.ticketCounter = {car:0, filter:0, oil:0};
+  db.ticketCounter[type] = (db.ticketCounter[type] || 0) + 1;
+  return prefix + '-' + year + '-' + String(db.ticketCounter[type]).padStart(4, '0');
+}
+
+function printTicket(type, ticketNo) {
+  var db = loadDB();
+  var entry = null;
+  var truck = null;
+  
+  if (type === 'car') {
+    entry = db.fuel.find(function(f){return f.ticketNo === ticketNo;});
+    if (entry) truck = db.trucks.find(function(t){return t.ref === entry.truckRef;});
+  } else if (type === 'filter') {
+    entry = db.filterChanges.find(function(f){return f.ticketNo === ticketNo;});
+    if (entry) truck = db.trucks.find(function(t){return t.ref === entry.truckRef;});
+  } else if (type === 'oil') {
+    entry = db.oilChanges.find(function(o){return o.ticketNo === ticketNo;});
+    if (entry) truck = db.trucks.find(function(t){return t.ref === entry.truckRef;});
+  }
+  
+  if (!entry) { alert('Ticket introuvable!'); return; }
+  
+  var tLabel = type === 'car' ? 'BON DE CARBURANT' : type === 'filter' ? 'BON DE CHANGEMENT FILTRE' : 'BON DE VIDANGE';
+  var w = window.open('', '_blank', 'width=400,height=600');
+  var html = '<html><head><meta charset="UTF-8"><title>' + tLabel + ' ' + ticketNo + '</title>';
+  html += '<style>';
+  html += '@media print{body{margin:0}.no-print{display:none}}';
+  html += 'body{font-family:Courier New,monospace;font-size:12px;padding:20px;max-width:380px;margin:0 auto;color:#000}';
+  html += '.header{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px}';
+  html += '.title{font-size:14px;font-weight:bold}';
+  html += '.ticket-no{font-size:16px;font-weight:bold;border:2px solid #000;padding:4px 12px;display:inline-block;margin:6px 0;background:#f0f0f0}';
+  html += '.row{display:flex;justify-content:space-between;border-bottom:1px dashed #ccc;padding:4px 0}';
+  html += '.label{font-weight:bold}';
+  html += '.section{font-weight:bold;margin-top:10px;border-bottom:1px solid #000;padding-bottom:3px}';
+  html += '.total{font-size:16px;font-weight:bold;text-align:center;margin:10px 0;padding:8px;border:2px solid #000;background:#f0f0f0}';
+  html += '.footer{text-align:center;margin-top:15px;font-size:10px;color:#666;border-top:1px solid #ccc;padding-top:8px}';
+  html += '.btn{padding:8px 20px;font-size:14px;cursor:pointer;background:#0A1628;color:#fff;border:none;border-radius:4px}';
+  html += '.sign{margin-top:20px;display:flex;justify-content:space-between}';
+  html += '.sign-box{border:1px solid #000;padding:20px 10px 4px;font-size:10px;width:140px;text-align:center}';
+  html += '</style></head><body>';
+  
+  html += '<div class="header"><div class="title">🚛 NOS SPARE PARTS</div><div>Gestion Flotte Poids Lourds</div><div>Tel: +216 XX XXX XXX</div></div>';
+  html += '<div style="text-align:center"><div class="ticket-no">' + ticketNo + '</div><div class="title">' + tLabel + '</div></div>';
+  html += '<div style="text-align:right;font-size:10px">Date: ' + new Date().toLocaleString('fr-FR') + '</div>';
+  
+  html += '<div class="section">INFORMATIONS CAMION</div>';
+  html += '<div class="row"><span class="label">Reference:</span><span>' + (truck ? truck.ref : '') + '</span></div>';
+  html += '<div class="row"><span class="label">Immatriculation:</span><span>' + (truck ? truck.immat : '') + '</span></div>';
+  html += '<div class="row"><span class="label">Marque/Modele:</span><span>' + (truck ? truck.brand + ' ' + truck.model : '') + '</span></div>';
+  html += '<div class="row"><span class="label">Chauffeur:</span><span>' + (truck ? truck.driver : '') + '</span></div>';
+  
+  html += '<div class="section">DETAILS</div>';
+  
+  if (type === 'car') {
+    html += '<div class="row"><span class="label">Date:</span><span>' + entry.date + '</span></div>';
+    html += '<div class="row"><span class="label">KM compteur:</span><span>' + (entry.km||0).toLocaleString() + ' km</span></div>';
+    html += '<div class="row"><span class="label">Litres:</span><span>' + (entry.liters||0) + ' L</span></div>';
+    html += '<div class="row"><span class="label">Prix/L:</span><span>' + (entry.pricePerL||0).toFixed(3) + ' TND</span></div>';
+    html += '<div class="row"><span class="label">Type:</span><span>' + (entry.type||'Gasoil') + '</span></div>';
+    html += '<div class="row"><span class="label">Station:</span><span>' + (entry.station||'') + '</span></div>';
+    var total = (entry.liters||0) * (entry.pricePerL||0);
+    html += '<div class="total">TOTAL: ' + total.toFixed(3) + ' TND</div>';
+  } else if (type === 'filter') {
+    html += '<div class="row"><span class="label">Date:</span><span>' + entry.date + '</span></div>';
+    html += '<div class="row"><span class="label">Type filtre:</span><span>' + entry.filterType + '</span></div>';
+    html += '<div class="row"><span class="label">Reference:</span><span>' + (entry.filterRef||'') + '</span></div>';
+    html += '<div class="row"><span class="label">Marque:</span><span>' + (entry.filterBrand||'') + '</span></div>';
+    html += '<div class="row"><span class="label">Quantite:</span><span>' + (entry.qty||1) + '</span></div>';
+    html += '<div class="row"><span class="label">Prix unitaire:</span><span>' + (entry.price||0).toFixed(3) + ' TND</span></div>';
+    html += '<div class="row"><span class="label">Fournisseur:</span><span>' + (entry.supplier||'') + '</span></div>';
+    var total = (entry.qty||0) * (entry.price||0);
+    html += '<div class="total">TOTAL: ' + total.toFixed(3) + ' TND</div>';
+  } else if (type === 'oil') {
+    html += '<div class="row"><span class="label">Date:</span><span>' + entry.date + '</span></div>';
+    html += '<div class="row"><span class="label">KM compteur:</span><span>' + (entry.km||0).toLocaleString() + ' km</span></div>';
+    html += '<div class="row"><span class="label">Type huile:</span><span>' + entry.oilType + '</span></div>';
+    html += '<div class="row"><span class="label">Marque huile:</span><span>' + (entry.oilBrand||'') + '</span></div>';
+    html += '<div class="row"><span class="label">Litres:</span><span>' + (entry.liters||0) + ' L</span></div>';
+    html += '<div class="row"><span class="label">Prix/L:</span><span>' + (entry.pricePerL||0).toFixed(3) + ' TND</span></div>';
+    html += '<div class="row"><span class="label">Fournisseur:</span><span>' + (entry.supplier||'') + '</span></div>';
+    var total = (entry.liters||0) * (entry.pricePerL||0);
+    html += '<div class="total">TOTAL: ' + total.toFixed(3) + ' TND</div>';
+  }
+  
+  if (entry.notes) {
+    html += '<div class="row"><span class="label">Notes:</span><span>' + entry.notes + '</span></div>';
+  }
+  
+  html += '<div class="sign"><div class="sign-box">Signature Chauffeur</div><div class="sign-box">Signature Responsable</div></div>';
+  html += '<div class="footer">Nos Spare Parts - Gestion Flotte Poids Lourds<br>Ticket: ' + ticketNo + ' - ' + new Date().toLocaleString('fr-FR') + '</div>';
+  
+  html += '<div class="no-print" style="text-align:center;margin-top:15px"><button class="btn" onclick="window.print()">🖨️ Imprimer</button></div>';
+  html += '</body></html>';
+  
+  w.document.write(html);
+  w.document.close();
+}
+
+function saveFilterChange() {
+  var db = loadDB();
+  var f = {
+    truckRef: val('filterTruck'), date: val('filterDate'),
+    filterType: val('filterType'), filterRef: val('filterRef'),
+    filterBrand: val('filterBrand'), qty: parseInt(val('filterQty'))||1,
+    price: parseFloat(val('filterPrice'))||0,
+    supplier: val('filterSupplier'), notes: val('filterNotes')
+  };
+  if (!f.truckRef || !f.date || !f.filterType) { alert('Camion, date et type obligatoires!'); return; }
+  f.ticketNo = nextTicket(db, 'filter');
+  db.filterChanges.push(f);
+  saveDB(db);
+  var cost = (f.qty||0)*(f.price||0);
+  if (confirm('✅ Filtre enregistre! Ticket: ' + f.ticketNo + '\nCout: ' + (cost>0?cost.toFixed(3)+' TND':'-') + '\n\nImprimer le ticket?')) {
+    printTicket('filter', f.ticketNo);
+  }
+  switchTab('filters');
+}
+
+// ============================================
+// VIDANGE / HUILE
+// ============================================
+function renderOil() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">🛢️ Enregistrer une vidange</div><div class="card-body">';
+  html += '<div class="form-group"><label>Camion *</label><select id="oilTruck">'+truckSelectOptions()+'</select></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="oilDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+  html += '<div class="form-group"><label>KM compteur *</label><input type="number" id="oilKm" placeholder="0"></div></div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Type d\'huile *</label><select id="oilType">';
+  ['15W40','10W40','5W30','5W40','0W30','0W40','10W30','Autre'].forEach(function(t) {
+    html += '<option value="'+t+'">'+t+'</option>';
+  });
+  html += '</select></div><div class="form-group"><label>Marque d\'huile</label><select id="oilBrand"><option value="">--</option>';
+  ['Total','Shell','Mobil','Castrol','Motul','Elf','Liqui Moly','Valvoline','Repsol','Autre'].forEach(function(b) {
+    html += '<option value="'+b+'">'+b+'</option>';
+  });
+  html += '</select></div></div>';
+  
+  html += '<div class="form-row-3"><div class="form-group"><label>Litres *</label><input type="number" step="0.1" id="oilLiters" placeholder="28"></div>';
+  html += '<div class="form-group"><label>Prix/L (TND) *</label><input type="number" step="0.001" id="oilPricePerL" placeholder="6.500"></div>';
+  html += '<div class="form-group"><label>Cout total</label><input type="text" id="oilTotalCost" readonly placeholder="auto"></div></div>';
+  
+  html += '<div class="form-group"><label>Fournisseur *</label><input type="text" id="oilSupplier" placeholder="Nos Spare Parts..."></div>';
+  html += '<div class="form-group"><label>Notes</label><input type="text" id="oilNotes"></div>';
+  html += '<div class="action-btns"><button class="btn btn-success" onclick="saveOilChange()">✅ Enregistrer</button></div>';
+  html += '</div></div>';
+  
+  // History
+  html += '<div class="card"><div class="card-header">📋 Historique vidanges</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>KM</th><th>Type</th><th>Marque</th><th>L</th><th>Prix/L</th><th>Total</th><th>Fourn.</th><th></th></tr></thead><tbody>';
+  if (db.oilChanges.length === 0) { html += '<tr><td colspan="9" class="empty">Aucune vidange</td></tr>'; }
+  else {
+    db.oilChanges.slice().reverse().forEach(function(o) {
+      var total = (o.liters||0)*(o.pricePerL||0);
+      html += '<tr><td><b>'+(o.ticketNo||'HUI-?')+'</b></td><td>'+o.date+'</td><td>'+o.truckRef+'</td><td>'+(o.km||0).toLocaleString()+'</td><td>'+o.oilType+'</td><td>'+(o.oilBrand||'')+'</td><td>'+(o.liters||0)+'</td><td>'+(o.pricePerL>0?o.pricePerL.toFixed(3):'-')+'</td><td><b>'+(o.pricePerL>0?total.toFixed(3)+' TND':'-')+'</b></td><td>'+(o.supplier||'')+'</td><td>'+(o.ticketNo?'<button class="btn btn-sm btn-primary" onclick="printTicket(\'oil\',\''+o.ticketNo+'\')">🖨️</button>':'')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function saveOilChange() {
+  var db = loadDB();
+  var o = {
+    truckRef: val('oilTruck'), date: val('oilDate'), km: parseInt(val('oilKm'))||0,
+    oilType: val('oilType'), oilBrand: val('oilBrand'),
+    liters: parseFloat(val('oilLiters'))||0, pricePerL: parseFloat(val('oilPricePerL'))||0,
+    supplier: val('oilSupplier'), notes: val('oilNotes')
+  };
+  if (!o.truckRef || !o.date) { alert('Camion et date obligatoires!'); return; }
+  o.ticketNo = nextTicket(db, 'oil');
+  db.oilChanges.push(o);
+  saveDB(db);
+  var cost = (o.liters||0)*(o.pricePerL||0);
+  if (confirm('✅ Vidange enregistree! Ticket: ' + o.ticketNo + '\n' + (o.liters||0) + 'L ' + o.oilType + ' ' + (o.oilBrand||'') + '\nCout: ' + (cost>0?cost.toFixed(3)+' TND':'-') + '\n\nImprimer le ticket?')) {
+    printTicket('oil', o.ticketNo);
+  }
+  switchTab('oil');
+}
+
+// ============================================
+// CARBURANT
+// ============================================
+function renderFuel() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">⛽ Saisir un plein</div><div class="card-body">';
+  html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="fuelTruck">'+truckSelectOptions()+'</select></div>';
+  html += '<div class="form-group"><label>Date *</label><input type="date" id="fuelDate" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
+  html += '<div class="form-row-3"><div class="form-group"><label>KM compteur</label><input type="number" id="fuelKm" placeholder="0"></div>';
+  html += '<div class="form-group"><label>Litres</label><input type="number" step="0.1" id="fuelLiters" placeholder="0"></div>';
+  html += '<div class="form-group"><label>Prix/L (TND)</label><input type="number" step="0.001" id="fuelPrice" value="2.300"></div></div>';
+  html += '<div class="form-group"><label>Type</label><select id="fuelType">';
+  ['Gasoil','Essence','GNV','AdBlue'].forEach(function(t) { html += '<option value="'+t+'">'+t+'</option>'; });
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Station / Lieu</label><input type="text" id="fuelStation" placeholder="Station SAG..."></div>';
+  html += '<div class="action-btns"><button class="btn btn-success" onclick="saveFuel()">⛽ Enregistrer</button></div>';
+  html += '</div></div>';
+  
+  html += '<div class="card"><div class="card-header">📋 Historique carburant</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>KM</th><th>Litres</th><th>Prix/L</th><th>Total</th><th>L/100</th><th>Station</th><th></th></tr></thead><tbody>';
+  if (db.fuel.length === 0) { html += '<tr><td colspan="8" class="empty">Aucun plein</td></tr>'; }
+  else {
+    db.fuel.slice().reverse().forEach(function(f, i) {
+      var prev = db.fuel.filter(function(x){return x.truckRef===f.truckRef && x.date<=f.date;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+      var p = prev[prev.length-2];
+      var conso = '';
+      if (p && f.km > p.km && f.liters > 0) conso = (f.liters/(f.km-p.km)*100).toFixed(2)+' L/100';
+      html += '<tr><td><b>'+(f.ticketNo||'CAR-?')+'</b></td><td>'+f.date+'</td><td>'+f.truckRef+'</td><td>'+f.km.toLocaleString()+'</td><td>'+f.liters+' L</td><td>'+f.pricePerL.toFixed(3)+'</td><td>'+(f.liters*f.pricePerL).toFixed(3)+'</td><td>'+conso+'</td><td>'+(f.station||'')+'</td><td>'+(f.ticketNo?'<button class="btn btn-sm btn-primary" onclick="printTicket(\'car\',\''+f.ticketNo+'\')">🖨️</button>':'')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function saveFuel() {
+  var db = loadDB();
+  var f = {
+    truckRef: val('fuelTruck'), date: val('fuelDate'),
+    km: parseInt(val('fuelKm'))||0, liters: parseFloat(val('fuelLiters'))||0,
+    pricePerL: parseFloat(val('fuelPrice'))||0,
+    type: val('fuelType'), station: val('fuelStation')
+  };
+  if (!f.truckRef || !f.date) { alert('Camion et date obligatoires!'); return; }
+  f.ticketNo = nextTicket(db, 'car');
+  db.fuel.push(f);
+  saveDB(db);
+  var cost = (f.liters||0)*(f.pricePerL||0);
+  if (confirm('✅ Plein enregistre! Ticket: ' + f.ticketNo + '\nCout: ' + cost.toFixed(3) + ' TND\n\nImprimer le ticket?')) {
+    printTicket('car', f.ticketNo);
+  }
+  switchTab('fuel');
+}
+
+// ============================================
+// KILOMETRAGE
+// ============================================
+function renderMileage() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">📏 Kilometrage mensuel</div><div class="card-body">';
+  html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="kmTruck">'+truckSelectOptions()+'</select></div>';
+  html += '<div class="form-group"><label>Mois/Annee *</label><input type="month" id="kmMonth" value="'+new Date().toISOString().slice(0,7)+'"></div></div>';
+  html += '<div class="form-row"><div class="form-group"><label>KM debut</label><input type="number" id="kmStart" placeholder="0"></div>';
+  html += '<div class="form-group"><label>KM fin</label><input type="number" id="kmEnd" placeholder="0"></div></div>';
+  html += '<div class="form-group"><label>Source GPS</label><select id="kmSource">';
+  ['GPS Teltonika','GPS Geotab','GPS Cartrack','Saisie manuelle','Telematique constructeur'].forEach(function(s) {
+    html += '<option value="'+s+'">'+s+'</option>';
+  });
+  html += '</select></div>';
+  html += '<div class="form-group"><label>Notes</label><input type="text" id="kmNotes"></div>';
+  html += '<div class="action-btns"><button class="btn btn-success" onclick="saveMileage()">✅ Enregistrer</button></div>';
+  html += '</div></div>';
+  
+  html += '<div class="card"><div class="card-header">📋 Historique kilometrage</div><div class="card-body" style="overflow-x:auto">';
+  html += '<table><thead><tr><th>Mois</th><th>Camion</th><th>KM debut</th><th>KM fin</th><th>Parcouru</th><th>Source</th></tr></thead><tbody>';
+  if (db.mileage.length === 0) { html += '<tr><td colspan="6" class="empty">Aucune saisie</td></tr>'; }
+  else {
+    db.mileage.slice().reverse().forEach(function(m) {
+      html += '<tr><td>'+m.month+'</td><td>'+m.truckRef+'</td><td>'+(m.kmStart||0).toLocaleString()+'</td><td>'+(m.kmEnd||0).toLocaleString()+'</td><td><b>'+((m.kmEnd||0)-(m.kmStart||0)).toLocaleString()+'</b></td><td>'+(m.source||'')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function saveMileage() {
+  var db = loadDB();
+  var m = {
+    truckRef: val('kmTruck'), month: val('kmMonth'),
+    kmStart: parseInt(val('kmStart'))||0, kmEnd: parseInt(val('kmEnd'))||0,
+    source: val('kmSource'), notes: val('kmNotes')
+  };
+  if (!m.truckRef || !m.month) { alert('Camion et mois obligatoires!'); return; }
+  db.mileage.push(m);
+  saveDB(db);
+  alert('✅ Kilometrage enregistre! Parcouru: '+((m.kmEnd-m.kmStart)).toLocaleString()+' km');
+  switchTab('mileage');
+}
+
+// ============================================
+// ALERTES
+// ============================================
+function renderAlerts() {
+  var db = loadDB();
+  var html = '<div class="card"><div class="card-header">⚠️ Alertes entretien preventif</div><div class="card-body">';
+  html += '<div class="info-box">Alertes calculees a partir du dernier kilometrage connu et des seuils par camion. Critique = seuil depasse. Preventive = 80% atteint.</div>';
+  
+  var hasAlerts = false;
+  db.trucks.forEach(function(t) {
+    var currentKm = getLatestKm(t.ref);
+    var lastOilKm = getKmAtLastOilChange(t.ref);
+    var kmSinceOil = currentKm - lastOilKm;
+    var seuil = t.seuilVidange || 30000;
+    var pct = Math.min(Math.round(kmSinceOil / seuil * 100), 100);
+    var color = pct >= 100 ? 'prog-red' : pct >= 80 ? 'prog-orange' : 'prog-green';
+    
+    var a = checkAlert(t);
+    if (a) {
+      hasAlerts = true;
+      if (a.level === 'crit') {
+        html += '<div class="alert-box"><b>🚨 '+t.ref+'</b> - '+t.brand+' '+t.model+' ('+(t.driver||'')+')<br><span style="color:var(--red);font-weight:600">'+a.msg+'</span><br><small>KM actuel: '+currentKm.toLocaleString()+' | Derniere vidange: '+lastOilKm.toLocaleString()+' | Depuis: '+kmSinceOil.toLocaleString()+' km</small><div class="prog-bar"><div class="prog-fill '+color+'" style="width:'+pct+'%"></div></div></div>';
+      } else {
+        html += '<div class="alert-warn"><b>⚠️ '+t.ref+'</b> - '+t.brand+' '+t.model+' ('+(t.driver||'')+')<br><span style="color:var(--orange);font-weight:600">'+a.msg+'</span><br><small>KM actuel: '+currentKm.toLocaleString()+' | Derniere vidange: '+lastOilKm.toLocaleString()+' | Depuis: '+kmSinceOil.toLocaleString()+' km</small><div class="prog-bar"><div class="prog-fill '+color+'" style="width:'+pct+'%"></div></div></div>';
+      }
+    }
+  });
+  if (!hasAlerts) html += '<div class="success-box">✅ Aucune alerte. Maintenances dans les seuils.</div>';
+  html += '</div></div>';
+  return html;
+}
+
+// ============================================
+// BASE FILTRES
+// ============================================
+function renderFilterBase() {
+  var html = '<div class="card"><div class="card-header">📋 Base filtres par marque</div><div class="card-body">';
+  html += '<div class="info-box">Types de filtres necessaires par marque. References et prix a saisir librement lors du changement.</div>';
+  html += '<div class="form-group"><label>Filtrer par marque</label><select id="filterBrandSelect" onchange="showBrandFilters()"><option value="">Toutes</option>';
+  Object.keys(FILTERS_BY_BRAND).forEach(function(b) { html += '<option value="'+b+'">'+b+'</option>'; });
+  html += '</select></div><div id="brandFiltersDisplay"></div></div></div>';
+  return html;
+}
+
+function showBrandFilters() {
+  var brand = val('filterBrandSelect');
+  var el = document.getElementById('brandFiltersDisplay');
+  var brands = brand ? [brand] : Object.keys(FILTERS_BY_BRAND);
+  el.innerHTML = brands.map(function(b) {
+    var filters = FILTERS_BY_BRAND[b] || [];
+    return '<div class="card" style="margin-bottom:8px"><div class="card-header">🧰 '+b+' ('+filters.length+' types)</div><div class="card-body">'+filters.map(function(f) {
+      return '<span class="filter-tag"><b>'+f.type+'</b> - '+f.desc+'</span>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+
+// ============================================
+// RAPPORTS DE SYNTHESE
+// ============================================
+function renderReports() {
+  var db = loadDB();
+  var today = new Date().toISOString().slice(0,10);
+  var firstDay = new Date();
+  firstDay.setDate(1);
+  var firstDate = firstDay.toISOString().slice(0,10);
+  
+  var html = '<div class="card"><div class="card-header">📈 Rapport de synthese par camion</div><div class="card-body">';
+  html += '<div class="info-box">Selectionnez un camion et une periode pour voir le rapport complet: entretiens (filtres + huile) et consommation carburant.</div>';
+  
+  html += '<div class="form-row"><div class="form-group"><label>Camion</label><select id="reportTruck">'+truckSelectOptions()+'</select></div></div>';
+  html += '<div class="form-row"><div class="form-group"><label>Date debut</label><input type="date" id="reportFrom" value="'+firstDate+'"></div>';
+  html += '<div class="form-group"><label>Date fin</label><input type="date" id="reportTo" value="'+today+'"></div></div>';
+  html += '<div class="action-btns"><button class="btn btn-primary" onclick="generateReport()">📊 Generer le rapport</button></div>';
+  html += '</div></div>';
+  
+  html += '<div id="reportResult"></div>';
+  return html;
+}
+
+function generateReport() {
+  var db = loadDB();
+  var ref = val('reportTruck');
+  var from = val('reportFrom');
+  var to = val('reportTo');
+  
+  if (!ref) { alert('Choisir un camion!'); return; }
+  if (!from || !to) { alert('Dates obligatoires!'); return; }
+  
+  var truck = db.trucks.find(function(t){return t.ref===ref;});
+  if (!truck) { alert('Camion introuvable!'); return; }
+  
+  // Filter data within date range
+  var filters = db.filterChanges.filter(function(f){return f.truckRef===ref && f.date>=from && f.date<=to;});
+  var oils = db.oilChanges.filter(function(o){return o.truckRef===ref && o.date>=from && o.date<=to;});
+  var fuels = db.fuel.filter(function(f){return f.truckRef===ref && f.date>=from && f.date<=to;});
+  var kms = db.mileage.filter(function(m){return m.truckRef===ref && m.month>=from.slice(0,7) && m.month<=to.slice(0,7);});
+  var statuses = db.statusHistory.filter(function(s){return s.truckRef===ref && s.date>=from && s.date<=to;});
+  
+  // Calculations
+  var totalFilterCost = filters.reduce(function(s,f){return s+((f.qty||0)*(f.price||0));},0);
+  var totalOilCost = oils.reduce(function(s,o){return s+((o.liters||0)*(o.pricePerL||0));},0);
+  var totalOilLiters = oils.reduce(function(s,o){return s+(o.liters||0);},0);
+  var totalFuelLiters = fuels.reduce(function(s,f){return s+(f.liters||0);},0);
+  var totalFuelCost = fuels.reduce(function(s,f){return s+((f.liters||0)*(f.pricePerL||0));},0);
+  var totalKm = kms.reduce(function(s,m){return s+((m.kmEnd||0)-(m.kmStart||0));},0);
+  var totalConso = totalKm > 0 && totalFuelLiters > 0 ? (totalFuelLiters/totalKm*100).toFixed(2) : '-';
+  var maintDays = statuses.filter(function(s){return s.newStatus==='Maintenance'||s.newStatus==='En panne';}).reduce(function(s,st){return s+(st.durationDays||0);},0);
+  
+  var html = '<div class="card"><div class="card-header">📋 Rapport: ' + ref + ' - ' + truck.brand + ' ' + truck.model + '</div><div class="card-body">';
+  
+  // Summary
+  html += '<div class="info-box"><b>Periode:</b> ' + from + ' au ' + to + '<br><b>Chauffeur:</b> ' + (truck.driver||'') + ' | <b>Statut:</b> ' + truck.statut + '</div>';
+  
+  // Stats grid
+  html += '<div class="stats">';
+  html += '<div class="stat-card"><div class="label">KM parcourus</div><div class="value">'+totalKm.toLocaleString()+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">Cout carburant</div><div class="value">'+totalFuelCost.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">Cout filtres</div><div class="value">'+totalFilterCost.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card gold"><div class="label">Cout huile</div><div class="value">'+totalOilCost.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card"><div class="label">L carburant</div><div class="value">'+totalFuelLiters.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card"><div class="label">L huile</div><div class="value">'+totalOilLiters.toFixed(0)+'</div></div>';
+  html += '<div class="stat-card"><div class="label">Conso L/100</div><div class="value">'+totalConso+'</div></div>';
+  html += '<div class="stat-card orange"><div class="label">Jours immobilise</div><div class="value">'+maintDays+'</div></div>';
+  html += '</div>';
+  
+  // Couts totaux
+  var grandTotal = totalFilterCost + totalOilCost + totalFuelCost;
+  html += '<div style="background:#FFF8E1;border:2px solid #FFD54F;border-radius:8px;padding:10px 14px;margin:10px 0;text-align:center;font-size:18px;font-weight:bold;color:#B89414">COUT TOTAL PERIODE: ' + grandTotal.toFixed(3) + ' TND</div>';
+  
+  // Filtres detail
+  html += '<p style="font-weight:600;color:var(--navy);margin:14px 0 6px;border-bottom:2px solid var(--gold);padding-bottom:4px">🧰 CHANGEMENTS DE FILTRES (' + filters.length + ')</p>';
+  if (filters.length === 0) { html += '<div class="empty">Aucun changement de filtre sur cette periode</div>'; }
+  else {
+    html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Type</th><th>Ref</th><th>Marque</th><th>Qte</th><th>Prix U.</th><th>Total</th><th>Fourn.</th></tr></thead><tbody>';
+    filters.forEach(function(f) {
+      html += '<tr><td>'+(f.ticketNo||'-')+'</td><td>'+f.date+'</td><td>'+f.filterType+'</td><td>'+(f.filterRef||'')+'</td><td>'+(f.filterBrand||'')+'</td><td>'+(f.qty||1)+'</td><td>'+(f.price||0).toFixed(3)+'</td><td><b>'+((f.qty||0)*(f.price||0)).toFixed(3)+'</b></td><td>'+(f.supplier||'')+'</td></tr>';
+    });
+    html += '<tr style="background:#FFF8E1;font-weight:bold"><td colspan="7">TOTAL FILTRES</td><td>'+totalFilterCost.toFixed(3)+' TND</td><td></td></tr>';
+    html += '</tbody></table>';
+  }
+  
+  // Huile detail
+  html += '<p style="font-weight:600;color:var(--navy);margin:14px 0 6px;border-bottom:2px solid var(--gold);padding-bottom:4px">🛢️ VIDANGES (' + oils.length + ')</p>';
+  if (oils.length === 0) { html += '<div class="empty">Aucune vidange sur cette periode</div>'; }
+  else {
+    html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>KM</th><th>Type</th><th>Marque</th><th>L</th><th>Prix/L</th><th>Total</th><th>Fourn.</th></tr></thead><tbody>';
+    oils.forEach(function(o) {
+      html += '<tr><td>'+(o.ticketNo||'-')+'</td><td>'+o.date+'</td><td>'+(o.km||0).toLocaleString()+'</td><td>'+o.oilType+'</td><td>'+(o.oilBrand||'')+'</td><td>'+(o.liters||0)+'</td><td>'+(o.pricePerL||0).toFixed(3)+'</td><td><b>'+((o.liters||0)*(o.pricePerL||0)).toFixed(3)+'</b></td><td>'+(o.supplier||'')+'</td></tr>';
+    });
+    html += '<tr style="background:#FFF8E1;font-weight:bold"><td colspan="6">TOTAL HUILE ('+totalOilLiters+'L)</td><td></td><td>'+totalOilCost.toFixed(3)+' TND</td><td></td></tr>';
+    html += '</tbody></table>';
+  }
+  
+  // Carburant detail
+  html += '<p style="font-weight:600;color:var(--navy);margin:14px 0 6px;border-bottom:2px solid var(--gold);padding-bottom:4px">⛽ CARBURANT (' + fuels.length + ' pleins)</p>';
+  if (fuels.length === 0) { html += '<div class="empty">Aucun plein sur cette periode</div>'; }
+  else {
+    html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>KM</th><th>Litres</th><th>Prix/L</th><th>Total</th><th>Station</th></tr></thead><tbody>';
+    fuels.forEach(function(f) {
+      html += '<tr><td>'+(f.ticketNo||'-')+'</td><td>'+f.date+'</td><td>'+(f.km||0).toLocaleString()+'</td><td>'+(f.liters||0)+'</td><td>'+(f.pricePerL||0).toFixed(3)+'</td><td><b>'+((f.liters||0)*(f.pricePerL||0)).toFixed(3)+'</b></td><td>'+(f.station||'')+'</td></tr>';
+    });
+    html += '<tr style="background:#FFF8E1;font-weight:bold"><td colspan="3">TOTAL ('+totalFuelLiters.toFixed(0)+'L)</td><td></td><td></td><td>'+totalFuelCost.toFixed(3)+' TND</td><td></td></tr>';
+    html += '</tbody></table>';
+  }
+  
+  // Kilometrage detail
+  if (kms.length > 0) {
+    html += '<p style="font-weight:600;color:var(--navy);margin:14px 0 6px;border-bottom:2px solid var(--gold);padding-bottom:4px">📏 KILOMETRAGE (' + kms.length + ' mois)</p>';
+    html += '<table><thead><tr><th>Mois</th><th>KM debut</th><th>KM fin</th><th>Parcouru</th><th>Source</th></tr></thead><tbody>';
+    kms.forEach(function(m) {
+      html += '<tr><td>'+m.month+'</td><td>'+(m.kmStart||0).toLocaleString()+'</td><td>'+(m.kmEnd||0).toLocaleString()+'</td><td><b>'+((m.kmEnd||0)-(m.kmStart||0)).toLocaleString()+'</b></td><td>'+(m.source||'')+'</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  
+  // Status changes
+  if (statuses.length > 0) {
+    html += '<p style="font-weight:600;color:var(--navy);margin:14px 0 6px;border-bottom:2px solid var(--gold);padding-bottom:4px">🔧 CHANGEMENTS DE STATUT (' + statuses.length + ')</p>';
+    html += '<table><thead><tr><th>Date</th><th>Ancien</th><th>Nouveau</th><th>Retour</th><th>Duree</th><th>Motif</th></tr></thead><tbody>';
+    statuses.forEach(function(s) {
+      html += '<tr><td>'+s.date+'</td><td>'+(s.oldStatus||'')+'</td><td>'+s.newStatus+'</td><td>'+(s.dateRetour||'-')+'</td><td>'+(s.durationDays?s.durationDays+' j':'-')+'</td><td>'+(s.reason||'')+'</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  
+  // Print button
+  html += '<div class="action-btns" style="margin-top:14px"><button class="btn btn-gold" onclick="printReport()">🖨️ Imprimer le rapport</button></div>';
+  html += '</div></div>';
+  
+  document.getElementById('reportResult').innerHTML = html;
+}
+
+function printReport() {
+  var content = document.getElementById('reportResult').innerHTML;
+  var w = window.open('', '_blank', 'width=800,height=600');
+  var html = '<html><head><meta charset="UTF-8"><title>Rapport Flotte</title>';
+  html += '<style>@media print{.no-print{display:none}}body{font-family:Segoe UI,sans-serif;font-size:12px;padding:20px;color:#333}table{width:100%;border-collapse:collapse;margin:8px 0}th{background:#0A1628;color:#fff;padding:6px;font-size:11px}td{padding:5px;border-bottom:1px solid #ddd;font-size:11px}.stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.stat-card{border:1px solid #ddd;border-radius:6px;padding:8px;min-width:120px}.label{font-size:10px;color:#757575}.value{font-size:18px;font-weight:bold}.info-box{background:#E3F2FD;padding:8px;border-radius:6px;margin:8px 0}</style>';
+  html += '</head><body>' + content + '<div class="no-print" style="text-align:center;margin-top:15px"><button onclick="window.print()" style="padding:10px 20px;font-size:14px;cursor:pointer;background:#0A1628;color:#fff;border:none;border-radius:4px">Imprimer</button></div></body></html>';
+  w.document.write(html);
+  w.document.close();
+}
+
+// ============================================
+// EXPORT
+// ============================================
+function renderExport() {
+  var html = '<div class="card"><div class="card-header">📥 Export</div><div class="card-body">';
+  html += '<p style="color:#666;margin-bottom:12px">Exportez toutes les donnees vers CSV (ouvrable dans Excel).</p>';
+  html += '<div class="action-btns">';
+  html += '<button class="btn btn-gold" onclick="exportCSV()">📊 Exporter CSV</button>';
+  html += '<button class="btn btn-primary" onclick="exportJSON()">💾 Backup JSON</button>';
+  html += '<label class="btn btn-warning" style="display:inline-block">📥 Import JSON <input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>';
+  html += '<button class="btn btn-danger" onclick="if(confirm(\'Recharger les 3 camions de test? Vos donnees seront remplacees.\')) seedData() && switchTab(\'dashboard\')">🔄 Recharger donnees test</button>';
+  html += '</div></div></div>';
+  return html;
+}
+
+function exportCSV() {
+  var db = loadDB();
+  var csv = '';
+  csv += 'PARC CAMIONS\nRef,Immat,Marque,Modele,Annee,CG,Chassis,Chauffeur,Convoyeur,DateMC,KMInit,SeuilV,SeuilA,SeuilH,Statut,DateStatut\n';
+  db.trucks.forEach(function(t) {
+    csv += [t.ref,t.immat,t.brand,t.model,t.year,t.cg,t.chassis,t.driver,t.convoyeur,t.dateMC,t.kmInit,t.seuilVidange,t.seuilAir,t.seuilHuile,t.statut,t.statusDate].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  csv += '\n\nSTATUTS\nCamion,Ancien,Nouveau,Date,Retour,Duree,Motif\n';
+  db.statusHistory.forEach(function(s) {
+    csv += [s.truckRef,s.oldStatus,s.newStatus,s.date,s.dateRetour,s.durationDays,s.reason].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  csv += '\n\nFILTRES\nTicket,Date,Camion,Type,Ref,Marque,Qte,Prix,Total,Fournisseur\n';
+  db.filterChanges.forEach(function(f) {
+    csv += [f.ticketNo||'',f.date,f.truckRef,f.filterType,f.filterRef,f.filterBrand,f.qty,f.price,((f.qty||0)*(f.price||0)).toFixed(3),f.supplier].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  csv += '\n\nVIDANGES\nTicket,Date,Camion,KM,Type,Marque,Litres,Prix/L,Total,Fournisseur\n';
+  db.oilChanges.forEach(function(o) {
+    csv += [o.ticketNo||'',o.date,o.truckRef,o.km,o.oilType,o.oilBrand,o.liters,o.pricePerL,((o.liters||0)*(o.pricePerL||0)).toFixed(3),o.supplier].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  csv += '\n\nCARBURANT\nTicket,Date,Camion,KM,Litres,Prix/L,Total,Type,Station\n';
+  db.fuel.forEach(function(f) {
+    csv += [f.ticketNo||'',f.date,f.truckRef,f.km,f.liters,f.pricePerL,(f.liters*f.pricePerL).toFixed(3),f.type,f.station].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  csv += '\n\nKILOMETRAGE\nMois,Camion,KMDebut,KMFin,Parcouru,Source,Notes\n';
+  db.mileage.forEach(function(m) {
+    csv += [m.month,m.truckRef,m.kmStart,m.kmEnd,m.kmEnd-m.kmStart,m.source,m.notes].map(function(x){return x||'';}).join(',')+'\n';
+  });
+  var blob = new Blob(['\ufeff'+csv], {type: 'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'flotte_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+function exportJSON() {
+  var blob = new Blob([JSON.stringify(loadDB(), null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'backup_flotte_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function importJSON(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function(ev) {
+    try {
+      var db = JSON.parse(ev.target.result);
+      saveDB(db);
+      alert('✅ Importe!');
+      switchTab('dashboard');
+    } catch(err) { alert('Erreur: fichier invalide'); }
+  };
+  r.readAsText(file);
+}
+
+// ============================================
+// AUTO-CALC OIL COST
+// ============================================
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'oilLiters' || e.target.id === 'oilPricePerL') {
+    var l = parseFloat(document.getElementById('oilLiters') ? document.getElementById('oilLiters').value : 0) || 0;
+    var p = parseFloat(document.getElementById('oilPricePerL') ? document.getElementById('oilPricePerL').value : 0) || 0;
+    var tc = document.getElementById('oilTotalCost');
+    if (tc) tc.value = (l * p).toFixed(3);
+  }
+});
+
+// ============================================
+// INIT
+// ============================================
+try {
+  var dbCheck = loadDB();
+  if (!dbCheck.trucks || dbCheck.trucks.length === 0) {
+    seedData();
+  }
+  buildNav();
+  renderTab('dashboard');
+} catch(initErr) {
+  document.getElementById('nav').innerHTML = '';
+  document.getElementById('mainContent').innerHTML = '<div class="card"><div class="card-body"><div class="alert-box">Erreur au chargement: ' + (initErr && initErr.message ? initErr.message : initErr) + '<br><br>Essayez de recharger la page ou d\'ouvrir le fichier via un navigateur (Chrome/Safari) plutot qu\'une appli de fichiers.</div></div></div>';
+}
+</script>
+</body>
+</html>
