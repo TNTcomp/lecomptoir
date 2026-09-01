@@ -775,9 +775,10 @@ function renderFilters() {
   });
   html += '</select></div></div>';
   
-  html += '<div class="form-row-3"><div class="form-group"><label>Quantite *</label><input type="number" id="filterQty" value="1" min="1"></div>';
-  html += '<div class="form-group"><label>Prix unitaire (TND) *</label><input type="number" step="0.001" id="filterPrice" placeholder="0.000"></div>';
-  html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="filterSupplier" placeholder="Nos Spare Parts..."></div></div>';
+  html += '<div class="form-row-3"><div class="form-group"><label>Quantite *</label><input type="number" id="filterQty" value="1" min="1" oninput="calcFilterTotal()"></div>';
+  html += '<div class="form-group"><label>Prix unitaire (TND) *</label><input type="number" step="0.001" id="filterPrice" placeholder="0.000" oninput="calcFilterTotal()"></div>';
+  html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="filterTotal" readonly placeholder="auto" style="font-weight:bold;background:#e8f4f8;color:#1a3a5c;font-size:16px"></div></div>';
+  html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="filterSupplier" placeholder="Nos Spare Parts..."></div>';
   
   html += '<div class="form-group"><label>Notes</label><input type="text" id="filterNotes"></div>';
   html += '<div class="action-btns"><button class="btn btn-success" onclick="saveFilterChange()">✅ Enregistrer</button></div>';
@@ -958,9 +959,9 @@ function renderOil() {
   });
   html += '</select></div></div>';
   
-  html += '<div class="form-row-3"><div class="form-group"><label>Litres *</label><input type="number" step="0.1" id="oilLiters" placeholder="28"></div>';
-  html += '<div class="form-group"><label>Prix/L (TND) *</label><input type="number" step="0.001" id="oilPricePerL" placeholder="6.500"></div>';
-  html += '<div class="form-group"><label>Cout total</label><input type="text" id="oilTotalCost" readonly placeholder="auto"></div></div>';
+  html += '<div class="form-row-3"><div class="form-group"><label>Litres *</label><input type="number" step="0.1" id="oilLiters" placeholder="28" oninput="calcOilTotal()"></div>';
+  html += '<div class="form-group"><label>Prix/L (TND) *</label><input type="number" step="0.001" id="oilPricePerL" placeholder="6.500" oninput="calcOilTotal()"></div>';
+  html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="oilTotalCost" readonly placeholder="auto" style="font-weight:bold;background:#e8f4f8;color:#1a3a5c;font-size:16px"></div></div>';
   
   html += '<div class="form-group"><label>Fournisseur *</label><input type="text" id="oilSupplier" placeholder="Nos Spare Parts..."></div>';
   html += '<div class="form-group"><label>Notes</label><input type="text" id="oilNotes"></div>';
@@ -1009,8 +1010,9 @@ function renderFuel() {
   html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="fuelTruck">'+truckSelectOptions()+'</select></div>';
   html += '<div class="form-group"><label>Date *</label><input type="date" id="fuelDate" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
   html += '<div class="form-row-3"><div class="form-group"><label>KM compteur</label><input type="number" id="fuelKm" placeholder="0"></div>';
-  html += '<div class="form-group"><label>Litres</label><input type="number" step="0.1" id="fuelLiters" placeholder="0"></div>';
-  html += '<div class="form-group"><label>Prix/L (TND)</label><input type="number" step="0.001" id="fuelPrice" value="2.300"></div></div>';
+  html += '<div class="form-group"><label>Litres</label><input type="number" step="0.1" id="fuelLiters" placeholder="0" oninput="calcFuelTotal()"></div>';
+  html += '<div class="form-group"><label>Prix/L (TND)</label><input type="number" step="0.001" id="fuelPrice" value="2.300" oninput="calcFuelTotal()"></div></div>';
+  html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="fuelTotal" readonly placeholder="auto" style="font-weight:bold;background:#e8f4f8;color:#1a3a5c;font-size:16px"></div>';
   html += '<div class="form-group"><label>Type</label><select id="fuelType">';
   ['Gasoil','Essence','GNV','AdBlue'].forEach(function(t) { html += '<option value="'+t+'">'+t+'</option>'; });
   html += '</select></div>';
@@ -1373,16 +1375,31 @@ function importJSON(e) {
 }
 
 // ============================================
-// AUTO-CALC OIL COST
+// CALCULS AUTO
 // ============================================
-document.addEventListener('input', function(e) {
-  if (e.target.id === 'oilLiters' || e.target.id === 'oilPricePerL') {
-    var l = parseFloat(document.getElementById('oilLiters') ? document.getElementById('oilLiters').value : 0) || 0;
-    var p = parseFloat(document.getElementById('oilPricePerL') ? document.getElementById('oilPricePerL').value : 0) || 0;
-    var tc = document.getElementById('oilTotalCost');
-    if (tc) tc.value = (l * p).toFixed(3);
-  }
-});
+function calcFilterTotal() {
+  var qty = parseFloat(val('filterQty'))||0;
+  var price = parseFloat(val('filterPrice'))||0;
+  var total = qty * price;
+  var el = document.getElementById('filterTotal');
+  if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
+
+function calcOilTotal() {
+  var liters = parseFloat(val('oilLiters'))||0;
+  var pricePerL = parseFloat(val('oilPricePerL'))||0;
+  var total = liters * pricePerL;
+  var el = document.getElementById('oilTotalCost');
+  if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
+
+function calcFuelTotal() {
+  var liters = parseFloat(val('fuelLiters'))||0;
+  var price = parseFloat(val('fuelPrice'))||0;
+  var total = liters * price;
+  var el = document.getElementById('fuelTotal');
+  if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
 
 // ============================================
 // INIT
