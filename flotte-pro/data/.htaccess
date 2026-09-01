@@ -1,0 +1,3 @@
+# Proteger le dossier data contre les acces directs
+Order allow,deny
+Deny from all
