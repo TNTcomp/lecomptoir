@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flotte Pro</title>
+<style>
+:root{--navy:#0D2940;--blue:#0F4C75;--gray:#5E6B6F;--lgray:#F4F6F7;--green:#198754;--red:#C82333;--orange:#FF8C00;--gold:#DAA520}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--lgray);color:#1a1a1a;font-size:14px}
+.header{background:var(--navy);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.logo{font-size:24px}
+.header h1{font-size:16px;font-weight:600}
+.header .sub{font-size:11px;opacity:.7}
+.header .user-box{margin-left:auto;display:flex;align-items:center;gap:8px}
+.header .user-info{font-size:11px;text-align:right}
+.header .user-info .name{font-weight:600}
+.header .user-info .role{opacity:.7;font-size:10px}
+.nav{display:flex;gap:4px;padding:8px 14px;background:#fff;border-bottom:2px solid var(--lgray);overflow-x:auto}
+.nav button{white-space:nowrap;padding:7px 12px;border:none;background:var(--lgray);color:var(--gray);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer}
+.nav button.active{background:var(--navy);color:#fff}
+.nav button:hover:not(.active){background:#E8EEF5;color:var(--navy)}
+.container{max-width:1000px;margin:0 auto;padding:14px}
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px;overflow:hidden}
+.card-header{padding:10px 14px;border-bottom:1px solid #eee;font-weight:600;color:var(--navy)}
+.card-body{padding:14px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-weight:500;margin-bottom:3px;font-size:12px;color:#444}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:560px){.form-row,.form-row-3{grid-template-columns:1fr}}
+.btn{padding:9px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-primary{background:var(--navy);color:#fff}.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}.btn-warning{background:var(--orange);color:#fff}
+.btn-gold{background:var(--gold);color:#fff}.btn-sm{padding:5px 10px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:3px solid var(--navy)}
+.stat-card.green{border-left-color:var(--green)}.stat-card.red{border-left-color:var(--red)}
+.stat-card.orange{border-left-color:var(--orange)}.stat-card.gold{border-left-color:var(--gold)}
+.stat-card .label{font-size:10px;color:var(--gray);font-weight:500}
+.stat-card .value{font-size:20px;font-weight:700;color:var(--navy);margin-top:2px}
+.stat-card.green .value{color:var(--green)}.stat-card.red .value{color:var(--red)}
+.stat-card.orange .value{color:var(--orange)}.stat-card.gold .value{color:var(--gold)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--navy);color:#fff;padding:8px 6px;text-align:left;font-size:11px;font-weight:600}
+td{padding:7px 6px;border-bottom:1px solid #eee;font-size:12px}
+tr:hover{background:var(--lgray)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-green{background:#E8F5E9;color:var(--green)}.badge-red{background:#FFEBEE;color:var(--red)}
+.badge-orange{background:#FFF3E0;color:var(--orange)}.badge-blue{background:#E3F2FD;color:var(--blue)}
+.badge-gray{background:#EEE;color:var(--gray)}
+.info-box{background:#E3F2FD;border-left:3px solid var(--blue);padding:10px 12px;border-radius:6px;margin-bottom:8px;font-size:12px}
+.success-box{background:#E8F5E9;border-left:3px solid var(--green);padding:10px 12px;border-radius:6px;margin-bottom:8px;font-size:12px}
+.alert-box{background:#FFEBEE;border-left:3px solid var(--red);padding:10px 12px;border-radius:6px;margin:4px 0;font-size:12px}
+.alert-warn{background:#FFF8E1;border-left:3px solid var(--gold);padding:10px 12px;border-radius:6px;margin:4px 0;font-size:12px}
+.empty{text-align:center;padding:24px;color:var(--gray);font-size:13px}
+.filter-tag{display:inline-block;background:#E8EEF5;color:var(--navy);padding:3px 8px;border-radius:4px;font-size:11px;margin:2px}
+.action-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.dur-box{background:#FFF8E1;border:1px solid #FFD54F;border-radius:6px;padding:6px 10px;margin:4px 0;font-size:12px}
+.dur-box .days{font-weight:700;color:var(--orange);font-size:14px}
+.prog-bar{height:6px;border-radius:3px;background:#E0E0E0;overflow:hidden;margin-top:3px}
+.prog-fill{height:100%;border-radius:3px}
+.prog-green{background:var(--green)}.prog-orange{background:var(--orange)}.prog-red{background:var(--red)}
+.cost-field{font-weight:bold;background:#e8f4f8;color:#1a3a5c;font-size:16px}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0D2940">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="dark">
+<meta name="apple-mobile-web-app-title" content="Flotte Pro">
+<link rel="apple-touch-icon" href="icon.png">
+</head>
+<body>
+<div class="header">
+<span class="logo">🚛</span>
+<div style="flex:1"><h1>Flotte Pro</h1><div class="sub" id="clientLabel">Gestion de Flotte</div></div>
+<div class="user-box">
+<div class="user-info"><div class="name" id="userName"></div><div class="role" id="userRole"></div></div>
+<button class="btn btn-danger btn-sm" onclick="logout()">Deconnexion</button>
+</div>
+</div>
+<div class="nav" id="nav"></div>
+<div class="container" id="mainContent"></div>
+
+<script>
+var API = 'api/index.php';
+var currentUser = null;
+var db = null;
+
+// ============================================
+// NAVIGATION PAR ROLE
+// ============================================
+var ROLE_LABELS = {
+'chauffeur': 'Chauffeur',
+'comptable': 'Comptable',
+'manager': 'Manager',
+'admin': 'Administrateur'
+};
+
+var TABS = {
+dashboard: { label: 'Tableau de bord', icon: '📊', minRole: 'chauffeur' },
+trucks: { label: 'Parc Camions', icon: '🚛', minRole: 'chauffeur' },
+add_truck: { label: 'Ajouter Camion', icon: '➕', minRole: 'manager' },
+status: { label: 'Statut Camions', icon: '📍', minRole: 'manager' },
+filters: { label: 'Filtres', icon: '🧰', minRole: 'manager' },
+oil: { label: 'Vidanges', icon: '🛢️', minRole: 'manager' },
+fuel: { label: 'Carburant', icon: '⛽', minRole: 'chauffeur' },
+mileage: { label: 'Kilometrage', icon: '📏', minRole: 'chauffeur' },
+alerts: { label: 'Alertes', icon: '🔔', minRole: 'chauffeur' },
+reports: { label: 'Rapports', icon: '📋', minRole: 'comptable' },
+users: { label: 'Utilisateurs', icon: '👥', minRole: 'manager' },
+photos: { label: 'Photos', icon: '📷', minRole: 'chauffeur' },
+documents: { label: 'Documents', icon: '📄', minRole: 'manager' },
+tires: { label: 'Pneus', icon: '⚙️', minRole: 'manager' },
+drivers: { label: 'Chauffeurs', icon: '👨\u200d\u2708\uFE0F', minRole: 'manager' },
+finance: { label: 'Finance', icon: '💰', minRole: 'comptable' },
+settings: { label: 'Parametres', icon: '⚙️', minRole: 'admin' },
+export: { label: 'Export', icon: '📤', minRole: 'comptable' }
+};
+
+var ROLE_LEVELS = { 'chauffeur': 1, 'comptable': 2, 'manager': 3, 'admin': 4 };
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+fetch(API + '?action=me')
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.error) {
+window.location.href = 'login.html';
+return;
+}
+currentUser = d.user;
+document.getElementById('userName').textContent = currentUser.name;
+document.getElementById('userRole').textContent = ROLE_LABELS[currentUser.role] || currentUser.role;
+
+loadDB();
+})
+.catch(function(){
+window.location.href = 'login.html';
+});
+}
+
+function loadDB() {
+fetch(API + '?action=get_db')
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.error) {
+alert(d.error);
+return;
+}
+db = d.db;
+buildNav();
+renderTab('dashboard');
+})
+.catch(function(e){
+document.getElementById('mainContent').innerHTML = '<div class="alert-box">Erreur de chargement: ' + e.message + '</div>';
+});
+}
+
+function buildNav() {
+var userLevel = ROLE_LEVELS[currentUser.role] || 0;
+var nav = document.getElementById('nav');
+nav.innerHTML = '';
+Object.keys(TABS).forEach(function(key) {
+var tab = TABS[key];
+var requiredLevel = ROLE_LEVELS[tab.minRole] || 0;
+if (userLevel >= requiredLevel) {
+var btn = document.createElement('button');
+btn.id = 'nav_' + key;
+btn.innerHTML = tab.icon + ' ' + tab.label;
+btn.onclick = function() { renderTab(key); };
+nav.appendChild(btn);
+}
+});
+}
+
+function renderTab(tab) {
+// Clear active
+document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
+var navBtn = document.getElementById('nav_' + tab);
+if (navBtn) navBtn.classList.add('active');
+
+var content = document.getElementById('mainContent');
+switch(tab) {
+case 'dashboard': content.innerHTML = renderDashboard(); break;
+case 'trucks': content.innerHTML = renderTrucks(); break;
+case 'add_truck': content.innerHTML = renderAddTruck(); break;
+case 'status': content.innerHTML = renderStatus(); break;
+case 'filters': content.innerHTML = renderFilters(); break;
+case 'oil': content.innerHTML = renderOil(); break;
+case 'fuel': content.innerHTML = renderFuel(); break;
+case 'mileage': content.innerHTML = renderMileage(); break;
+case 'alerts': content.innerHTML = renderAlerts(); break;
+case 'reports': content.innerHTML = renderReports(); break;
+case 'users': content.innerHTML = renderUsers(); break;
+case 'photos': content.innerHTML = renderPhotos(); break;
+case 'documents': content.innerHTML = renderDocuments(); break;
+case 'tires': content.innerHTML = renderTires(); break;
+case 'drivers': content.innerHTML = renderDrivers(); break;
+case 'finance': content.innerHTML = renderFinance(); break;
+case 'settings': content.innerHTML = renderSettings(); break;
+case 'export': content.innerHTML = renderExport(); break;
+}
+}
+
+// ============================================
+// HELPERS
+// ============================================
+function val(id) {
+var el = document.getElementById(id);
+return el ? el.value : '';
+}
+function truckSelectOptions() {
+return db.trucks.map(function(t){return '<option value="'+t.ref+'">'+t.ref+' - '+(t.marque||'')+' '+(t.modele||'')+'</option>';}).join('');
+}
+
+function canEdit() {
+var level = ROLE_LEVELS[currentUser.role] || 0;
+return level >= 3; // manager+
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+function renderDashboard() {
+var totalTrucks = db.trucks.length;
+var activeTrucks = db.trucks.filter(function(t){return t.statut === 'Actif';}).length;
+var maintTrucks = db.trucks.filter(function(t){return t.statut === 'Maintenance';}).length;
+var panTrucks = db.trucks.filter(function(t){return t.statut === 'En panne';}).length;
+
+var totalKm = db.mileage.reduce(function(s,m){return s+((m.kmEnd||0)-(m.kmStart||0));},0);
+var totalFuel = db.fuel.reduce(function(s,f){return s+(f.liters||0);},0);
+var fuelCost = db.fuel.reduce(function(s,f){return s+((f.liters||0)*(f.pricePerL||0));},0);
+var filterCost = db.filterChanges.reduce(function(s,f){return s+((f.qty||0)*(f.price||0));},0);
+var oilCost = db.oilChanges.reduce(function(s,o){return s+((o.liters||0)*(o.pricePerL||0));},0);
+var totalCost = fuelCost + filterCost + oilCost;
+
+var html = '<div class="stats">';
+html += '<div class="stat-card"><div class="label">Camions Total</div><div class="value">'+totalTrucks+'</div></div>';
+html += '<div class="stat-card green"><div class="label">Actifs</div><div class="value">'+activeTrucks+'</div></div>';
+html += '<div class="stat-card orange"><div class="label">Maintenance</div><div class="value">'+maintTrucks+'</div></div>';
+html += '<div class="stat-card red"><div class="label">En panne</div><div class="value">'+panTrucks+'</div></div>';
+html += '</div>';
+
+if (canEdit() || currentUser.role === 'comptable') {
+html += '<div class="stats">';
+html += '<div class="stat-card"><div class="label">Cout Carburant</div><div class="value">'+fuelCost.toFixed(0)+'</div></div>';
+html += '<div class="stat-card gold"><div class="label">Cout Filtres</div><div class="value">'+filterCost.toFixed(0)+'</div></div>';
+html += '<div class="stat-card gold"><div class="label">Cout Huile</div><div class="value">'+oilCost.toFixed(0)+'</div></div>';
+html += '<div class="stat-card red"><div class="label">Cout Total</div><div class="value">'+totalCost.toFixed(0)+' TND</div></div>';
+// Cout par km
+var costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
+html += '<div class="stat-card gold"><div class="label">Cout/KM</div><div class="value">'+costPerKm.toFixed(3)+'</div></div>';
+html += '</div>';
+}
+
+html += '<div class="card"><div class="card-header">Activite recente</div><div class="card-body">';
+var allOps = [];
+db.fuel.forEach(function(f){allOps.push({date:f.date, truckRef:f.truckRef, type:'Carburant', detail:(f.liters||0)+'L', cost:(f.liters||0)*(f.pricePerL||0), by:f.createdBy||''});});
+db.filterChanges.forEach(function(f){allOps.push({date:f.date, truckRef:f.truckRef, type:'Filtre', detail:f.filterType, cost:(f.qty||0)*(f.price||0), by:f.createdBy||''});});
+db.oilChanges.forEach(function(o){allOps.push({date:o.date, truckRef:o.truckRef, type:'Vidange', detail:(o.oilType||'')+' '+(o.liters||0)+'L', cost:(o.liters||0)*(o.pricePerL||0), by:o.createdBy||''});});
+allOps.sort(function(a,b){return b.date.localeCompare(a.date);});
+
+html += '<table><thead><tr><th>Date</th><th>Camion</th><th>Type</th><th>Detail</th>';
+if (canEdit() || currentUser.role === 'comptable') html += '<th>Cout</th>';
+html += '<th>Par</th></tr></thead><tbody>';
+if (allOps.length === 0) {
+html += '<tr><td colspan="6" class="empty">Aucune activite</td></tr>';
+} else {
+allOps.slice(0,15).forEach(function(op) {
+var badge = op.type === 'Carburant' ? 'badge-blue' : (op.type === 'Filtre' ? 'badge-green' : 'badge-orange');
+html += '<tr><td>'+op.date+'</td><td>'+op.truckRef+'</td><td><span class="badge '+badge+'">'+op.type+'</span></td><td>'+op.detail+'</td>';
+if (canEdit() || currentUser.role === 'comptable') html += '<td>'+(op.cost>0?op.cost.toFixed(3)+' TND':'-')+'</td>';
+html += '<td>'+(op.by||'-')+'</td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+// ============================================
+// PARC CAMIONS
+// ============================================
+function renderTrucks() {
+var html = '<div class="card"><div class="card-header">Liste du parc</div><div class="card-body" style="overflow-x:auto">';
+html += '<table><thead><tr><th>Ref</th><th>Marque</th><th>Modele</th><th>Immat.</th><th>Année</th><th>KM</th><th>Statut</th></tr></thead><tbody>';
+if (db.trucks.length === 0) {
+html += '<tr><td colspan="7" class="empty">Aucun camion. Ajoutez-en un!</td></tr>';
+} else {
+db.trucks.forEach(function(t) {
+var badge = t.statut === 'Actif' ? 'badge-green' : (t.statut === 'Maintenance' ? 'badge-orange' : 'badge-red');
+html += '<tr><td><b>'+t.ref+'</b></td><td>'+(t.marque||'')+'</td><td>'+(t.modele||'')+'</td><td>'+(t.immat||'')+'</td><td>'+(t.annee||'')+'</td><td>'+((t.km||0).toLocaleString())+'</td><td><span class="badge '+badge+'">'+t.statut+'</span></td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+// ============================================
+// AJOUT CAMION
+// ============================================
+function renderAddTruck() {
+var html = '<div class="card"><div class="card-header">➕ Ajouter un camion</div><div class="card-body">';
+html += '<div class="form-row"><div class="form-group"><label>Reference *</label><input type="text" id="truckRef" placeholder="LC-001"></div>';
+html += '<div class="form-group"><label>Marque *</label><select id="truckBrand"><option value="">--</option>';
+['Mercedes','Volvo','Renault','MAN','DAF','Scania','Iveco','Ford','Autre'].forEach(function(b){html+='<option value="'+b+'">'+b+'</option>';});
+html += '</select></div></div>';
+html += '<div class="form-row"><div class="form-group"><label>Modele</label><input type="text" id="truckModel" placeholder="Actros"></div>';
+html += '<div class="form-group"><label>Immatriculation</label><input type="text" id="truckImmat" placeholder="TN-XXX-XXX"></div></div>';
+html += '<div class="form-row"><div class="form-group"><label>Annee</label><input type="number" id="truckYear" placeholder="2020"></div>';
+html += '<div class="form-group"><label>KM actuel</label><input type="number" id="truckKm" placeholder="0"></div></div>';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="saveTruck()">✅ Enregistrer</button></div>';
+html += '</div></div>';
+return html;
+}
+
+function saveTruck() {
+var truck = {
+ref: val('truckRef'), marque: val('truckBrand'), modele: val('truckModel'),
+immat: val('truckImmat'), annee: parseInt(val('truckYear'))||0, km: parseInt(val('truckKm'))||0,
+statut: 'Actif', statusDate: '', statusReason: ''
+};
+if (!truck.ref || !truck.marque) { alert('Reference et marque obligatoires!'); return; }
+
+fetch(API + '?action=add_truck', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({truck: truck})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) {
+alert('Camion ajoute!');
+loadDB();
+renderTab('trucks');
+} else {
+alert('Erreur: ' + (d.error || 'Inconnue'));
+}
+})
+.catch(function(e){alert('Erreur reseau: ' + e.message);});
+}
+
+// ============================================
+// STATUT
+// ============================================
+function renderStatus() {
+var html = '<div class="card"><div class="card-header">📍 Changer le statut d\'un camion</div><div class="card-body">';
+html += '<div class="form-group"><label>Camion *</label><select id="statusTruck" onchange="loadCurrentStatus()">'+truckSelectOptions()+'</select></div>';
+html += '<div class="form-group"><label>Nouveau statut *</label><select id="statusNew"><option value="Actif">Actif</option><option value="Maintenance">Maintenance</option><option value="En panne">En panne</option></select></div>';
+html += '<div class="form-group"><label>Date</label><input type="date" id="statusDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+html += '<div class="form-group"><label>Raison / Note</label><input type="text" id="statusReason" placeholder="Vidange, reparation, etc."></div>';
+html += '<div class="info-box">La date d\'entree en maintenance/panne est enregistree. Au retour en service, la duree est calculee.</div>';
+html += '<div class="action-btns"><button class="btn btn-primary" onclick="saveStatus()">💾 Enregistrer</button></div>';
+html += '</div></div>';
+
+html += '<div class="card"><div class="card-header">Statuts actuels</div><div class="card-body">';
+db.trucks.forEach(function(t) {
+var badge = t.statut === 'Actif' ? 'badge-green' : (t.statut === 'Maintenance' ? 'badge-orange' : 'badge-red');
+html += '<div style="padding:6px 0;border-bottom:1px solid #eee"><b>'+t.ref+'</b> <span class="badge '+badge+'">'+t.statut+'</span> '+(t.statusReason?'- '+t.statusReason:'')+'</div>';
+});
+html += '</div></div>';
+return html;
+}
+
+function loadCurrentStatus() {
+var ref = val('statusTruck');
+var t = db.trucks.find(function(x){return x.ref === ref;});
+if (t) document.getElementById('statusNew').value = t.statut;
+}
+
+function saveStatus() {
+var data = { ref: val('statusTruck'), statut: val('statusNew'), date: val('statusDate'), reason: val('statusReason') };
+if (!data.ref) { alert('Selectionnez un camion!'); return; }
+fetch(API + '?action=update_status', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify(data)
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) { alert('Statut mis a jour!'); loadDB(); renderTab('status'); }
+else alert('Erreur: ' + (d.error||''));
+})
+.catch(function(e){alert('Erreur: ' + e.message);});
+}
+
+// ============================================
+// FILTRES
+// ============================================
+function calcFilterTotal() {
+var qty = parseFloat(val('filterQty'))||0;
+var price = parseFloat(val('filterPrice'))||0;
+var total = qty * price;
+var el = document.getElementById('filterTotal');
+if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
+
+function renderFilters() {
+var html = '<div class="card"><div class="card-header">🧰 Enregistrer un changement de filtre</div><div class="card-body">';
+html += '<div class="form-group"><label>Camion *</label><select id="filterTruck">'+truckSelectOptions()+'</select></div>';
+html += '<div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="filterDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+html += '<div class="form-group"><label>Type de filtre *</label><select id="filterType"><option value="">--</option>';
+['Filtre Huile','Filtre Air','Filtre Carburant','Separateur d\'eau','Filtre Cabine','Air Dryer','Filtre Hydraulique','Filtre Transmission'].forEach(function(t){html+='<option value="'+t+'">'+t+'</option>';});
+html += '</select></div></div>';
+html += '<div class="form-row"><div class="form-group"><label>Reference filtre</label><input type="text" id="filterRef" placeholder="Saisie libre"></div>';
+html += '<div class="form-group"><label>Marque filtre</label><select id="filterBrand"><option value="">--</option>';
+['Sofima','UFI Filters','Misfat','MANN-FILTER','Mahle/Knecht','Bosch','Purflux','WIX Filters','FILTRON','Autre'].forEach(function(b){html+='<option value="'+b+'">'+b+'</option>';});
+html += '</select></div></div>';
+html += '<div class="form-row-3"><div class="form-group"><label>Quantite *</label><input type="number" id="filterQty" value="1" min="1" oninput="calcFilterTotal()"></div>';
+html += '<div class="form-group"><label>Prix unitaire (TND) *</label><input type="number" step="0.001" id="filterPrice" placeholder="0.000" oninput="calcFilterTotal()"></div>';
+html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="filterTotal" readonly placeholder="auto" class="cost-field"></div></div>';
+html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="filterSupplier" placeholder="Nos Spare Parts..."></div>';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="saveFilterChange()">✅ Enregistrer</button></div>';
+html += '</div></div>';
+
+html += '<div class="card"><div class="card-header">Historique changements de filtres</div><div class="card-body" style="overflow-x:auto">';
+html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>Type</th><th>Ref</th><th>Marque</th><th>Qte</th><th>Prix U.</th><th>Total</th><th>Fourn.</th><th>Par</th></tr></thead><tbody>';
+if (db.filterChanges.length === 0) { html += '<tr><td colspan="11" class="empty">Aucun changement</td></tr>'; }
+else {
+db.filterChanges.slice().reverse().forEach(function(f) {
+var total = (f.qty||0)*(f.price||0);
+html += '<tr><td><b>'+(f.ticketNo||'FLT-?')+'</b></td><td>'+f.date+'</td><td>'+f.truckRef+'</td><td>'+f.filterType+'</td><td>'+(f.filterRef||'')+'</td><td>'+(f.filterBrand||'')+'</td><td>'+(f.qty||1)+'</td><td>'+(f.price>0?f.price.toFixed(3):'-')+'</td><td><b>'+(f.price>0?total.toFixed(3)+' TND':'-')+'</b></td><td>'+(f.supplier||'')+'</td><td>'+(f.createdBy||'-')+'</td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+function saveFilterChange() {
+var entry = {
+truckRef: val('filterTruck'), date: val('filterDate'),
+filterType: val('filterType'), filterRef: val('filterRef'),
+filterBrand: val('filterBrand'), qty: parseInt(val('filterQty'))||1,
+price: parseFloat(val('filterPrice'))||0,
+supplier: val('filterSupplier'), notes: val('filterNotes')||''
+};
+if (!entry.truckRef || !entry.date || !entry.filterType) { alert('Camion, date et type obligatoires!'); return; }
+
+fetch(API + '?action=add_filter', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({entry: entry})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) {
+alert('Filtre enregistre! Ticket: ' + d.entry.ticketNo);
+loadDB();
+renderTab('filters');
+} else alert('Erreur: ' + (d.error||''));
+})
+.catch(function(e){alert('Erreur: ' + e.message);});
+}
+
+// ============================================
+// VIDANGE
+// ============================================
+function calcOilTotal() {
+var liters = parseFloat(val('oilLiters'))||0;
+var pricePerL = parseFloat(val('oilPricePerL'))||0;
+var total = liters * pricePerL;
+var el = document.getElementById('oilTotalCost');
+if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
+
+function renderOil() {
+var html = '<div class="card"><div class="card-header">🛢️ Enregistrer une vidange</div><div class="card-body">';
+html += '<div class="form-group"><label>Camion *</label><select id="oilTruck">'+truckSelectOptions()+'</select></div>';
+html += '<div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="oilDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+html += '<div class="form-group"><label>KM compteur *</label><input type="number" id="oilKm" placeholder="0"></div></div>';
+html += '<div class="form-row"><div class="form-group"><label>Type d\'huile *</label><select id="oilType">';
+['15W40','10W40','5W30','5W40','0W30','0W40','10W30','Autre'].forEach(function(t){html+='<option value="'+t+'">'+t+'</option>';});
+html += '</select></div><div class="form-group"><label>Marque d\'huile</label><select id="oilBrand"><option value="">--</option>';
+['Total','Shell','Mobil','Castrol','Motul','Elf','Liqui Moly','Valvoline','Repsol','Autre'].forEach(function(b){html+='<option value="'+b+'">'+b+'</option>';});
+html += '</select></div></div>';
+html += '<div class="form-row-3"><div class="form-group"><label>Litres *</label><input type="number" step="0.1" id="oilLiters" placeholder="28" oninput="calcOilTotal()"></div>';
+html += '<div class="form-group"><label>Prix/L (TND) *</label><input type="number" step="0.001" id="oilPricePerL" placeholder="6.500" oninput="calcOilTotal()"></div>';
+html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="oilTotalCost" readonly placeholder="auto" class="cost-field"></div></div>';
+html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="oilSupplier" placeholder="Nos Spare Parts..."></div>';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="saveOilChange()">✅ Enregistrer</button></div>';
+html += '</div></div>';
+
+html += '<div class="card"><div class="card-header">Historique vidanges</div><div class="card-body" style="overflow-x:auto">';
+html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>KM</th><th>Type</th><th>Marque</th><th>L</th><th>Prix/L</th><th>Total</th><th>Fourn.</th><th>Par</th></tr></thead><tbody>';
+if (db.oilChanges.length === 0) { html += '<tr><td colspan="11" class="empty">Aucune vidange</td></tr>'; }
+else {
+db.oilChanges.slice().reverse().forEach(function(o) {
+var total = (o.liters||0)*(o.pricePerL||0);
+html += '<tr><td><b>'+(o.ticketNo||'HUI-?')+'</b></td><td>'+o.date+'</td><td>'+o.truckRef+'</td><td>'+((o.km||0).toLocaleString())+'</td><td>'+o.oilType+'</td><td>'+(o.oilBrand||'')+'</td><td>'+(o.liters||0)+'</td><td>'+(o.pricePerL>0?o.pricePerL.toFixed(3):'-')+'</td><td><b>'+(o.pricePerL>0?total.toFixed(3)+' TND':'-')+'</b></td><td>'+(o.supplier||'')+'</td><td>'+(o.createdBy||'-')+'</td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+function saveOilChange() {
+var entry = {
+truckRef: val('oilTruck'), date: val('oilDate'), km: parseInt(val('oilKm'))||0,
+oilType: val('oilType'), oilBrand: val('oilBrand'),
+liters: parseFloat(val('oilLiters'))||0, pricePerL: parseFloat(val('oilPricePerL'))||0,
+supplier: val('oilSupplier'), notes: val('oilNotes')||''
+};
+if (!entry.truckRef || !entry.date) { alert('Camion et date obligatoires!'); return; }
+
+fetch(API + '?action=add_oil', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({entry: entry})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) { alert('Vidange enregistree! Ticket: ' + d.entry.ticketNo); loadDB(); renderTab('oil'); }
+else alert('Erreur: ' + (d.error||''));
+})
+.catch(function(e){alert('Erreur: ' + e.message);});
+}
+
+// ============================================
+// CARBURANT (acces chauffeur)
+// ============================================
+function calcFuelTotal() {
+var liters = parseFloat(val('fuelLiters'))||0;
+var price = parseFloat(val('fuelPrice'))||0;
+var total = liters * price;
+var el = document.getElementById('fuelTotal');
+if (el) el.value = total > 0 ? total.toFixed(3) + ' TND' : '';
+}
+
+function renderFuel() {
+var showCost = canEdit() || currentUser.role === 'comptable';
+var html = '<div class="card"><div class="card-header">⛽ Saisir un plein</div><div class="card-body">';
+html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="fuelTruck">'+truckSelectOptions()+'</select></div>';
+html += '<div class="form-group"><label>Date *</label><input type="date" id="fuelDate" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
+html += '<div class="form-row-3"><div class="form-group"><label>KM compteur</label><input type="number" id="fuelKm" placeholder="0"></div>';
+html += '<div class="form-group"><label>Litres</label><input type="number" step="0.1" id="fuelLiters" placeholder="0" oninput="calcFuelTotal()"></div>';
+html += '<div class="form-group"><label>Prix/L (TND)</label><input type="number" step="0.001" id="fuelPrice" value="2.300" oninput="calcFuelTotal()"></div></div>';
+html += '<div class="form-group"><label>Cout total (TND)</label><input type="text" id="fuelTotal" readonly placeholder="auto" class="cost-field"></div>';
+html += '<div class="form-row"><div class="form-group"><label>Type</label><select id="fuelType">';
+['Gasoil','Essence','GNV','AdBlue'].forEach(function(t){html+='<option value="'+t+'">'+t+'</option>';});
+html += '</select></div><div class="form-group"><label>Station / Lieu</label><input type="text" id="fuelStation" placeholder="Station SAG..."></div></div>';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="saveFuel()">⛽ Enregistrer</button></div>';
+html += '</div></div>';
+
+html += '<div class="card"><div class="card-header">Historique carburant</div><div class="card-body" style="overflow-x:auto">';
+html += '<table><thead><tr><th>Ticket</th><th>Date</th><th>Camion</th><th>KM</th><th>Litres</th>';
+if (showCost) html += '<th>Prix/L</th><th>Total</th>';
+html += '<th>Station</th><th>Par</th></tr></thead><tbody>';
+if (db.fuel.length === 0) { html += '<tr><td colspan="9" class="empty">Aucun plein</td></tr>'; }
+else {
+db.fuel.slice().reverse().forEach(function(f) {
+html += '<tr><td><b>'+(f.ticketNo||'CAR-?')+'</b></td><td>'+f.date+'</td><td>'+f.truckRef+'</td><td>'+((f.km||0).toLocaleString())+'</td><td>'+(f.liters||0)+' L</td>';
+if (showCost) html += '<td>'+(f.pricePerL||0).toFixed(3)+'</td><td><b>'+(((f.liters||0)*(f.pricePerL||0)).toFixed(3))+'</b></td>';
+html += '<td>'+(f.station||'')+'</td><td>'+(f.createdBy||'-')+'</td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+function saveFuel() {
+var entry = {
+truckRef: val('fuelTruck'), date: val('fuelDate'),
+km: parseInt(val('fuelKm'))||0, liters: parseFloat(val('fuelLiters'))||0,
+pricePerL: parseFloat(val('fuelPrice'))||0,
+type: val('fuelType'), station: val('fuelStation')
+};
+if (!entry.truckRef || !entry.date) { alert('Camion et date obligatoires!'); return; }
+
+fetch(API + '?action=add_fuel', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({entry: entry})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) { alert('Plein enregistre! Ticket: ' + d.entry.ticketNo); loadDB(); renderTab('fuel'); }
+else alert('Erreur: ' + (d.error||''));
+})
+.catch(function(e){alert('Erreur: ' + e.message);});
+}
+
+// ============================================
+// KILOMETRAGE
+// ============================================
+function renderMileage() {
+var html = '<div class="card"><div class="card-header">📏 Saisir un releve kilometrique</div><div class="card-body">';
+html += '<div class="form-group"><label>Camion *</label><select id="mileageTruck">'+truckSelectOptions()+'</select></div>';
+html += '<div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="mileageDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+html += '<div class="form-group"><label>KM compteur *</label><input type="number" id="mileageKm" placeholder="0"></div></div>';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="saveMileage()">✅ Enregistrer</button></div>';
+html += '</div></div>';
+
+html += '<div class="card"><div class="card-header">Historique releves</div><div class="card-body" style="overflow-x:auto">';
+html += '<table><thead><tr><th>Date</th><th>Camion</th><th>KM</th><th>Par</th></tr></thead><tbody>';
+if (db.mileage.length === 0) { html += '<tr><td colspan="4" class="empty">Aucun releve</td></tr>'; }
+else {
+db.mileage.slice().reverse().forEach(function(m) {
+html += '<tr><td>'+m.date+'</td><td>'+m.truckRef+'</td><td>'+((m.km||0).toLocaleString())+'</td><td>'+(m.createdBy||'-')+'</td></tr>';
+});
+}
+html += '</tbody></table></div></div>';
+return html;
+}
+
+function saveMileage() {
+var entry = { truckRef: val('mileageTruck'), date: val('mileageDate'), km: parseInt(val('mileageKm'))||0 };
+if (!entry.truckRef || !entry.date) { alert('Camion et date obligatoires!'); return; }
+
+fetch(API + '?action=add_mileage', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({entry: entry})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) { alert('Releve enregistre!'); loadDB(); renderTab('mileage'); }
+else alert('Erreur: ' + (d.error||''));
+})
+.catch(function(e){alert('Erreur: ' + e.message);});
+}
+
+// ============================================
+// ALERTES
+// ============================================
+function renderAlerts() {
+var html = '<div class="card"><div class="card-header">🔔 Alertes d\'entretien</div><div class="card-body">';
+var hasAlerts = false;
+
+db.trucks.forEach(function(t) {
+var km = t.km || 0;
+var lastOil = db.oilChanges.filter(function(o){return o.truckRef === t.ref;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+var lastFilter = db.filterChanges.filter(function(f){return f.truckRef === t.ref;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+
+var oilDue = !lastOil.length || (km - (lastOil[0].km||0) > 15000);
+var filterDue = !lastFilter.length;
+
+if (oilDue) {
+hasAlerts = true;
+var kmSinceOil = lastOil.length ? km - (lastOil[0].km||0) : km;
+html += '<div class="alert-box">🛢️ <b>'+t.ref+'</b> - Vidange requise ('+kmSinceOil+' km depuis la derniere)</div>';
+}
+if (filterDue) {
+hasAlerts = true;
+html += '<div class="alert-warn">🧰 <b>'+t.ref+'</b> - Aucun changement de filtre enregistre</div>';
+}
+});
+
+if (!hasAlerts) {
+html += '<div class="success-box">✅ Aucune alerte. Toutes les flottes sont a jour!</div>';
+}
+html += '</div></div>';
+return html;
+}
+
+// ============================================
+// RAPPORTS
+// ============================================
+function renderReports() {
+var html = '<div class="card"><div class="card-header">📋 Rapport de synthese par camion</div><div class="card-body">';
+html += '<div class="form-row"><div class="form-group"><label>Camion</label><select id="reportTruck"><option value="">Tous</option>';
+db.trucks.forEach(function(t){html+='<option value="'+t.ref+'">'+t.ref+'</option>';});
+html += '</select></div>';
+html += '<div class="form-group"><label>Periode du</label><input type="date" id="reportFrom"></div></div>';
+html += '<div class="form-row"><div class="form-group"><label>Au</label><input type="date" id="reportTo"></div>';
+html += '<div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="generateReport()">Generer</button></div></div>';
+html += '</div></div>';
+html += '<div id="reportResult"></div>';
+return html;
+}
+
+function generateReport() {
+var truckRef = val('reportTruck');
+var from = val('reportFrom');
+var to = val('reportTo');
+var result = document.getElementById('reportResult');
+
+var trucks = truckRef ? db.trucks.filter(function(t){return t.ref === truckRef;}) : db.trucks;
+
+var html = '<div class="card"><div class="card-header">Resultats</div><div class="card-body">';
+var grandFuel = 0, grandOil = 0, grandFilter = 0;
+
+trucks.forEach(function(t) {
+var fuelEntries = db.fuel.filter(function(f){return f.truckRef === t.ref && (!from || f.date >= from) && (!to || f.date <= to);});
+var oilEntries = db.oilChanges.filter(function(o){return o.truckRef === t.ref && (!from || o.date >= from) && (!to || o.date <= to);});
+var filterEntries = db.filterChanges.filter(function(f){return f.truckRef === t.ref && (!from || f.date >= from) && (!to || f.date <= to);});
+
+var fuelCost = fuelEntries.reduce(function(s,f){return s+((f.liters||0)*(f.pricePerL||0));},0);
+var oilCost = oilEntries.reduce(function(s,o){return s+((o.liters||0)*(o.pricePerL||0));},0);
+var filterCost = filterEntries.reduce(function(s,f){return s+((f.qty||0)*(f.price||0));},0);
+var total = fuelCost + oilCost + filterCost;
+grandFuel += fuelCost; grandOil += oilCost; grandFilter += filterCost;
+
+html += '<div style="margin-bottom:14px;padding:10px;border:1px solid #eee;border-radius:8px">';
+html += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px">🚛 '+t.ref+' - '+(t.marque||'')+' '+(t.modele||'')+'</div>';
+html += '<table><thead><tr><th>Type</th><th>Nombre</th><th>Cout (TND)</th></tr></thead><tbody>';
+html += '<tr><td>Carburant</td><td>'+fuelEntries.length+'</td><td>'+fuelCost.toFixed(3)+'</td></tr>';
+html += '<tr><td>Vidanges</td><td>'+oilEntries.length+'</td><td>'+oilCost.toFixed(3)+'</td></tr>';
+html += '<tr><td>Filtres</td><td>'+filterEntries.length+'</td><td>'+filterCost.toFixed(3)+'</td></tr>';
+html += '<tr style="font-weight:700;background:var(--lgray)"><td>TOTAL</td><td>-</td><td>'+total.toFixed(3)+' TND</td></tr>';
+var truckKm = t.km || 0;
+var costPerKm = truckKm > 0 ? (total / truckKm).toFixed(3) : '-';
+html += '<tr style="font-weight:700;color:var(--gold)"><td>Cout/KM</td><td>-</td><td>'+costPerKm+' TND</td></tr>';
+html += '</tbody></table></div>';
+});
+
+html += '<div style="padding:10px;background:var(--navy);color:#fff;border-radius:8px;text-align:center;font-size:16px;font-weight:700">';
+html += 'TOTAL GLOBAL: '+(grandFuel+grandOil+grandFilter).toFixed(3)+' TND</div>';
+html += '</div></div>';
+result.innerHTML = html;
+}
+
+// ============================================
+// UTILISATEURS (manager+)
+// ============================================
+function renderUsers() {
+var html = '<div class="card"><div class="card-header">👥 Gestion des utilisateurs</div><div class="card-body">';
+html += '<div class="action-btns"><button class="btn btn-success" onclick="showAddUserForm()">➕ Ajouter un utilisateur</button></div>';
+html += '<table style="margin-top:10px"><thead><tr><th>Nom</th><th>Utilisateur</th><th>Role</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="usersList"><tr><td colspan="5" class="empty">Chargement...</td></tr></tbody></table>';
+html += '</div></div>';
+loadUsers();
+return html;
+}
+
+function loadUsers() {
+fetch(API + '?action=users_list')
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.users) {
+var html = '';
+d.users.forEach(function(u) {
+var badge = u.role === 'admin' ? 'badge-red' : (u.role === 'manager' ? 'badge-blue' : (u.role === 'comptable' ? 'badge-orange' : 'badge-gray'));
+html += '<tr><td>'+u.name+'</td><td>'+u.username+'</td><td><span class="badge '+badge+'">'+(ROLE_LABELS[u.role]||u.role)+'</span></td><td>'+(u.active?'<span class="badge badge-green">Actif</span>':'<span class="badge badge-red">Inactif</span>')+'</td>';
+html += '<td><button class="btn btn-sm btn-warning" onclick="toggleUser(\''+u.id+'\','+u.active+')">'+(u.active?'Desactiver':'Activer')+'</button>';
+if (currentUser.role === 'admin') html += ' <button class="btn btn-sm btn-danger" onclick="deleteUser(\''+u.id+'\')">Suppr</button>';
+html += '</td></tr>';
+});
+document.getElementById('usersList').innerHTML = html;
+}
+});
+}
+
+function showAddUserForm() {
+var name = prompt('Nom complet:');
+if (!name) return;
+var username = prompt('Nom d\'utilisateur:');
+if (!username) return;
+var password = prompt('Mot de passe:');
+if (!password) return;
+var role = prompt('Role (chauffeur, comptable, manager, admin):', 'chauffeur');
+if (!role) return;
+
+fetch(API + '?action=users_create', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({name: name, username: username, password: password, role: role})
+})
+.then(function(r){return r.json();})
+.then(function(d){
+if (d.success) { alert('Utilisateur cree!'); loadUsers(); }
+else alert('Erreur: ' + (d.error||''));
+});
+}
+
+function toggleUser(id, currentActive) {
+fetch(API + '?action=users_update', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({id: id, active: !currentActive})
+})
+.then(function(r){return r.json();})
+.then(function(d){ if (d.success) loadUsers(); });
+}
+
+function deleteUser(id) {
+if (!confirm('Supprimer cet utilisateur?')) return;
+fetch(API + '?action=users_delete', {
+method: 'POST',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({id: id})
+})
+.then(function(r){return r.json();})
+.then(function(d){ if (d.success) loadUsers(); else alert('Erreur: '+(d.error||'')); });
+}
+
+// ============================================
+// EXPORT
+// ============================================
+function renderExport() {
+var html = '<div class="card"><div class="card-header">📤 Export comptable</div><div class="card-body">';
+html += '<div class="info-box">Les exports CSV sont compatibles Excel/SAGE. Toutes les operations (carburant, vidanges, filtres) sont incluses avec le nom de l\'utilisateur qui a saisie l\'operation.</div>';
+html += '<div class="action-btns">';
+html += '<a href="'+API+'?action=export_csv&type=all" class="btn btn-primary">📊 Export complet (CSV)</a>';
+html += '<a href="'+API+'?action=export_csv&type=fuel" class="btn btn-gold">⛽ Carburant seul</a>';
+html += '<a href="'+API+'?action=export_csv&type=oil" class="btn btn-success">🛢️ Vidanges seules</a>';
+html += '<a href="'+API+'?action=export_csv&type=filter" class="btn btn-warning">🧰 Filtres seuls</a>';
+html += '<a href="'+API+'?action=export_csv&type=tire" class="btn btn-danger">⚙️ Pneus seuls</a>';
+html += '</div>';
+html += '</div></div>';
+return html;
+}
+
+// ============================================
+// DOCUMENTS (Assurance, Visite Technique, Carte Grise)
+// ============================================
+function renderDocuments() {
+    var docs = db.documents || [];
+    var html = '<div class="card"><div class="card-header">📄 Documents - Assurance, Visite Technique, Carte Grise</div><div class="card-body">';
+    html += '<div class="info-box">Suivez les dates d\'expiration des documents. Les alertes apparaissent automatiquement 30 jours avant expiration.</div>';
+    html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="docTruck">'+truckSelectOptions()+'</select></div>';
+    html += '<div class="form-group"><label>Type de document *</label><select id="docType">';
+    ['Assurance','Visite Technique','Carte Grise','Vignette','Permis Transport','Attestation RC','Autre'].forEach(function(t){html+='<option value="'+t+'">'+t+'</option>';});
+    html += '</select></div></div>';
+    html += '<div class="form-row"><div class="form-group"><label>Numero / Reference</label><input type="text" id="docRef" placeholder="N de document"></div>';
+    html += '<div class="form-group"><label>Date d\'expiration *</label><input type="date" id="docExpiry"></div></div>';
+    html += '<div class="form-group"><label>Compagnie / Organisme</label><input type="text" id="docIssuer" placeholder="STAR, Assurances, Agence Technique..."></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="saveDocument()">✅ Enregistrer</button></div>';
+    html += '</div></div>';
+
+    html += '<div class="card"><div class="card-header">Documents enregistres</div><div class="card-body" style="overflow-x:auto">';
+    html += '<table><thead><tr><th>Camion</th><th>Type</th><th>Reference</th><th>Compagnie</th><th>Expiration</th><th>Statut</th><th>Actions</th></tr></thead><tbody>';
+    if (docs.length === 0) { html += '<tr><td colspan="7" class="empty">Aucun document</td></tr>'; }
+    else {
+        var today = new Date();
+        docs.forEach(function(d) {
+            var expiry = d.expiryDate ? new Date(d.expiryDate) : null;
+            var daysLeft = expiry ? Math.round((expiry - today) / 86400000) : null;
+            var badge = 'badge-green';
+            var status = 'Valide';
+            if (daysLeft !== null) {
+                if (daysLeft < 0) { badge = 'badge-red'; status = 'EXPIRE'; }
+                else if (daysLeft <= 30) { badge = 'badge-orange'; status = 'Expire dans ' + daysLeft + 'j'; }
+                else { badge = 'badge-green'; status = 'Valide (' + daysLeft + 'j)'; }
+            }
+            html += '<tr><td><b>'+d.truckRef+'</b></td><td>'+d.type+'</td><td>'+(d.ref||'-')+'</td><td>'+(d.issuer||'-')+'</td><td>'+(d.expiryDate||'-')+'</td><td><span class="badge '+badge+'">'+status+'</span></td>';
+            html += '<td><button class="btn btn-sm btn-danger" onclick="deleteDocument(\''+d.id+'\')">Suppr</button></td></tr>';
+        });
+    }
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
+function saveDocument() {
+    var doc = { truckRef: val('docTruck'), type: val('docType'), ref: val('docRef'), expiryDate: val('docExpiry'), issuer: val('docIssuer') };
+    if (!doc.truckRef || !doc.type || !doc.expiryDate) { alert('Camion, type et date d\'expiration obligatoires!'); return; }
+    fetch(API + '?action=add_document', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({doc: doc})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) { alert('Document enregistre!'); loadDB(); renderTab('documents'); }
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+function deleteDocument(id) {
+    if (!confirm('Supprimer ce document?')) return;
+    fetch(API + '?action=delete_document', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: id})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){ if (d.success) { loadDB(); renderTab('documents'); } else alert('Erreur: '+(d.error||'')); });
+}
+
+// ============================================
+// PNEUS
+// ============================================
+function renderTires() {
+    var tires = db.tires || [];
+    var html = '<div class="card"><div class="card-header">⚙️ Gestion des pneus</div><div class="card-body">';
+    html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="tireTruck">'+truckSelectOptions()+'</select></div>';
+    html += '<div class="form-group"><label>Position *</label><select id="tirePosition">';
+    ['AV-G','AV-D','AR-G-INT','AR-G-EXT','AR-D-INT','AR-D-EXT','Remorque-G','Remorque-D','Roue secours'].forEach(function(p){html+='<option value="'+p+'">'+p+'</option>';});
+    html += '</select></div></div>';
+    html += '<div class="form-row"><div class="form-group"><label>Marque pneu</label><select id="tireBrand"><option value="">--</option>';
+    ['Michelin','Goodyear','Continental','Bridgestone','Pirelli','Hankook','Kumho','Autre'].forEach(function(b){html+='<option value="'+b+'">'+b+'</option>';});
+    html += '</select></div>';
+    html += '<div class="form-group"><label>Dimension</label><input type="text" id="tireSize" placeholder="315/80 R22.5"></div></div>';
+    html += '<div class="form-row-3"><div class="form-group"><label>Date montage</label><input type="date" id="tireInstallDate" value="'+new Date().toISOString().slice(0,10)+'"></div>';
+    html += '<div class="form-group"><label>KM au montage</label><input type="number" id="tireKm" placeholder="0"></div>';
+    html += '<div class="form-group"><label>Prix (TND)</label><input type="number" step="0.001" id="tirePrice" placeholder="0.000"></div></div>';
+    html += '<div class="form-group"><label>Statut</label><select id="tireStatus"><option value="Neuf">Neuf</option><option value="Bon">Bon</option><option value="Use">Use</option><option value="A remplacer">A remplacer</option></select></div>';
+    html += '<div class="form-group"><label>Fournisseur</label><input type="text" id="tireSupplier" placeholder="Nos Spare Parts..."></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="saveTire()">✅ Enregistrer</button></div>';
+    html += '</div></div>';
+
+    html += '<div class="card"><div class="card-header">Inventaire pneus</div><div class="card-body" style="overflow-x:auto">';
+    html += '<table><thead><tr><th>Camion</th><th>Position</th><th>Marque</th><th>Dimension</th><th>Date montage</th><th>KM montage</th><th>Statut</th><th>Prix</th><th>Actions</th></tr></thead><tbody>';
+    if (tires.length === 0) { html += '<tr><td colspan="9" class="empty">Aucun pneu enregistre</td></tr>'; }
+    else {
+        tires.forEach(function(t) {
+            var badge = t.status === 'Neuf' ? 'badge-green' : (t.status === 'Bon' ? 'badge-blue' : (t.status === 'Use' ? 'badge-orange' : 'badge-red'));
+            html += '<tr><td><b>'+t.truckRef+'</b></td><td>'+t.position+'</td><td>'+(t.brand||'-')+'</td><td>'+(t.size||'-')+'</td><td>'+(t.installDate||'-')+'</td><td>'+((t.kmInstall||0).toLocaleString())+'</td><td><span class="badge '+badge+'">'+t.status+'</span></td><td>'+(t.price>0?t.price.toFixed(3)+' TND':'-')+'</td>';
+            html += '<td><select onchange="updateTireStatus(\''+t.id+'\',this.value)" class="btn btn-sm"><option value="">Changer...</option><option value="Neuf">Neuf</option><option value="Bon">Bon</option><option value="Use">Use</option><option value="A remplacer">A remplacer</option></select></td></tr>';
+        });
+    }
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
+function saveTire() {
+    var tire = {
+        truckRef: val('tireTruck'), position: val('tirePosition'),
+        brand: val('tireBrand'), size: val('tireSize'),
+        installDate: val('tireInstallDate'), kmInstall: parseInt(val('tireKm'))||0,
+        price: parseFloat(val('tirePrice'))||0, status: val('tireStatus'),
+        supplier: val('tireSupplier')
+    };
+    if (!tire.truckRef || !tire.position) { alert('Camion et position obligatoires!'); return; }
+    fetch(API + '?action=add_tire', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({tire: tire})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) { alert('Pneu enregistre!'); loadDB(); renderTab('tires'); }
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+function updateTireStatus(id, status) {
+    if (!status) return;
+    fetch(API + '?action=update_tire', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: id, status: status})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){ if (d.success) { loadDB(); renderTab('tires'); } });
+}
+
+// ============================================
+// CHAUFFEURS - Affectation
+// ============================================
+function renderDrivers() {
+    var assignments = db.driverAssignments || [];
+    var html = '<div class="card"><div class="card-header">👨‍✈️ Affectation chauffeurs</div><div class="card-body">';
+    html += '<div class="info-box">Assignez un chauffeur a un camion. L\'ancien chauffeur est automatiquement desaffecte.</div>';
+    html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="driverTruck">'+truckSelectOptions()+'</select></div>';
+    html += '<div class="form-group"><label>Nom chauffeur *</label><input type="text" id="driverName" placeholder="Nom complet"></div></div>';
+    html += '<div class="form-row"><div class="form-group"><label>Permis n.</label><input type="text" id="driverLicense" placeholder="N permis"></div>';
+    html += '<div class="form-group"><label>Date debut *</label><input type="date" id="driverStart" value="'+new Date().toISOString().slice(0,10)+'"></div></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="assignDriver()">✅ Affecter</button></div>';
+    html += '</div></div>';
+
+    html += '<div class="card"><div class="card-header">Affectations actuelles</div><div class="card-body" style="overflow-x:auto">';
+    html += '<table><thead><tr><th>Camion</th><th>Chauffeur</th><th>Permis</th><th>Depuis</th><th>Statut</th></tr></thead><tbody>';
+    var active = assignments.filter(function(a){return a.active;});
+    if (active.length === 0) { html += '<tr><td colspan="5" class="empty">Aucune affectation active</td></tr>'; }
+    else {
+        active.forEach(function(a) {
+            html += '<tr><td><b>'+a.truckRef+'</b></td><td>'+a.driverName+'</td><td>'+(a.driverLicense||'-')+'</td><td>'+a.startDate+'</td><td><span class="badge badge-green">Actif</span></td></tr>';
+        });
+    }
+    html += '</tbody></table></div></div>';
+
+    html += '<div class="card"><div class="card-header">Historique affectations</div><div class="card-body" style="overflow-x:auto">';
+    html += '<table><thead><tr><th>Camion</th><th>Chauffeur</th><th>Debut</th><th>Fin</th><th>Statut</th></tr></thead><tbody>';
+    var inactive = assignments.filter(function(a){return !a.active;});
+    if (inactive.length === 0) { html += '<tr><td colspan="5" class="empty">Aucun historique</td></tr>'; }
+    else {
+        inactive.slice().reverse().forEach(function(a) {
+            html += '<tr><td>'+a.truckRef+'</td><td>'+a.driverName+'</td><td>'+a.startDate+'</td><td>'+(a.endDate||'-')+'</td><td><span class="badge badge-gray">Termine</span></td></tr>';
+        });
+    }
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
+function assignDriver() {
+    var assign = {
+        truckRef: val('driverTruck'), driverName: val('driverName'),
+        driverLicense: val('driverLicense'), startDate: val('driverStart')
+    };
+    if (!assign.truckRef || !assign.driverName) { alert('Camion et nom obligatoires!'); return; }
+    fetch(API + '?action=assign_driver', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({assignment: assign})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) { alert('Chauffeur affecte a ' + assign.truckRef + '!'); loadDB(); renderTab('drivers'); }
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+// ============================================
+// PARAMETRES
+// ============================================
+var appSettings = null;
+
+function renderSettings() {
+    var html = '<div class="card"><div class="card-header">⚙️ Parametres de l\'application</div><div class="card-body">';
+    html += '<div class="form-row"><div class="form-group"><label>Devise</label><select id="setCurrency">';
+    ['TND','EUR','USD','MAD','DZD'].forEach(function(d){html+='<option value="'+d+'">'+d+'</option>';});
+    html += '</select></div>';
+    html += '<div class="form-group"><label>Intervalle vidange (km)</label><input type="number" id="setOilInterval" value="15000"></div></div>';
+    html += '<div class="form-row"><div class="form-group"><label>Intervalle filtres (km)</label><input type="number" id="setFilterInterval" value="30000"></div>';
+    html += '<div class="form-group"><label>Alerte expiration (jours)</label><input type="number" id="setAlertDays" value="30"></div></div>';
+    html += '<div class="action-btns"><button class="btn btn-primary" onclick="saveAppSettings()">💾 Enregistrer les parametres</button></div>';
+    html += '</div></div>';
+
+    // WhatsApp alerts config
+    html += '<div class="card"><div class="card-header">📱 Alertes WhatsApp</div><div class="card-body">';
+    html += '<div class="info-box">Recevez des alertes automatiques par WhatsApp pour les vidanges dues, expirations de documents, et pneus a remplacer.</div>';
+    html += '<div class="form-group"><label>Numero WhatsApp (format international)</label><input type="text" id="waPhone" placeholder="216 12 345 678"></div>';
+    html += '<div class="form-group"><label><input type="checkbox" id="waEnabled" style="width:auto;margin-right:8px"> Activer les alertes WhatsApp</label></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="saveWhatsAppConfig()">💾 Enregistrer</button> ';
+    html += '<button class="btn btn-primary" onclick="testWhatsAppAlerts()">🔔 Voir les alertes</button></div>';
+    html += '<div id="waAlertsResult" style="margin-top:10px"></div>';
+    html += '</div></div>';
+    // Load current settings
+    fetch(API + '?action=get_settings')
+        .then(function(r){return r.json();})
+        .then(function(d){
+            if (d.settings) {
+                appSettings = d.settings;
+                if (document.getElementById('setCurrency')) document.getElementById('setCurrency').value = d.settings.currency || 'TND';
+                if (document.getElementById('setOilInterval')) document.getElementById('setOilInterval').value = d.settings.oilInterval || 15000;
+                if (document.getElementById('setFilterInterval')) document.getElementById('setFilterInterval').value = d.settings.filterInterval || 30000;
+                if (document.getElementById('setAlertDays')) document.getElementById('setAlertDays').value = d.settings.insuranceAlertDays || 30;
+            }
+        });
+    return html;
+}
+
+function saveAppSettings() {
+    var settings = {
+        currency: val('setCurrency'),
+        oilInterval: parseInt(val('setOilInterval'))||15000,
+        filterInterval: parseInt(val('setFilterInterval'))||30000,
+        insuranceAlertDays: parseInt(val('setAlertDays'))||30
+    };
+    fetch(API + '?action=save_settings', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({settings: settings})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) { alert('Parametres enregistres!'); }
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+function saveWhatsAppConfig() {
+    var config = {
+        phone: val('waPhone'),
+        enabled: document.getElementById('waEnabled').checked
+    };
+    fetch(API + '?action=save_whatsapp_config', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(config)
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) alert('Configuration WhatsApp enregistree!');
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+function testWhatsAppAlerts() {
+    fetch(API + '?action=get_alerts_whatsapp')
+    .then(function(r){return r.json();})
+    .then(function(d) {
+        var el = document.getElementById('waAlertsResult');
+        if (!d.alerts || d.alerts.length === 0) {
+            el.innerHTML = '<div class="success-box">✅ Aucune alerte en cours. Tout est a jour!</div>';
+            return;
+        }
+        var html = '<div class="alert-box" style="margin-top:8px"><b>' + d.count + ' alerte(s) detectee(s):</b></div>';
+        d.alerts.forEach(function(a) {
+            var cls = a.priority === 'CRITICAL' ? 'alert-box' : (a.priority === 'HIGH' ? 'alert-warn' : 'info-box');
+            html += '<div class="'+cls+'" style="margin:4px 0">[' + a.priority + '] ' + a.type + ' - ' + a.truckRef + ': ' + a.message + '</div>';
+        });
+        el.innerHTML = html;
+    });
+}
+
+// ============================================
+// PHOTOS - Avant/Apres entretien
+// ============================================
+function renderPhotos() {
+    var html = '<div class="card"><div class="card-header">📷 Photos - Avant/Apres entretien & pannes</div><div class="card-body">';
+    html += '<div class="info-box">Prenez des photos avec votre telephone. Choisissez Avant, Apres ou Panne pour documenter les interventions.</div>';
+    html += '<div class="form-row"><div class="form-group"><label>Camion *</label><select id="photoTruck">'+truckSelectOptions()+'</select></div>';
+    html += '<div class="form-group"><label>Type *</label><select id="photoType"><option value="avant">Avant intervention</option><option value="apres">Apres intervention</option><option value="panne">Panne</option></select></div></div>';
+    html += '<div class="form-group"><label>Categorie</label><select id="photoCategory"><option value="general">General</option><option value="oil">Vidange</option><option value="filter">Filtre</option><option value="tire">Pneu</option><option value="engine">Moteur</option><option value="body">Carrosserie</option><option value="other">Autre</option></select></div>';
+    html += '<div class="form-group"><label>Description</label><input type="text" id="photoDesc" placeholder="Description breve..."></div>';
+    html += '<div class="form-group"><label>Photo</label><input type="file" id="photoFile" accept="image/*" capture="environment" onchange="previewPhoto(this)"></div>';
+    html += '<div id="photoPreview" style="display:none;margin:10px 0"><img id="previewImg" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="uploadPhoto()">📤 Envoyer la photo</button></div>';
+    html += '</div></div>';
+
+    html += '<div class="card"><div class="card-header">Galerie photos</div><div class="card-body">';
+    html += '<div class="form-row"><div class="form-group"><label>Filtrer par camion</label><select id="photoFilterTruck" onchange="loadPhotos()"><option value="">Tous</option>';
+    db.trucks.forEach(function(t){html+='<option value="'+t.ref+'">'+t.ref+'</option>';});
+    html += '</select></div></div>';
+    html += '<div id="photoGallery"><p class="empty">Chargement...</p></div>';
+    html += '</div></div>';
+
+    setTimeout(loadPhotos, 100);
+    return html;
+}
+
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('photoPreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function uploadPhoto() {
+    var fileInput = document.getElementById('photoFile');
+    if (!fileInput.files || !fileInput.files[0]) { alert('Selectionnez une photo!'); return; }
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        // Compress: resize to max 1024px
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var maxW = 1024, maxH = 1024;
+            var w = img.width, h = img.height;
+            if (w > maxW) { h = h * maxW / w; w = maxW; }
+            if (h > maxH) { w = w * maxH / h; h = maxH; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            var compressed = canvas.toDataURL('image/jpeg', 0.7);
+            
+            var photo = {
+                truckRef: val('photoTruck'),
+                type: val('photoType'),
+                category: val('photoCategory'),
+                description: val('photoDesc'),
+                data: compressed
+            };
+            
+            fetch(API + '?action=add_photo', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(photo)
+            })
+            .then(function(r){return r.json();})
+            .then(function(d){
+                if (d.success) { alert('Photo envoyee!'); renderTab('photos'); }
+                else alert('Erreur: ' + (d.error||''));
+            })
+            .catch(function(e){alert('Erreur reseau: ' + e.message);});
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
+function loadPhotos() {
+    var truckFilter = document.getElementById('photoFilterTruck');
+    var url = API + '?action=get_photos';
+    if (truckFilter && truckFilter.value) url += '&truckRef=' + truckFilter.value;
+    
+    fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(d){
+        var gallery = document.getElementById('photoGallery');
+        if (!d.photos || d.photos.length === 0) {
+            gallery.innerHTML = '<p class="empty">Aucune photo</p>';
+            return;
+        }
+        var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">';
+        d.photos.slice().reverse().forEach(function(p) {
+            var typeLabel = p.type === 'avant' ? 'Avant' : (p.type === 'apres' ? 'Apres' : 'Panne');
+            var badge = p.type === 'avant' ? 'badge-orange' : (p.type === 'apres' ? 'badge-green' : 'badge-red');
+            html += '<div style="border:1px solid #ddd;border-radius:8px;overflow:hidden">';
+            html += '<img src="'+p.data+'" style="width:100%;height:120px;object-fit:cover;cursor:pointer" onclick="window.open(this.src)">';
+            html += '<div style="padding:6px;font-size:11px"><b>'+p.truckRef+'</b> <span class="badge '+badge+'">'+typeLabel+'</span><br><span style="color:#666">'+(p.description||'')+'</span><br><span style="color:#999;font-size:10px">'+p.date+' - '+(p.uploadedBy||'')+'</span></div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        gallery.innerHTML = html;
+    });
+}
+
+// ============================================
+// FINANCE - Budget vs Reel
+// ============================================
+function renderFinance() {
+    var html = '<div class="card"><div class="card-header">💰 Tableau de bord financier</div><div class="card-body">';
+    html += '<div class="form-row"><div class="form-group"><label>Mois</label><input type="month" id="financeMonth" value="'+new Date().toISOString().slice(0,7)+'"></div>';
+    html += '<div class="form-group"><label>Camion</label><select id="financeTruck"><option value="">Tous</option>';
+    db.trucks.forEach(function(t){html+='<option value="'+t.ref+'">'+t.ref+'</option>';});
+    html += '</select></div></div>';
+    html += '<div class="action-btns"><button class="btn btn-primary" onclick="loadFinanceReport()">📊 Generer le rapport</button></div>';
+    html += '</div></div>';
+    html += '<div id="financeResult"></div>';
+
+    // Budget setup form
+    html += '<div class="card"><div class="card-header">Definir un budget</div><div class="card-body">';
+    html += '<div class="form-row"><div class="form-group"><label>Camion</label><select id="budgetTruck"><option value="">Tous</option>';
+    db.trucks.forEach(function(t){html+='<option value="'+t.ref+'">'+t.ref+'</option>';});
+    html += '</select></div>';
+    html += '<div class="form-group"><label>Mois</label><input type="month" id="budgetMonth" value="'+new Date().toISOString().slice(0,7)+'"></div></div>';
+    html += '<div class="form-row-3"><div class="form-group"><label>Budget carburant (TND)</label><input type="number" step="0.001" id="budgetFuel" placeholder="0"></div>';
+    html += '<div class="form-group"><label>Budget entretien (TND)</label><input type="number" step="0.001" id="budgetMaintenance" placeholder="0"></div>';
+    html += '<div class="form-group"><label>Budget pneus (TND)</label><input type="number" step="0.001" id="budgetTires" placeholder="0"></div></div>';
+    html += '<div class="action-btns"><button class="btn btn-success" onclick="saveBudget()">💾 Enregistrer le budget</button></div>';
+    html += '</div></div>';
+    return html;
+}
+
+function loadFinanceReport() {
+    var month = val('financeMonth');
+    var truck = val('financeTruck');
+    var url = API + '?action=get_budget_report&month=' + month;
+    if (truck) url += '&truckRef=' + truck;
+
+    fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(d) {
+        if (!d.success) { document.getElementById('financeResult').innerHTML = '<div class="alert-box">Erreur</div>'; return; }
+        var actual = d.actual;
+        var budget = d.budget;
+        var html = '<div class="card"><div class="card-header">Rapport financier - ' + month + (truck ? ' (' + truck + ')' : ' (Tous camions)') + '</div><div class="card-body">';
+        html += '<table><thead><tr><th>Poste</th><th>Budget (TND)</th><th>Reel (TND)</th><th>Ecart (TND)</th><th>Statut</th></tr></thead><tbody>';
+
+        var rows = [
+            {label: '⛽ Carburant', budget: budget ? budget.fuelBudget : 0, actual: actual.fuel},
+            {label: '🛢️ Entretien', budget: budget ? budget.maintenanceBudget : 0, actual: actual.maintenance},
+            {label: '⚙️ Pneus', budget: budget ? budget.tireBudget : 0, actual: actual.tires}
+        ];
+
+        rows.forEach(function(row) {
+            var ecart = row.budget - row.actual;
+            var pct = row.budget > 0 ? Math.round((row.actual / row.budget) * 100) : 0;
+            var badge = pct <= 80 ? 'badge-green' : (pct <= 100 ? 'badge-orange' : 'badge-red');
+            var status = row.budget > 0 ? pct + '%' : '-';
+            html += '<tr><td>'+row.label+'</td><td>'+row.budget.toFixed(3)+'</td><td>'+row.actual.toFixed(3)+'</td><td>'+(ecart>=0?'+':'')+ecart.toFixed(3)+'</td><td><span class="badge '+badge+'">'+status+'</span></td></tr>';
+        });
+
+        var totalBudget = rows[0].budget + rows[1].budget + rows[2].budget;
+        var totalActual = actual.total;
+        var totalEcart = totalBudget - totalActual;
+        var totalPct = totalBudget > 0 ? Math.round((totalActual / totalBudget) * 100) : 0;
+        var totalBadge = totalPct <= 80 ? 'badge-green' : (totalPct <= 100 ? 'badge-orange' : 'badge-red');
+        html += '<tr style="font-weight:700;background:var(--navy);color:#fff"><td>TOTAL</td><td>'+totalBudget.toFixed(3)+'</td><td>'+totalActual.toFixed(3)+'</td><td>'+(totalEcart>=0?'+':'')+totalEcart.toFixed(3)+'</td><td><span class="badge '+totalBadge+'">'+(totalBudget>0?totalPct+'%':'-')+'</span></td></tr>';
+        html += '</tbody></table>';
+
+        if (!budget) {
+            html += '<div class="info-box" style="margin-top:10px">Aucun budget defini pour cette periode. Definissez un budget ci-dessous pour comparer.</div>';
+        }
+        html += '</div></div>';
+        document.getElementById('financeResult').innerHTML = html;
+    });
+}
+
+function saveBudget() {
+    var budget = {
+        truckRef: val('budgetTruck') || 'ALL',
+        month: val('budgetMonth'),
+        fuelBudget: parseFloat(val('budgetFuel'))||0,
+        maintenanceBudget: parseFloat(val('budgetMaintenance'))||0,
+        tireBudget: parseFloat(val('budgetTires'))||0
+    };
+    fetch(API + '?action=add_budget', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(budget)
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+        if (d.success) alert('Budget enregistre!');
+        else alert('Erreur: ' + (d.error||''));
+    });
+}
+
+// ============================================
+// LOGOUT
+// ============================================
+function logout() {
+fetch(API + '?action=logout')
+.then(function(){window.location.href = 'login.html';})
+.catch(function(){window.location.href = 'login.html';});
+}
+
+// ============================================
+// START
+// ============================================
+init();
+</script>
+</body>
+</html>
