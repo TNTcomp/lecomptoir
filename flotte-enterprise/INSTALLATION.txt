@@ -1,0 +1,32 @@
+============================================
+FLOTTE ENTERPRISE - Formule 3 (9000 TND + 500 TND/mois)
+============================================
+
+LICENCE: Sites illimites, camions illimites, utilisateurs illimites
+SUPPORT: SLA 4h, referent dedie
+MISES A JOUR: Illimite
+FORMATION: 1 journee sur site
+HEBERGEMENT: Cloud dedie OVH inclus
+SAUVEGARDE: Quotidienne automatique
+
+TOUT CE QUI EST DANS FLOTTE PRO, PLUS:
+- API SAGE (synchronisation comptable automatique)
+- Tableau de bord executif (KPIs temps reel)
+- Personnalisation logo, couleurs, champs custom
+- Historique illimite + archivage
+- Developpement de modules sur mesure (3/jour)
+- Audit de securite annuel
+- Hebergement cloud dedie inclus
+
+INSTALLATION:
+1. Nos Spare Parts heberge et configure l'application
+2. Le client n'a aucune infrastructure a gerer
+3. Sauvegardes quotidiennes automatiques
+4. Monitoring 24/7
+5. SLA: intervention sous 4h (heure ouvrable)
+
+COMPTES DE TEST:
+admin / admin123 (Administrateur)
+manager / manager123 (Manager)
+chauffeur / driver123 (Chauffeur)
+comptable / comptable123 (Comptable)
