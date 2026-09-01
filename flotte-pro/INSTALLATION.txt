@@ -1,89 +1,38 @@
-# ============================================
-# FLOTTE PRO v1.0 - Guide d'installation
-# ============================================
-#
-# GUIDE DE DEPLOIEMENT POUR CLIENT
-# ====================================
-#
-# 1. DECOMPRESSER LE FICHIER ZIP
-#    - Dezippez flotte-pro.zip sur votre ordinateur
-#
-# 2. TRANSFERER SUR VOTRE SERVEUR
-#    - Connectez-vous a votre hebergement (OVH, cPanel, etc.)
-#    - Via FTP (FileZilla) ou le gestionnaire de fichiers web
-#    - Uploadez TOUS les fichiers dans le dossier www/ ou public_html/
-#
-# 3. STRUCTURE DES FICHIERS
-#    /public_html/
-#      ├── login.html        (page de connexion)
-#      ├── app.html          (application principale)
-#      ├── manifest.json      (PWA - installable sur mobile)
-#      ├── sw.js              (service worker PWA)
-#      ├── icon.png           (icone application)
-#      ├── .htaccess          (securite + cache)
-#      ├── api/
-#      │   ├── index.php      (API principale)
-#      │   └── config.php     (configuration)
-#      └── data/              (donnees - protege)
-#          └── .htaccess      (bloque acces direct)
-#
-# 4. CONFIGURER (optionnel)
-#    - Editez api/config.php
-#    - Changez SECRET_KEY (cle securite)
-#    - Changez CLIENT_NAME (nom de votre entreprise)
-#
-# 5. INSTALLER (premiere utilisation)
-#    - Ouvrez votre navigateur
-#    - Allez sur: https://votre-domaine.tn/api/index.php?action=install
-#      avec POST: {"admin_name": "Votre Nom", "admin_password": "votre_mot_de_passe"}
-#    - Ou via la page web: ouvrez login.html et suivez les instructions
-#
-# 6. SE CONNECTER
-#    - Allez sur: https://votre-domaine.tn/login.html
-#    - Compte admin par defaut: admin / admin123
-#    - CHANGEZ LE MOT DE PASSE IMMEDIATEMENT
-#
-# 7. CREER LES UTILISATEURS
-#    - Connectez-vous en admin
-#    - Onglet "Utilisateurs" > Ajouter
-#    - 3 roles: Chauffeur, Comptable, Manager, Admin
-#
-# 8. INSTALLER COMME APP SUR TELEPHONE (PWA)
-#    - Ouvrez l'app dans Chrome (Android) ou Safari (iOS)
-#    - Menu > "Ajouter a l'ecran d'accueil"
-#    - L'app s'installe comme une application native
-#
-# ============================================
-# EXIGENCES TECHNIQUES
-# ============================================
-# - Hebergement PHP 7.4+ (OVH mutualise convient)
-# - Pas besoin de MySQL (stockage fichier JSON)
-# - HTTPS recommande (certificat gratuit Let's Encrypt)
-#
-# ============================================
-# COMPTES DE TEST
-# ============================================
-# admin / admin123      (Directeur - acces total)
-# manager / manager123  (Manager - gestion camions, entretien)
-# chauffeur / driver123  (Chauffeur - saisie carburant, kilometrage)
-# comptable / comptable123 (Comptable - rapports, export)
-#
-# ============================================
-# FONCTIONNALITES (10 AMELIORATIONS INCLUSES)
-# ============================================
-# 1. Documents: assurance, visite technique, carte grise + alertes expiration
-# 2. Photos: avant/apres entretien, pannes (upload depuis telephone)
-# 3. Affectation chauffeur: quel chauffeur sur quel camion + historique
-# 4. Cout/km: calcul automatique du cout par kilometre
-# 5. PWA: installable comme app sur telephone (Android + iOS)
-# 6. Alertes WhatsApp: notifications vidange, documents, pneus
-# 7. Pneus: suivi d'usure, rotation, remplacement
-# 8. Export comptable: CSV compatible Excel/SAGE
-# 9. Tableau de bord finance: budget vs reel par mois et camion
-# 10. Multi-devise: TND, EUR, USD, MAD, DZD
-#
-# ============================================
-# SUPPORT
-# ============================================
-# Pour toute question: contact@nosspareparts.tn
-# Version 1.0 - Licence commerciale
+============================================
+FLOTTE PRO - Formule 2 (4500 TND + 200 TND/mois)
+============================================
+NOTRE CHEVAL DE BATAILLE
+
+LICENCE: 5 sites, 100 camions max, 20 utilisateurs (tous roles)
+SUPPORT: Telephone + email 12 mois
+MISES A JOUR: 12 mois inclus
+FORMATION: 1/2 journee incluse
+
+TOUS LES 10 MODULES INCLUS:
+1. Documents (assurance, visite technique, carte grise + alertes)
+2. Photos (avant/apres entretien, pannes)
+3. Affectation chauffeurs + historique
+4. Cout/km automatique
+5. PWA (installable sur telephone)
+6. Alertes WhatsApp
+7. Pneus (suivi usure par position)
+8. Export comptable SAGE
+9. Tableau de bord finance (budget vs reel)
+10. Multi-devise (TND, EUR, USD, MAD, DZD)
+
+MULTI-SITE: Jusqu'a 5 sites/depo
+MULTI-UTILISATEUR: Jusqu'a 20 (Chauffeur, Manager, Comptable, Admin)
+
+INSTALLATION:
+1. Dezipper sur votre ordinateur
+2. Uploader sur votre hebergement PHP 7.4+ (OVH mutualise OK)
+3. Ouvrir login.html dans le navigateur
+4. Premiere utilisation: aller sur api/index.php?action=install
+5. Configurer les utilisateurs, sites, et parametres
+6. Delai d'installation: 1 a 2 jours ouvres
+
+COMPTES DE TEST:
+admin / admin123 (Administrateur)
+manager / manager123 (Manager)
+chauffeur / driver123 (Chauffeur)
+comptable / comptable123 (Comptable)
