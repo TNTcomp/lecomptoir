@@ -1,0 +1,38 @@
+============================================
+FLOTTE ESSENTIEL - Formule 1 (1500 TND)
+============================================
+
+LICENCE: 1 site, 50 camions max, 3 utilisateurs max (1 manager + 2 chauffeurs)
+
+MODULES INCLUS:
+1. Parc camions (50 max)
+2. Carburant (saisie chauffeur)
+3. Kilometrage
+4. Statut camions (Actif/Maintenance/Panne)
+5. Filtres et vidanges
+6. Export CSV de base
+7. PWA (installable sur telephone)
+
+MODULES NON INCLUS (upgrade vers Flotte Pro requis):
+- Documents (assurance, visite technique)
+- Photos avant/apres
+- Affectation chauffeurs
+- Cout/km detaille
+- Pneus
+- Finance (budget vs reel)
+- Alertes WhatsApp
+- Export SAGE
+- Multi-devise
+- Multi-site
+
+INSTALLATION:
+1. Dezipper sur votre ordinateur
+2. Uploader sur votre hebergement PHP 7.4+ (OVH mutualise OK)
+3. Ouvrir login.html dans le navigateur
+4. Premiere utilisation: aller sur api/index.php?action=install
+   avec POST: {"admin_name":"Votre Nom","admin_password":"votre_password"}
+5. Se connecter avec admin / votre_password
+6. Creer 1 manager + 2 chauffeurs (max 3 utilisateurs)
+
+SUPPORT: Email 30 jours apres installation
+MISES A JOUR: 30 jours apres installation
