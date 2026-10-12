@@ -210,6 +210,7 @@ input:checked+.sl:before{transform:translateX(21px);}
 
     <!-- ══════════════ TAB STOCK ══════════════ -->
     <div class="tab-content active" id="tab-stock">
+      <div id="syncBar" style="display:none;margin:10px 0;padding:9px 14px;border-radius:8px;font-size:.85rem;font-weight:700;background:rgba(255,193,7,.12);color:#ffc107"></div>
       <div class="stats">
         <div class="stat"><div class="stat-label">Total produits</div><div class="stat-val" id="sTotal">—</div></div>
         <div class="stat green"><div class="stat-label">Actifs</div><div class="stat-val" id="sActif">—</div></div>
@@ -231,6 +232,7 @@ input:checked+.sl:before{transform:translateX(21px);}
         <button class="btn btn-primary" onclick="openStockModal()">+ Nouveau produit</button>
         <button class="btn btn-outline" onclick="exportStock()" title="Exporter en Excel">📊 Excel</button>
         <button class="btn btn-outline" onclick="initStock()">↻</button>
+        <button class="btn btn-primary" id="btnSync" onclick="publishStock()" title="Exporter le fichier de synchronisation à envoyer à votre agent">☁ Publier</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -493,6 +495,7 @@ input:checked+.sl:before{transform:translateX(21px);}
 var PWD = 'selectum2024';
 var KEYS = {
   stock: 'sel_stock_v2',
+  sync: 'sel_sync',
   commandes: 'sel_commandes_v1',
   depots: 'sel_depots_v1',
   recartec: 'sel_recartec_v1'
@@ -599,8 +602,68 @@ function initStock(){
   STOCK.forEach(function(p){
     if(!p.id||seen[p.id])p.id=uid();seen[p.id]=1;
     if(!p.gamme)p.gamme=gammeDeType(p.type_filtre);
+    if(!p.maj)p.maj=Date.now();
   });
   save(KEYS.stock,STOCK);refreshToolbarTypes();renderStock();updateStockStats();
+  loadOnline();
+}
+
+// ═══ BASE CENTRALE EN LIGNE (data/stock.json) ═══
+var ONLINE={url:'data/stock.json',data:null};
+function getSync(){try{return JSON.parse(localStorage.getItem(KEYS.sync))||{tombstones:[]};}catch(e){return {tombstones:[]};}}
+function putSync(s){save(KEYS.sync,s);}
+function loadOnline(){
+  var cb=function(){mergeOnline();};
+  if(location.protocol==='file:'){updateSyncBar('local');return;}
+  fetch(ONLINE.url+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ONLINE.data=j&&j.produits?j:null;mergeOnline();})
+    .catch(function(){updateSyncBar('local');});
+}
+function mergeOnline(){
+  if(!ONLINE.data||!ONLINE.data.produits)return;
+  var sync=getSync(), merged={}, maxMaj=0;
+  STOCK.forEach(function(p){if(sync.tombstones.indexOf(p.ref)>=0)return;merged[p.ref]=p;if(p.maj>maxMaj)maxMaj=p.maj;});
+  ONLINE.data.produits.forEach(function(p){
+    if(!p.ref)return;
+    if(sync.tombstones.indexOf(p.ref)>=0)return;
+    if(!merged[p.ref]){merged[p.ref]=normaliseOnline(p);}
+    else{var lm=Number(merged[p.ref].maj)||0, om=Number(p.maj)||0;
+      if(om>lm)merged[p.ref]=normaliseOnline(p);}
+  });
+  STOCK=Object.keys(merged).map(function(k){return merged[k];});
+  save(KEYS.stock,STOCK);refreshToolbarTypes();renderStock();updateStockStats();
+  updateSyncBar(ONLINE.data.updatedAt>=maxMaj?'ok':'local');
+}
+function normaliseOnline(p){
+  return {id:p.id||uid(),ref:p.ref,designation:p.designation||'',gamme:p.gamme||gammeDeType(p.type||''),type_filtre:p.type||'Autre',
+    marque:p.marque||'',compatibilite:p.compatibilite||'',stock:Number(p.stock)||0,prix:Number(p.prix)||0,
+    actif:p.actif!==false,img:p.img||'',maj:Number(p.maj)||0};
+}
+function updateSyncBar(etat){
+  var bar=document.getElementById('syncBar');
+  if(!bar)return;
+  if(etat==='local'){
+    bar.style.display='block';
+    bar.textContent='⚠ Mode local — base en ligne injoignable (hors ligne ou ouverture locale). Vos données restent enregistrées sur cet appareil.';
+  }else if(etat==='dirty'){
+    bar.style.display='block';
+    bar.textContent='☁ Modifications locales non publiées — cliquez sur « Publier » puis envoyez le fichier à votre agent.';
+  }else if(etat==='ok'){
+    bar.style.display='none';
+  }
+}
+function publishStock(){
+  var sync=getSync();
+  var payload={updatedAt:Date.now(),publishedFrom:navigator.userAgent.slice(0,80),tombstones:sync.tombstones,
+    produits:STOCK.map(function(p){return {id:p.id,ref:p.ref,designation:p.designation,gamme:p.gamme,type:p.type_filtre,
+      marque:p.marque,compatibilite:p.compatibilite,stock:Number(p.stock)||0,prix:Number(p.prix)||0,
+      actif:!!p.actif,img:p.img||'',maj:Number(p.maj)||Date.now()};})};
+  var blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='selectum_stock_sync.json';a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+  toast('Fichier créé — envoyez-le par WhatsApp à votre agent pour publier en ligne','s');
 }
 
 function renderStock(){
@@ -687,7 +750,8 @@ function saveStock(){
     prix:parseFloat(document.getElementById('iPrix').value)||0,
     compatibilite:document.getElementById('iCompat').value.trim(),
     actif:document.getElementById('iActif').checked,
-    img:photoData||''
+    img:photoData||'',
+    maj:Date.now()
   };
   if(!payload.ref||!payload.designation){toast('Référence et désignation requises','e');return;}
   var newStock;
@@ -701,12 +765,13 @@ function saveStock(){
   try{save(KEYS.stock,newStock);}
   catch(e){toast('Stockage navigateur plein — réduisez les photos ou supprimez des produits','e');return;}
   STOCK=newStock;refreshToolbarTypes();renderStock();updateStockStats();closeModal('stockModal');
+  updateSyncBar('dirty');
   toast(editStockId?'Produit mis à jour ✓':'Produit créé ✓','s');
 }
 
 function toggleStock(id,actuel){
   var idx=STOCK.findIndex(function(p){return p.id===id;});
-  if(idx>=0){STOCK[idx].actif=!actuel;save(KEYS.stock,STOCK);renderStock();updateStockStats();toast((!actuel?'Activé':'Désactivé')+' ✓','s');}
+  if(idx>=0){STOCK[idx].actif=!actuel;STOCK[idx].maj=Date.now();save(KEYS.stock,STOCK);renderStock();updateStockStats();updateSyncBar('dirty');toast((!actuel?'Activé':'Désactivé')+' ✓','s');}
 }
 
 document.getElementById('srch').addEventListener('input',renderStock);
@@ -1101,7 +1166,7 @@ function askDel(type,id,label){
   document.getElementById('confirmOv').style.display='flex';
   document.getElementById('confirmBtn').onclick=function(){
     document.getElementById('confirmOv').style.display='none';
-    if(type==='stock'){STOCK=STOCK.filter(function(p){return p.id!==id;});save(KEYS.stock,STOCK);renderStock();updateStockStats();}
+    if(type==='stock'){var dead=STOCK.find(function(p){return p.id===id;});var sync=getSync();if(dead){sync.tombstones.push(dead.ref);putSync(sync);}STOCK=STOCK.filter(function(p){return p.id!==id;});save(KEYS.stock,STOCK);renderStock();updateStockStats();updateSyncBar('dirty');}
     else if(type==='cmd'){CMDS=CMDS.filter(function(c){return c.id!==id;});save(KEYS.commandes,CMDS);renderCommandes();updateCmdStats();}
     else if(type==='depot'){DEPOTS=DEPOTS.filter(function(d){return d.id!==id;});save(KEYS.depots,DEPOTS);renderTresorerie();}
     else if(type==='recarte'){RECARTEC=RECARTEC.filter(function(r){return r.id!==id;});save(KEYS.recartec,RECARTEC);renderTresorerie();}
