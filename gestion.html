@@ -193,6 +193,12 @@ input:checked+.sl:before{transform:translateX(21px);}
 <!-- MAIN APP -->
 <div id="mainApp" style="display:none">
 
+  <style>
+  .p-thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.18);display:block}
+  .p-thumb-empty{color:rgba(255,255,255,.25);text-align:center}
+  .g-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700;background:rgba(31,111,235,.18);color:#7fb4ff;white-space:nowrap}
+  </style>
+
   <!-- TABS -->
   <div class="tabs">
     <div class="tab active" onclick="showTab('stock')">📦 Stock</div>
@@ -212,11 +218,11 @@ input:checked+.sl:before{transform:translateX(21px);}
       </div>
       <div class="toolbar">
         <input type="text" id="srch" placeholder="🔍 Référence, désignation, marque...">
-        <select id="fType">
-          <option value="">Tous les types</option>
-          <option>Huile</option><option>Air</option><option>Carburant</option>
-          <option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option>
+        <select id="fGamme">
+          <option value="">Toutes gammes</option>
+          <option>Filtre</option><option>Huile</option><option>Amortisseur</option><option>Autre</option>
         </select>
+        <select id="fType"><option value="">Tous les types</option></select>
         <select id="fActif">
           <option value="">Tous statuts</option>
           <option value="1">Actifs</option>
@@ -229,10 +235,10 @@ input:checked+.sl:before{transform:translateX(21px);}
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Référence</th><th>Désignation</th><th>Type</th><th>Marque</th>
+            <th>Photo</th><th>Référence</th><th>Désignation</th><th>Gamme</th><th>Type</th><th>Marque</th>
             <th>Stock</th><th>Prix DT</th><th>Statut</th><th>Actions</th>
           </tr></thead>
-          <tbody id="stockTbody"><tr><td colspan="8" class="empty">Chargement...</td></tr></tbody>
+          <tbody id="stockTbody"><tr><td colspan="10" class="empty">Chargement...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -343,14 +349,28 @@ input:checked+.sl:before{transform:translateX(21px);}
     <div class="mbody">
       <div class="fg">
         <div class="frow"><label>Référence *</label><input id="iRef" placeholder="UFI-23.100.00"></div>
+        <div class="frow"><label>Gamme *</label>
+          <select id="iGamme"><option>Filtre</option><option>Huile</option><option>Amortisseur</option><option>Autre</option></select>
+        </div>
         <div class="frow"><label>Type *</label>
-          <select id="iType"><option>Huile</option><option>Air</option><option>Carburant</option><option>Hydraulique</option><option>Habitacle</option><option>Poids Lourds</option></select>
+          <select id="iType"></select>
         </div>
         <div class="frow full"><label>Désignation *</label><input id="iDes" placeholder="Filtre à huile moteur"></div>
         <div class="frow"><label>Marque</label><input id="iMarq" placeholder="UFI Filters"></div>
         <div class="frow"><label>Stock</label><input type="number" id="iStock" min="0" placeholder="0"></div>
         <div class="frow"><label>Prix (DT)</label><input type="number" id="iPrix" min="0" step="0.01" placeholder="0.00"></div>
         <div class="frow full"><label>Compatibilité</label><input id="iCompat" placeholder="Renault, Peugeot, Citroën"></div>
+        <div class="frow full"><label>Photo du produit</label>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap">
+            <img id="iPhotoPrev" src="" alt="" style="display:none;width:66px;height:66px;object-fit:cover;border-radius:8px;border:2px solid rgba(255,255,255,.25)">
+            <div id="iPhotoEmpty" style="width:66px;height:66px;border-radius:8px;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:26px">🖼️</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button type="button" class="btn btn-outline" onclick="document.getElementById('iPhoto').click()">📷 Importer une image</button>
+              <button type="button" class="btn btn-outline" id="iPhotoDel" style="display:none" onclick="clearPhoto()">✕ Retirer la photo</button>
+            </div>
+            <input type="file" id="iPhoto" accept="image/*" style="display:none">
+          </div>
+        </div>
         <div class="frow">
           <label>Statut</label>
           <div style="display:flex;align-items:center;gap:9px;margin-top:6px">
@@ -364,6 +384,14 @@ input:checked+.sl:before{transform:translateX(21px);}
       <button class="btn btn-outline" onclick="closeModal('stockModal')">Annuler</button>
       <button class="btn btn-primary" onclick="saveStock()">💾 Sauvegarder</button>
     </div>
+  </div>
+</div>
+
+<!-- ══════ VISIONNEUSE PHOTO ══════ -->
+<div class="overlay" id="photoModal" style="display:none" onclick="closePhoto()">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;max-width:94vw">
+    <img id="photoBig" style="max-width:88vw;max-height:78vh;border-radius:10px;box-shadow:0 18px 60px rgba(0,0,0,.55);background:#fff">
+    <button class="btn btn-outline" onclick="closePhoto()">✕ Fermer</button>
   </div>
 </div>
 
@@ -537,28 +565,68 @@ function showTab(name){
 // STOCK
 // ════════════════════════════════════════════════
 var STOCK=[], editStockId=null;
-function initStock(){STOCK=load(KEYS.stock,JSON.parse(JSON.stringify(DATA_STOCK_INIT)));renderStock();updateStockStats();}
+// ── Gammes de produits ──
+var GAMMES={
+  'Filtre':['Huile','Air','Carburant','Hydraulique','Habitacle','Poids Lourds'],
+  'Huile':['Moteur','Boîte','Transmission','Hydraulique','Refroidissement'],
+  'Amortisseur':['Avant','Arrière','Poids Lourds','Direction'],
+  'Autre':['Pièce','Accessoire']
+};
+function gammeDeType(t){
+  for(var g in GAMMES){if(GAMMES[g].indexOf(t)>=0)return g;}
+  return 'Autre';
+}
+function fillTypeSelect(sel,gamme,selected){
+  var base=GAMMES[gamme]?GAMMES[gamme].slice():[];
+  STOCK.forEach(function(p){if(p.type_filtre&&(!gamme||p.gamme===gamme)&&base.indexOf(p.type_filtre)<0)base.push(p.type_filtre);});
+  if(selected&&base.indexOf(selected)<0)base.unshift(selected);
+  sel.innerHTML=base.map(function(t){return '<option'+(t===selected?' selected':'')+'>'+esc(t)+'</option>';}).join('');
+}
+function refreshToolbarTypes(){
+  var g=document.getElementById('fGamme').value;
+  var sel=document.getElementById('fType');
+  var cur=sel.value;
+  var base=[];
+  if(g){base=GAMMES[g]?GAMMES[g].slice():[];}
+  else{for(var k in GAMMES)base=base.concat(GAMMES[k]);}
+  STOCK.forEach(function(p){if(p.type_filtre&&base.indexOf(p.type_filtre)<0)base.push(p.type_filtre);});
+  var opts=['<option value="">Tous les types</option>'].concat(base.map(function(t){return '<option'+(t===cur?' selected':'')+'>'+esc(t)+'</option>';}));
+  sel.innerHTML=opts.join('');
+}
+function initStock(){
+  STOCK=load(KEYS.stock,JSON.parse(JSON.stringify(DATA_STOCK_INIT)));
+  var seen={};
+  STOCK.forEach(function(p){
+    if(!p.id||seen[p.id])p.id=uid();seen[p.id]=1;
+    if(!p.gamme)p.gamme=gammeDeType(p.type_filtre);
+  });
+  save(KEYS.stock,STOCK);refreshToolbarTypes();renderStock();updateStockStats();
+}
 
 function renderStock(){
   var srch=document.getElementById('srch').value.toLowerCase();
   var fType=document.getElementById('fType').value;
   var fActif=document.getElementById('fActif').value;
+  var fGamme=document.getElementById('fGamme').value;
   var list=STOCK.filter(function(p){
     var txt=(p.designation||'')+(p.ref||'')+(p.marque||'');
     if(srch&&txt.toLowerCase().indexOf(srch)<0)return false;
+    if(fGamme&&p.gamme!==fGamme)return false;
     if(fType&&p.type_filtre!==fType)return false;
     if(fActif==='1'&&!p.actif)return false;
     if(fActif==='0'&&p.actif)return false;
     return true;
   });
-  if(!list.length){document.getElementById('stockTbody').innerHTML='<tr><td colspan="8" class="empty"><div class="ico">📦</div>Aucun produit</td></tr>';return;}
+  if(!list.length){document.getElementById('stockTbody').innerHTML='<tr><td colspan="10" class="empty"><div class="ico">📦</div>Aucun produit</td></tr>';return;}
   document.getElementById('stockTbody').innerHTML=list.map(function(p){
     var stock=Number(p.stock)||0;
     var sb=stock===0?'b-zero':stock<10?'b-low':'b-ok';
     var sl=stock===0?'⚠️ Rupture':stock<10?'⬇ '+stock:''+stock;
     return '<tr>'
+      +'<td>'+(p.img?'<img src="'+p.img+'" class="p-thumb" onclick="viewPhoto(\''+p.id+'\')">':'<div class="p-thumb-empty">—</div>')+'</td>'
       +'<td><span class="ref-code">'+esc(p.ref)+'</span></td>'
       +'<td><strong>'+esc(p.designation)+'</strong></td>'
+      +'<td><span class="g-badge">'+esc(p.gamme||'Filtre')+'</span></td>'
       +'<td>'+esc(p.type_filtre)+'</td>'
       +'<td>'+esc(p.marque||'—')+'</td>'
       +'<td><span class="badge '+sb+'">'+sl+'</span></td>'
@@ -584,8 +652,12 @@ function openStockModal(id){
   editStockId=id||null;
   var p=id?STOCK.find(function(x){return x.id===id;}):null;
   document.getElementById('stockMtitle').textContent=id?'Modifier produit':'Nouveau produit';
+  var g=p?(p.gamme||'Filtre'):'Filtre';
+  document.getElementById('iGamme').value=g;
+  fillTypeSelect(document.getElementById('iType'),g,p?p.type_filtre:'');
+  photoData=p?(p.img||''):'';
+  setPhotoPrev(photoData);
   document.getElementById('iRef').value=p?p.ref:'';
-  document.getElementById('iType').value=p?p.type_filtre:'Huile';
   document.getElementById('iDes').value=p?p.designation:'';
   document.getElementById('iMarq').value=p?p.marque:'';
   document.getElementById('iStock').value=p?p.stock:'';
@@ -602,26 +674,33 @@ function updActifLbl(){
   l.textContent=v?'Actif':'Inactif';l.style.color=v?'var(--green)':'var(--red)';
 }
 document.getElementById('iActif').addEventListener('change',updActifLbl);
+refreshToolbarTypes();
 
 function saveStock(){
   var payload={
     ref:document.getElementById('iRef').value.trim(),
     designation:document.getElementById('iDes').value.trim(),
+    gamme:document.getElementById('iGamme').value,
     type_filtre:document.getElementById('iType').value,
     marque:document.getElementById('iMarq').value.trim(),
     stock:parseFloat(document.getElementById('iStock').value)||0,
     prix:parseFloat(document.getElementById('iPrix').value)||0,
     compatibilite:document.getElementById('iCompat').value.trim(),
-    actif:document.getElementById('iActif').checked
+    actif:document.getElementById('iActif').checked,
+    img:photoData||''
   };
   if(!payload.ref||!payload.designation){toast('Référence et désignation requises','e');return;}
+  var newStock;
   if(editStockId){
     var idx=STOCK.findIndex(function(p){return p.id===editStockId;});
-    if(idx>=0)STOCK[idx]=Object.assign({},STOCK[idx],payload);
+    if(idx<0)return;
+    newStock=STOCK.slice();newStock[idx]=Object.assign({},STOCK[idx],payload);
   } else {
-    payload.id=uid();STOCK.push(payload);
+    payload.id=uid();newStock=STOCK.concat([payload]);
   }
-  save(KEYS.stock,STOCK);renderStock();updateStockStats();closeModal('stockModal');
+  try{save(KEYS.stock,newStock);}
+  catch(e){toast('Stockage navigateur plein — réduisez les photos ou supprimez des produits','e');return;}
+  STOCK=newStock;refreshToolbarTypes();renderStock();updateStockStats();closeModal('stockModal');
   toast(editStockId?'Produit mis à jour ✓':'Produit créé ✓','s');
 }
 
@@ -633,6 +712,48 @@ function toggleStock(id,actuel){
 document.getElementById('srch').addEventListener('input',renderStock);
 document.getElementById('fType').addEventListener('change',renderStock);
 document.getElementById('fActif').addEventListener('change',renderStock);
+document.getElementById('fGamme').addEventListener('change',function(){refreshToolbarTypes();renderStock();});
+document.getElementById('iGamme').addEventListener('change',function(){fillTypeSelect(document.getElementById('iType'),this.value,'');});
+
+// ── Photos produits ──
+var photoData='';
+function setPhotoPrev(src){
+  var im=document.getElementById('iPhotoPrev'),em=document.getElementById('iPhotoEmpty'),del=document.getElementById('iPhotoDel');
+  if(src){im.src=src;im.style.display='block';em.style.display='none';del.style.display='inline-block';}
+  else{im.style.display='none';em.style.display='flex';del.style.display='none';}
+}
+function clearPhoto(){photoData='';setPhotoPrev('');}
+document.getElementById('iPhoto').addEventListener('change',function(){
+  var f=this.files&&this.files[0];
+  if(!f)return;
+  if(!/^image\//.test(f.type)){toast('Fichier non image','e');return;}
+  var rd=new FileReader();
+  rd.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var MAX=500,r=Math.min(1,MAX/Math.max(img.width,img.height));
+      var cv=document.createElement('canvas');
+      cv.width=Math.max(1,Math.round(img.width*r));cv.height=Math.max(1,Math.round(img.height*r));
+      var ctx=cv.getContext('2d');
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      photoData=cv.toDataURL('image/jpeg',0.72);
+      setPhotoPrev(photoData);
+      toast('Photo importée ✓','s');
+    };
+    img.onerror=function(){toast('Image illisible','e');};
+    img.src=ev.target.result;
+  };
+  rd.readAsDataURL(f);
+  this.value='';
+});
+function viewPhoto(id){
+  var p=STOCK.find(function(x){return x.id===id;});
+  if(!p||!p.img)return;
+  document.getElementById('photoBig').src=p.img;
+  document.getElementById('photoModal').style.display='flex';
+}
+function closePhoto(){document.getElementById('photoModal').style.display='none';}
 
 // ════════════════════════════════════════════════
 // COMMANDES
@@ -1281,9 +1402,9 @@ function exportRapportComplet(){
 
 // CSV simple pour stock uniquement
 function exportStock(){
-  var headers = ['Référence','Désignation','Type de filtre','Marque','Compatibilité véhicules','Quantité en stock','Prix unitaire (DT)','Statut'];
+  var headers = ['Référence','Désignation','Gamme','Type','Marque','Compatibilité véhicules','Quantité en stock','Prix unitaire (DT)','Statut'];
   var rows = [headers].concat(STOCK.map(function(p){
-    return [p.ref||'',p.designation||'',p.type_filtre||'',p.marque||'',p.compatibilite||'',
+    return [p.ref||'',p.designation||'',p.gamme||'Filtre',p.type_filtre||'',p.marque||'',p.compatibilite||'',
       Number(p.stock||0),Number(p.prix||0).toFixed(3),p.actif?'Actif':'Inactif'];
   }));
   var d = new Date();
