@@ -513,6 +513,29 @@ function applyStock(stock){
   });
   if(out.length)PRODS=out;
 }
+// Fusion exacte : base en ligne + stock local de l'appareil.
+// Pour chaque reference, la fiche la plus recente (maj) gagne, a la lettre.
+// Une fiche locale desactivee masque le produit ; une suppression (tombstone) l'exclut.
+function mergedCatalogFrom(onlineProduits){
+  var local=[];
+  try{local=JSON.parse(localStorage.getItem('sel_stock_v2'))||[];}catch(e){}
+  var tomb=[];
+  try{tomb=(JSON.parse(localStorage.getItem('sel_sync'))||{}).tombstones||[];}catch(e){}
+  var by={};
+  (onlineProduits||[]).forEach(function(s){if(s&&s.ref&&tomb.indexOf(s.ref)<0)by[s.ref]=s;});
+  local.forEach(function(s){
+    if(!s.ref||tomb.indexOf(s.ref)>=0)return;
+    var o=by[s.ref];
+    if(!o||((Number(s.maj)||0)>=(Number(o.maj)||0)))by[s.ref]=s;
+  });
+  var out=[];
+  Object.keys(by).forEach(function(r){
+    var s=by[r];
+    if(!s.actif)return; // fiche desactivee dans le stock = invisible sur le site
+    out.push(prodFromStock(s));
+  });
+  return out;
+}
 function syncStockCatalog(){
   var stock=[];
   try{stock=JSON.parse(localStorage.getItem('sel_stock_v2'))||[];}catch(e){}
@@ -525,12 +548,10 @@ function loadOnlineCatalog(){
   fetch('data/stock.json?t='+Date.now(),{cache:'no-store'})
     .then(function(r){return r.ok?r.json():null;})
     .then(function(j){
-      if(j&&Array.isArray(j.produits)){
-        var cats={};
-        j.produits.forEach(function(s){if(s.gamme)cats[s.gamme]=1;});
-        applyStock(j.produits);
-        renderCats();renderProd();
-      }
+      var produits=(j&&Array.isArray(j.produits))?j.produits:[];
+      var merged=mergedCatalogFrom(produits);
+      if(merged.length)PRODS=merged;
+      renderCats();renderProd();
     })
     .catch(function(){});
 }
