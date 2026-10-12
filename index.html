@@ -471,20 +471,7 @@ var CATS = loadData(KEYS.cats, [
   {id:'c4', nom:'Amortisseurs',  icon:'⚙️', desc:'Amortisseurs avant et arrière'},
 ]);
 
-var PRODS = loadData(KEYS.prods, [
-  {id:'p1', ref:'AF-100-PRO', cat:'c1', nom:'AF-100 Pro', marque:'Selectum', prix:89.0, stock:30, icon:'🔧', compat:'Véhicules légers — 15 000 km', desc:'Filtre hydraulique premium multi-étages pour protection optimale du moteur.', actif:true, img:'images/product-1.jpg'},
-  {id:'p2', ref:'AF-200-HD',  cat:'c1', nom:'AF-200 HD',  marque:'Selectum', prix:249.0,stock:18, icon:'🚛', compat:'Camions & engins de chantier', desc:'Filtre hydraulique poids lourd, boîtier acier renforcé pour conditions extrêmes.', actif:true, img:'images/product-2.jpg'},
-  {id:'p3', ref:'AF-300-XT',  cat:'c1', nom:'AF-300 XT',  marque:'Selectum', prix:349.0,stock:10, icon:'⚙️', compat:'Environnements arctiques et désertiques', desc:'Filtre bi-couche avec valve bypass. Conçu pour conditions extrêmes.', actif:true, img:'images/product-3.jpg'},
-  {id:'p4', ref:'AF-150-SPORT',cat:'c1',nom:'AF-150 Sport',marque:'Selectum', prix:129.0,stock:22, icon:'🏎️', compat:'Véhicules de performance & racing', desc:'Filtre haute performance, boîtier carbone, débit maximal.', actif:true, img:'images/product-4.jpg'},
-  {id:'p5', ref:'AF-400-IND', cat:'c1', nom:'AF-400 Industrial', marque:'Selectum', prix:189.0,stock:14, icon:'🏭', compat:'Environnements industriels corrosifs', desc:'Filtre industriel inox avec manomètre intégré.', actif:true, img:'images/product-5.jpg'},
-  {id:'p6', ref:'AF-50-COMP', cat:'c1', nom:'AF-50 Compact',    marque:'Selectum', prix:59.0, stock:45, icon:'🚗', compat:'Véhicules urbains compacts', desc:'Filtre compact idéal pour petits compartiments moteur.', actif:true, img:'images/product-6.jpg'},
-  {id:'p7', ref:'AF-500-FLEET',cat:'c1',nom:'AF-500 Fleet',     marque:'Selectum', prix:499.0,stock:6,  icon:'🚌', compat:'Flottes commerciales & bus', desc:'Système multi-filtre avec connexion en manifold pour flottes.', actif:true, img:'images/product-7.jpg'},
-  {id:'p8', ref:'AF-250-ECO', cat:'c1', nom:'AF-250 Eco',       marque:'Selectum', prix:159.0,stock:20, icon:'🌿', compat:'Tous véhicules — Éco-responsable', desc:'Filtre durable, media biodégradable, boîtier recyclé.', actif:true, img:'images/product-8.jpg'},
-  {id:'p9', ref:'HUI-5W40-1', cat:'c2', nom:'Huile moteur 5W40 1L', marque:'Total', prix:24.0, stock:40, icon:'🛢️', compat:'Tous moteurs essence/diesel', desc:'Huile synthétique 5W40.', actif:true},
-  {id:'p10',ref:'HUI-5W40-5', cat:'c2', nom:'Huile moteur 5W40 5L', marque:'Total', prix:98.0, stock:20, icon:'🛢️', compat:'Tous moteurs essence/diesel', desc:'Bidon 5L synthétique.', actif:true},
-  {id:'p11',ref:'RAD-REN-01', cat:'c3', nom:'Radiateur Renault Clio',marque:'Valeo', prix:185.0,stock:5,  icon:'🌡️', compat:'Renault Clio II, III', desc:'Radiateur eau complet.', actif:true},
-  {id:'p12',ref:'AMO-AV-01',  cat:'c4', nom:'Amortisseur avant Peugeot',marque:'Monroe',prix:75.0,stock:12,icon:'⚙️', compat:'Peugeot 206, 207, 208', desc:'Amortisseur AV gauche/droit.', actif:true},
-]);
+var PRODS = []; // le catalogue vient uniquement du stock (base en ligne data/stock.json)
 
 var CMDS = loadData(KEYS.cmds, []);
 var CART = [];
@@ -529,18 +516,9 @@ function applyStock(stock){
 function syncStockCatalog(){
   var stock=[];
   try{stock=JSON.parse(localStorage.getItem('sel_stock_v2'))||[];}catch(e){}
-  if(!Array.isArray(stock))return;
-  var sync=PRODS.slice();
-  stock.forEach(function(s){
-    if(!s.actif)return;
-    var rec=prodFromStock(s);
-    var m=PRODS.find(function(p){return !p._stock&&p.ref&&p.ref===s.ref;});
-    if(m){
-      m.prix=rec.prix;m.stock=rec.stock;m.img=rec.img||m.img;
-      if(rec.compat)m.compat=rec.compat;
-      if(rec.img)m.img=rec.img;
-    } else { PRODS.push(rec); }
-  });
+  if(!Array.isArray(stock)||!stock.length)return;
+  var out=stock.filter(function(s){return s.actif;}).map(prodFromStock);
+  if(out.length)PRODS=out;
 }
 function loadOnlineCatalog(){
   if(location.protocol==='file:')return;
