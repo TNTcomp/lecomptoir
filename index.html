@@ -497,17 +497,12 @@ function gammeCatId(g){
   if(!c){c={id:'cs-'+nom.replace(/\s+/g,''),nom:nom,icon:(g==='Huile'?'🛢️':g==='Amortisseur'?'⚙️':'📦'),desc:''};CATS.push(c);}
   return c.id;
 }
-function syncStockCatalog(){
-  var stock=[];
-  try{stock=JSON.parse(localStorage.getItem('sel_stock_v2'))||[];}catch(e){}
-  if(!Array.isArray(stock))return;
-  // retirer les anciennes lignes auto du stock
-  PRODS=PRODS.filter(function(p){return !p._stock;});
-  stock.forEach(function(s){
-    if(!s.actif)return;
-    var rec={
+// ═══ BASE CENTRALE EN LIGNE : data/stock.json ═══
+function prodFromStock(s){
+  var t=s.type_filtre||s.type||'';
+  var rec={
       _stock:true,
-      id:'st-'+s.id,
+      id:((''+(s.id||'')).indexOf('st-')===0?s.id:'st-'+(s.id||(s.ref||'').replace(/[^a-zA-Z0-9]/g,''))),
       ref:s.ref||'',
       cat:gammeCatId(s.gamme||'Filtre'),
       nom:s.designation||s.ref||'Produit',
@@ -516,11 +511,29 @@ function syncStockCatalog(){
       stock:Number(s.stock)||0,
       icon:(s.gamme==='Huile'?'🛢️':s.gamme==='Amortisseur'?'⚙️':'🔧'),
       compat:s.compatibilite||'',
-      desc:(s.type_filtre?('Type '+s.type_filtre):''),
+      desc:(t?('Type '+t):''),
       actif:true,
       img:s.img||''
     };
-    // si un produit manuel existe deja avec la meme reference, le mettre a jour
+  return rec;
+}
+function applyStock(stock){
+  var out=[];
+  stock.forEach(function(s){
+    if(!s.actif)return;
+    var rec=prodFromStock(s);
+    out.push(rec);
+  });
+  if(out.length)PRODS=out;
+}
+function syncStockCatalog(){
+  var stock=[];
+  try{stock=JSON.parse(localStorage.getItem('sel_stock_v2'))||[];}catch(e){}
+  if(!Array.isArray(stock))return;
+  var sync=PRODS.slice();
+  stock.forEach(function(s){
+    if(!s.actif)return;
+    var rec=prodFromStock(s);
     var m=PRODS.find(function(p){return !p._stock&&p.ref&&p.ref===s.ref;});
     if(m){
       m.prix=rec.prix;m.stock=rec.stock;m.img=rec.img||m.img;
@@ -528,6 +541,20 @@ function syncStockCatalog(){
       if(rec.img)m.img=rec.img;
     } else { PRODS.push(rec); }
   });
+}
+function loadOnlineCatalog(){
+  if(location.protocol==='file:')return;
+  fetch('data/stock.json?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      if(j&&Array.isArray(j.produits)){
+        var cats={};
+        j.produits.forEach(function(s){if(s.gamme)cats[s.gamme]=1;});
+        applyStock(j.produits);
+        renderCats();renderProd();
+      }
+    })
+    .catch(function(){});
 }
 var selectedCat = '';
 var selectedPay = 'card';
@@ -1011,6 +1038,7 @@ document.addEventListener('keydown',function(e){
 syncStockCatalog();
 renderCats();
 renderProd();
+loadOnlineCatalog();
 </script>
 </body>
 </html>
